@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "forge": "packages/forge",
+    "forge-e2e": "e2e/forge-e2e"
+  }
+}

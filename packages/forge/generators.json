@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "forge",
+  "version": "0.0.1",
+  "generators": {
+    "forge": {
+      "factory": "./src/generators/forge/generator",
+      "schema": "./src/generators/forge/schema.json",
+      "description": "forge generator"
+    }
+  }
+}
