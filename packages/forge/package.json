@@ -1,7 +1,12 @@
 {
-  "name": "@toolsplus/nx-forge/forge",
+  "name": "@toolsplus/nx-forge",
   "version": "0.0.1",
+  "description": "Atlassian Forge plugin for Nx",
   "main": "src/index.js",
   "generators": "./generators.json",
-  "executors": "./executors.json"
+  "executors": "./executors.json",
+  "peerDependencies": {
+    "@nrwl/js": "^13.9.4",
+    "@nrwl/workspace": "^13.9.4"
+  }
 }

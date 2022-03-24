@@ -1,94 +1,129 @@
+#  Nx Forge
 
+[Nx plugin](https://nx.dev) for [Atlassian Forge](https://developer.atlassian.com/platform/forge/) that aims to assist in efficient, scalable app development and remove the mental overhead of how to set up a Forge project. 
+Building on top of Nx means shared code can easily be extracted into libraries, and [Custom UI](https://developer.atlassian.com/platform/forge/custom-ui/) can be integrated into the app and dev workflow without having to break with the monorepo structure that Nx provides.
 
-# ToolsplusNxForge
+## Setting up
 
-This project was generated using [Nx](https://nx.dev).
+### Install the plugin
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+Add the plugin to your Nx workspace using
 
-🔎 **Smart, Fast and Extensible Build System**
+```
+npm install --save-dev @toolsplus/nx-forge
+```
 
-## Adding capabilities to your workspace
+or
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+```
+yarn add --dev @toolsplus/nx-forge
+```
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+### Generate a Forge app
 
-Below are our core plugins:
+Once installed, run the Forge app generator to generate a Forge app.
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+    nx g @toolsplus/nx-forge:app <forge-app-name>
 
-There are also many [community plugins](https://nx.dev/community) you could add.
+> Hint: You can use the `--dry-run` flag to see what will be generated.
 
-## Generate an application
+Replacing `<forge-app-name>` with the name of the app you're wanting to create.
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+### Add a Custom UI module
 
-> You can use any of the plugins above to generate applications as well.
+Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not yet installed `@nrwl/react` in your workspace call `npm i -D @nrwl/react`. This allows us to generate a React application for our Custom UI: 
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+    nx g @nrwl/react:app <custom-ui-app-name>
 
-## Generate a library
+> Hint: You can use the `--dry-run` flag to see what will be generated.
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+Replacing `<custom-ui-app-name>` with the name of the Custom UI project you're wanting to create.
 
-> You can also use any of the plugins above to generate libraries as well.
+### Wire the Custom UI project with the Forge app project
 
-Libraries are shareable across libraries and applications. They can be imported from `@@toolsplus/nx-forge/mylib`.
+Back in the Forge app project, open the generated `manifest.yml` file and add a Custom UI module and the corresponding resource entry:
 
-## Development server
+```yaml
+  jira:projectPage:
+    - key: project-page
+      title: Project page Custom UI
+      layout: basic
+      resource: project-page
+      resolver:
+        function: resolver
+  function:
+    - key: resolver
+      handler: index.handler
+  resources:
+    - key: project-page
+      path: <custom-ui-app-name>
+      tunnel:
+        port: 4200
+  permissions:
+    content:
+      styles:
+        - 'unsafe-inline'
+  app:
+    id: ari:cloud:ecosystem::app/to-be-generated
+```
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+The most important bit to note here is that the `path` property of the `project-page` resource should refer to the Custom UI project name from the previous step. This tells the Nx Forge plugin which Nx app project corresponds to `project-page` resource. The plugin will replace this path with the actual Custom UI build artifact during the Forge app build.
 
-## Code scaffolding
+Finally, update the `apps/<forge-app-name>/project.json` file in the generated Forge app project to define an implicit dependency to the Custom UI project.
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+```json
+{
+  "root": "apps/<forge-app-name>",
+  "sourceRoot": "apps/<forge-app-name>/src",
+  "projectType": "application",
+  "targets": {
+    
+  },
+  "implicitDependencies": ["<custom-ui-app-name>"]
+}
+```
 
-## Build
+This tells Nx that each time we build our Forge app, it needs to build the Custom UI project first.
 
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+### Initial build and registration
 
-## Running unit tests
+Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build the Forge app using
 
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+    nx build <forge-app-name>
 
-Run `nx affected:test` to execute the unit tests affected by a change.
+Once that's finished, go to `dist/apps/<forge-app-name>` and run the following three commands
 
-## Running end-to-end tests
+```shell
+forge register
+forge deploy
+forge install
+```
 
-Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+The Forge app is now registered, deployed and installed with the Forge platform. As a final last step, open the `dist/apps/<forge-app-name>/manifest.yml` and copy-paste the app id that was generated during app registration into the Forge app project under `apps/<forge-app-name>/manifest.yml`:
 
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+```yaml
+app:
+  id: ari:cloud:ecosystem::app/f2fc9c8f-5947-7da7-32ab-6367647e4b1a
+```
 
-## Understand your workspace
+That's it for the setup steps. You can now generate additional Custom UI resources, generate shared Nx libraries to keep shared app logic and depend on it in one or more Forge apps. 
 
-Run `nx graph` to see a diagram of the dependencies of your projects.
+## Using the Nx Forge plugin
 
-## Further help
+### Build
+
+Run `nx build <forge-app-name>` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+## Further help on how to develop with Nx
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.
 
+## Motivation
 
+Atlassian Forge is a platform that simplifies Atlassian app development and hosting. Unfortunately, configuring an app using multiple Custom UIs can be a challenge because the Forge app project layout requires Custom UI projects to live within the app project, or you would have to write some custom scripts to integrate Custom UI build artifacts into the app project before deploying to the Forge platform.
 
-## ☁ Nx Cloud
+Additionally, as you are building out an app with Custom UI you are likely to build an API that allows your Custom UI to retrieve information from the backend (Forge functions). Setting up your project to share this code between frontend and backend provides a significant setup effort, again likely by crafting some custom scripts.
 
-### Distributed Computation Caching & Distributed Task Execution
+Finally, as you are developing a Forge app with multiple Custom UI dependencies you would likely want to have a command to quickly start all CustomUIs and the Forge app in dev mode. Without any additional tooling this means you would have to go into each Custom UI, start a dev server and then tunnel the Forge app. If you want to simplify these steps, you could write yet another custom scripts to do this for you.
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
-
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
-
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
-
-Visit [Nx Cloud](https://nx.app/) to learn more.
+All of this should not be that hard and many of the described challenges are actually already solved by [Nx](https://nx.dev). However, because Forge has its own tooling/CLI and opinions, this plugin was created to allow Forge developers to quickly scaffold a Forge app, add Forge modules and easily develop Custom UIs.

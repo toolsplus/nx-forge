@@ -1,0 +1,6 @@
+modules:
+  function:
+    - key: resolver
+      handler: index.handler
+app:
+  id: ari:cloud:ecosystem::app/to-be-generated

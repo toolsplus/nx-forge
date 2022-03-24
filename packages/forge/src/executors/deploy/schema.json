@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Forge application deploy target",
+  "description": "Forge application deploy target",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The output path of the Forge app files.",
+      "visible": false
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["development", "staging", "production"],
+      "description": "Environment to deploy to: development, staging, production.",
+      "alias": "e",
+      "default": "development"
+    },
+    "verify": {
+      "type": "boolean",
+      "description": "Run pre-deployment checks.",
+      "default": true
+    },
+    "interactive": {
+      "type": "boolean",
+      "description": "Run deployment with or without input prompts.",
+      "default": true
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Run deployment in verbose mode.",
+      "alias": "v",
+      "default": false
+    }
+  },
+  "required": ["outputPath"]
+}

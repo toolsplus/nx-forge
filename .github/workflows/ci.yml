@@ -1,0 +1,43 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout [main]
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+        name: Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npx nx affected --target=format:check --parallel=2
+      - run: npx nx affected --target=lint --parallel=2
+      - run: npx nx affected --target=build --parallel=2
+      - run: npx nx affected --target=test --parallel=2
+      - run: npx nx affected --target=e2e --parallel=2
+  pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v2
+        name: Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: npm ci
+      - run: npx nx affected --target=build --parallel=3
+      - run: npx nx affected --target=test --parallel=2

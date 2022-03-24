@@ -3,10 +3,18 @@
   "name": "forge",
   "version": "0.0.1",
   "generators": {
-    "forge": {
-      "factory": "./src/generators/forge/generator",
-      "schema": "./src/generators/forge/schema.json",
-      "description": "forge generator"
+    "application": {
+      "factory": "./src/generators/application/generator",
+      "schema": "./src/generators/application/schema.json",
+      "description": "Create a Atlassian Forge application.",
+      "x-type": "application",
+      "aliases": ["app"]
+    },
+    "init": {
+      "factory": "./src/generators/init/generator",
+      "schema": "./src/generators/init/schema.json",
+      "description": "Initialize the @toolsplus/nx-forge plugin.",
+      "hidden": true
     }
   }
 }

@@ -9,6 +9,8 @@
         "outputPath": "dist/packages/forge",
         "main": "packages/forge/src/index.ts",
         "tsConfig": "packages/forge/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "assets": [
           "packages/forge/*.md",
           {
