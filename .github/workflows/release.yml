@@ -23,7 +23,7 @@ jobs:
           rm -rf dist
           npx nx run forge:build
           npx nx run forge:test
-          npx nx run forge:e2e
+          npx nx run forge-e2e:e2e
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
