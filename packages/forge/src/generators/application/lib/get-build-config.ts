@@ -1,9 +1,9 @@
+import { NormalizedOptions } from '../schema';
 import {
+  joinPathFragments,
   ProjectConfiguration,
   TargetConfiguration,
-} from 'nx/src/shared/workspace';
-import { NormalizedOptions } from '../schema';
-import { joinPathFragments } from '@nrwl/devkit';
+} from '@nrwl/devkit';
 
 export function getBuildConfig(
   project: ProjectConfiguration,
