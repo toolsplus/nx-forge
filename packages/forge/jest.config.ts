@@ -1,6 +1,5 @@
 module.exports = {
   displayName: 'forge',
-  preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
@@ -11,4 +10,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/forge',
+  preset: '../../jest.preset.ts',
 };

@@ -6,7 +6,7 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nrwl/js": "^13.9.4",
-    "@nrwl/workspace": "^13.9.4"
+    "@nrwl/js": "^14.0.0",
+    "@nrwl/workspace": "^14.0.0"
   }
 }

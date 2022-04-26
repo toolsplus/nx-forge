@@ -47,7 +47,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/packages/forge"],
       "options": {
-        "jestConfig": "packages/forge/jest.config.js",
+        "jestConfig": "packages/forge/jest.config.ts",
         "passWithNoTests": true
       }
     }
