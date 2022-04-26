@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "lib": ["dom", "es2017"],
     "types": ["node"],
-    "baseUrl": "./",
     "jsx": "react",
     "jsxFactory": "ForgeUI.createElement"
   },
