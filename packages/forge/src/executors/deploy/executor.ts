@@ -11,7 +11,7 @@ export default async function runExecutor(options: DeployExecutorOptions) {
     ...(options.interactive === false ? ['--non-interactive'] : []),
   ];
 
-  const command = `forge deploy ${args.join(' ')}`;
+  const command = `forge ${args.join(' ')}`;
   logger.log(`Running: ${command}`);
 
   // https://2ality.com/2018/05/child-process-streams.html#running-commands-in-child-processes
