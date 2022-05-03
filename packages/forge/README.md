@@ -13,10 +13,10 @@ npx create-nx-workspace <workspace-name> --preset=apps
 
 You will be asked if you would like to use Nx Cloud or not (either option is fine). Once, the workspace has been created run `cd <workspace-name>`.
 
-Finally, make sure your workspace has the following package installed
+Finally, make sure your workspace has the following packages (peer dependencies) installed
 
 ```shell
-npm install --save-dev @nrwl/js
+npm install --save-dev @nrwl/node
 ```
 
 
