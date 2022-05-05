@@ -11,10 +11,11 @@ export function compileWebpack(
   outfile: string;
 }> {
   const builderOptions: BuildNodeBuilderOptions = {
-    outputPath: joinPathFragments('dist', options.projectRoot),
+    outputPath: joinPathFragments(options.outputPath, 'src'),
+    outputFileName: 'index.js',
     tsConfig: `${options.projectRoot}/tsconfig.app.json`,
     main: `${options.projectRoot}/src/index.ts`,
-    generatePackageJson: true,
+    generatePackageJson: false,
     assets: [],
     watch: options.watch,
     transformers: [],
