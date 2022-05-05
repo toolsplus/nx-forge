@@ -3,9 +3,10 @@ import { BuildExecutorOptions } from './schema';
 import { normalizeOptions } from './lib/normalize-options';
 import { processCustomUIDependencies } from './lib/process-custom-ui-dependencies';
 import { patchManifestYml } from './lib/patch-manifest-yml';
-import { compileTypescript } from './lib/compile-typescript';
 import { generatePackageJson } from './lib/generate-package-json';
 import { readCachedProjectGraph } from '@nrwl/workspace/src/core/project-graph';
+import { compileWebpack } from './lib/compile-webpack';
+import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
 
 export default async function runExecutor(
   rawOptions: BuildExecutorOptions,
@@ -22,16 +23,17 @@ export default async function runExecutor(
   }
 
   const options = normalizeOptions(rawOptions, context.root, sourceRoot, root);
-  const compilation = compileTypescript(options, context);
+  const compilation = compileWebpack(options, context);
 
   for await (const result of compilation) {
     if (!result.success) {
       throw new Error(
-        `Failed to compile Typescript files for project ${context.projectName}.`
+        `Failed to compile files for project ${context.projectName}.`
       );
     }
   }
 
+  copyForgeAppAssets(options);
   processCustomUIDependencies(options, context);
   patchManifestYml(options);
   generatePackageJson(context.projectName, readCachedProjectGraph(), options);

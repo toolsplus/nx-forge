@@ -1,27 +1,27 @@
 import { ExecutorContext, joinPathFragments } from '@nrwl/devkit';
-import { ExecutorOptions as TscExecutorOptions } from '@nrwl/js/src/utils/schema';
-import { tscExecutor } from '@nrwl/js/src/executors/tsc/tsc.impl';
+import { BuildNodeBuilderOptions } from '@nrwl/node/src/utils/types';
+import { webpackExecutor } from '@nrwl/node/src/executors/webpack/webpack.impl';
 import { NormalizedOptions } from '../schema';
 
-export function compileTypescript(
+export function compileWebpack(
   options: NormalizedOptions,
   context: ExecutorContext
 ): AsyncGenerator<{
   success: boolean;
   outfile: string;
 }> {
-  const tscOptions: TscExecutorOptions = {
+  const builderOptions: BuildNodeBuilderOptions = {
     outputPath: joinPathFragments('dist', options.projectRoot),
     tsConfig: `${options.projectRoot}/tsconfig.app.json`,
-    updateBuildableProjectDepsInPackageJson: false,
     main: `${options.projectRoot}/src/index.ts`,
-    assets: [
-      `${options.projectRoot}/*.md`,
-      `${options.projectRoot}/manifest.yml`,
-    ],
+    generatePackageJson: true,
+    assets: [],
     watch: options.watch,
     transformers: [],
+    fileReplacements: [],
+    extractLicenses: false,
+    externalDependencies: 'none',
   };
 
-  return tscExecutor(tscOptions, context);
+  return webpackExecutor(builderOptions, context);
 }
