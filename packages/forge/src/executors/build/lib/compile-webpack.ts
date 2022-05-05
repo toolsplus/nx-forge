@@ -21,7 +21,7 @@ export function compileWebpack(
     transformers: [],
     fileReplacements: [],
     extractLicenses: false,
-    externalDependencies: 'none',
+    externalDependencies: 'all',
   };
 
   return webpackExecutor(builderOptions, context);
