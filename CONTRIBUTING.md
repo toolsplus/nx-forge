@@ -24,6 +24,13 @@ To execute the end-to-end tests affected by a change
 
     nx affected:e2e
 
+## Pre-releasing a branch
+
+If you create a new feature or fix that needs to be tested outside the project before the pull request is being merged you can create a new branch called `test-*` (replace `*` with the short name of your branch, e.g. `test-feat-add-prerelease-config`, or `test-fix-serious-bug`). After that, merge the branch into the `test-*` branch and push it to origin. Semantic release will pick it up and publish a pre-release version.
+Once your pull request has been merged you can safely delete the `test-*` branch from origin.
+
+This practice is inspired by this post: https://www.benmvp.com/blog/create-one-off-releases-semantic-release/#supporting-one-off-releases 
+
 ## Publishing to a local registry
 
 To test if your changes will actually work once the changes are published,
