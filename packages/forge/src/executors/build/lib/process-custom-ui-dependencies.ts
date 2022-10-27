@@ -19,17 +19,17 @@ import { loadManifestYml } from './load-manifest-yml';
  * @param options Executor options
  * @param context Executor context
  */
-export function processCustomUIDependencies(
+export async function processCustomUIDependencies(
   options: NormalizedOptions,
   context: ExecutorContext
-): Resources {
+): Promise<Resources> {
   const manifestPath = joinPathFragments(
     context.root,
     'apps',
     context.projectName,
     'manifest.yml'
   );
-  const manifestSchema = loadManifestYml(manifestPath);
+  const manifestSchema = await loadManifestYml(manifestPath);
   const resources: Resources = manifestSchema.resources || [];
 
   resources.forEach((r) =>

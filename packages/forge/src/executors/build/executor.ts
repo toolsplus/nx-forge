@@ -34,8 +34,8 @@ export default async function runExecutor(
   }
 
   copyForgeAppAssets(options);
-  processCustomUIDependencies(options, context);
-  patchManifestYml(options);
+  await processCustomUIDependencies(options, context);
+  await patchManifestYml(options);
   generatePackageJson(context.projectName, readCachedProjectGraph(), options);
 
   console.log('Executor ran for build');

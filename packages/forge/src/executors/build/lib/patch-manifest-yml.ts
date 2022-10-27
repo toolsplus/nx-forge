@@ -14,12 +14,12 @@ import { loadManifestYml } from './load-manifest-yml';
  *
  * @param options Executor options
  */
-export function patchManifestYml(options: NormalizedOptions) {
+export async function patchManifestYml(options: NormalizedOptions) {
   const manifestPath = joinPathFragments(options.outputPath, 'manifest.yml');
 
   logger.info(`Patching ${manifestPath}...`);
 
-  const manifestSchema = loadManifestYml(manifestPath);
+  const manifestSchema = await loadManifestYml(manifestPath);
 
   const resources: Resources = manifestSchema.resources || [];
   const patchedManifest = {

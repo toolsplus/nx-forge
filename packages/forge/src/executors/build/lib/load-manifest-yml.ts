@@ -7,12 +7,14 @@ import {
 } from '@forge/manifest';
 import * as FULL_SCHEMA from '@forge/manifest/out/schema/manifest-schema.json';
 
-export function loadManifestYml(manifestPath: string): ManifestSchema {
+export async function loadManifestYml(
+  manifestPath: string
+): Promise<ManifestSchema> {
   const {
     manifestObject,
     success: isManifestParseSuccess,
     errors,
-  } = new ManifestYmlValidator().process(manifestPath);
+  } = await new ManifestYmlValidator().process(manifestPath);
 
   if (!isManifestParseSuccess) {
     throw new Error(
