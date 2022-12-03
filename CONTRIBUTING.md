@@ -46,3 +46,22 @@ To publish packages to a local registry, do the following:
 4. Make sure the `version` field in `dist/packages/forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
 5. From `dist/packages/forge` run `npm publish --registry=http://localhost:4873/`
 6. On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest --registry=http://localhost:4873`
+
+## Migrate to a newer Nx version
+
+Refer to https://nx.dev/using-nx/updating-nx for details on updating Nx. The following outlines the major steps to migrate to a newer Nx version.
+
+From the project root run 
+
+    nx migrate latest
+
+This will update Nx project dependencies in package.json and create a migrations.json file.
+Make sure package.json changes make sense and then run 
+
+    npm install
+
+Once the npm command completes run
+
+    nx migrate --run-migrations
+
+Once that's complete, delete the migrations.json file and proceed with committing and submitting the changes to the repo.  

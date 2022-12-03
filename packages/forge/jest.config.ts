@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
   displayName: 'forge',
   globals: {
     'ts-jest': {
@@ -10,5 +11,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/forge',
-  preset: '../../jest.preset.ts',
+  preset: '../../jest.preset.js',
 };

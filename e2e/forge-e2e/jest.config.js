@@ -10,5 +10,5 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/e2e/forge-e2e',
-  preset: '../../jest.preset.ts',
+  preset: '../../jest.preset.js',
 };

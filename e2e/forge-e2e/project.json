@@ -1,5 +1,6 @@
 {
-  "root": "e2e/forge-e2e",
+  "name": "forge-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "e2e/forge-e2e/src",
   "targets": {
