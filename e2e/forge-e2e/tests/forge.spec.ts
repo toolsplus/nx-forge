@@ -8,6 +8,7 @@ import {
 } from '@nrwl/nx-plugin/testing';
 import { writeFileSync } from 'fs';
 import { joinPathFragments } from '@nrwl/devkit';
+import { updateFile } from '@nrwl/nx-plugin/src/utils/testing-utils/utils';
 
 /**
  * Set Nx workspace root path via environment variable.
@@ -40,6 +41,31 @@ describe('forge e2e', () => {
 
     const result = await runNxCommandAsync(`build ${plugin}`);
     expect(result.stdout).toContain('Executor ran');
+  }, 240000);
+
+  it('should create Forge app with custom cache location', async () => {
+    const plugin = uniq('my-forge-app');
+    ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
+    ensureCorrectWorkspaceRoot();
+
+    await runNxCommandAsync(
+      `generate @toolsplus/nx-forge:application ${plugin}`
+    );
+    const resultBeforeCustomCache = await runNxCommandAsync(`build ${plugin}`);
+    expect(resultBeforeCustomCache.stdout).toContain('Executor ran');
+
+    // https://nx.dev/concepts/how-caching-works#customizing-the-cache-location
+    updateFile(`nx.json`, (configString) => {
+      let config = JSON.parse(configString);
+      config.tasksRunnerOptions.default.options = {
+        ...config.tasksRunnerOptions.default.options,
+        cacheDirectory: '.nx/cache',
+      };
+      return JSON.stringify(config);
+    });
+
+    const resultAfterCustomCache = await runNxCommandAsync(`build ${plugin}`);
+    expect(resultAfterCustomCache.stdout).toContain('Executor ran');
   }, 240000);
 
   describe('--directory', () => {
