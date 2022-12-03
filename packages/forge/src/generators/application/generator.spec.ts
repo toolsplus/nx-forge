@@ -1,4 +1,4 @@
-import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
+import { createTreeWithEmptyV1Workspace } from '@nrwl/devkit/testing';
 import { readJson, Tree } from '@nrwl/devkit';
 
 import generator from './generator';
@@ -7,7 +7,7 @@ describe('application generator', () => {
   let tree: Tree;
 
   beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace();
+    tree = createTreeWithEmptyV1Workspace();
   });
 
   describe('not nested', () => {

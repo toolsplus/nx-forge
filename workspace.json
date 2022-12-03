@@ -3,5 +3,6 @@
   "projects": {
     "forge": "packages/forge",
     "forge-e2e": "e2e/forge-e2e"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

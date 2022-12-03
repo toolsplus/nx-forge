@@ -1,16 +1,13 @@
 import { ExecutorContext, joinPathFragments } from '@nrwl/devkit';
-import { BuildNodeBuilderOptions } from '@nrwl/node/src/utils/types';
+import type { WebpackExecutorOptions } from '@nrwl/webpack';
 import { webpackExecutor } from '@nrwl/node/src/executors/webpack/webpack.impl';
 import { NormalizedOptions } from '../schema';
 
 export function compileWebpack(
   options: NormalizedOptions,
   context: ExecutorContext
-): AsyncGenerator<{
-  success: boolean;
-  outfile: string;
-}> {
-  const builderOptions: BuildNodeBuilderOptions = {
+): AsyncGenerator<import('@nrwl/webpack').WebpackExecutorEvent> {
+  const builderOptions: WebpackExecutorOptions = {
     outputPath: joinPathFragments(options.outputPath, 'src'),
     outputFileName: 'index.js',
     tsConfig: `${options.projectRoot}/tsconfig.app.json`,

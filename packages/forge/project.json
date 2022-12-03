@@ -1,5 +1,6 @@
 {
-  "root": "packages/forge",
+  "name": "forge",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/forge/src",
   "targets": {
     "build": {
@@ -45,7 +46,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/forge"],
+      "outputs": ["{workspaceRoot}/coverage/packages/forge"],
       "options": {
         "jestConfig": "packages/forge/jest.config.ts",
         "passWithNoTests": true
