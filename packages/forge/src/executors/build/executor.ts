@@ -1,4 +1,4 @@
-import type { ExecutorContext } from '@nrwl/devkit';
+import type { ExecutorContext, ProjectGraph } from '@nrwl/devkit';
 import { BuildExecutorOptions } from './schema';
 import { normalizeOptions } from './lib/normalize-options';
 import { processCustomUIDependencies } from './lib/process-custom-ui-dependencies';
@@ -7,6 +7,19 @@ import { generatePackageJson } from './lib/generate-package-json';
 import { readCachedProjectGraph } from '@nrwl/workspace/src/core/project-graph';
 import { compileWebpack } from './lib/compile-webpack';
 import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
+import { createProjectGraphAsync } from '@nrwl/devkit';
+
+/**
+ *  Try to read a cached project graph. If it does not exist
+ *  trigger creation to ensure the project graph exists.
+ */
+async function readOrCreateProjectGraph(): Promise<ProjectGraph> {
+  try {
+    return readCachedProjectGraph();
+  } catch (e) {
+    return createProjectGraphAsync();
+  }
+}
 
 export default async function runExecutor(
   rawOptions: BuildExecutorOptions,
@@ -36,7 +49,8 @@ export default async function runExecutor(
   copyForgeAppAssets(options);
   await processCustomUIDependencies(options, context);
   await patchManifestYml(options);
-  generatePackageJson(context.projectName, readCachedProjectGraph(), options);
+  const projectGraph = await readOrCreateProjectGraph();
+  generatePackageJson(context.projectName, projectGraph, options);
 
   console.log('Executor ran for build');
   return {
