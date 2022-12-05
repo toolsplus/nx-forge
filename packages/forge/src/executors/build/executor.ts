@@ -47,10 +47,15 @@ export default async function runExecutor(
   }
 
   copyForgeAppAssets(options);
-  await processCustomUIDependencies(options, context);
+  const customUIResources = await processCustomUIDependencies(options, context);
   await patchManifestYml(options);
   const projectGraph = await readOrCreateProjectGraph();
-  generatePackageJson(context.projectName, projectGraph, options);
+  generatePackageJson(
+    context.projectName,
+    projectGraph,
+    customUIResources,
+    options
+  );
 
   console.log('Executor ran for build');
   return {
