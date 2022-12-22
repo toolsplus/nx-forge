@@ -5,7 +5,7 @@ import { joinPathFragments, logger } from '@nrwl/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
-import { loadManifestYml } from './load-manifest-yml';
+import { loadManifestYml } from '../../../utils/forge/load-manifest-yml';
 
 /**
  * Verifies that Custom UI projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
@@ -30,7 +30,7 @@ export async function processCustomUIDependencies(
     'manifest.yml'
   );
   const manifestSchema = await loadManifestYml(manifestPath);
-  const resources: Resources = manifestSchema.resources || [];
+  const resources = manifestSchema.resources ?? [];
 
   resources.forEach((r) =>
     verifyAndCopyCustomUIDependency(r, context, options)
@@ -51,7 +51,7 @@ const verifyAndCopyCustomUIDependency = (
 
   if (!customUIProjectConfiguration) {
     throw new Error(
-      `Nx workspace is missing project for CustomUI path ${customUIProjectName}. Make sure the Custom UI resource path references a project in your Nx workspace.`
+      `Nx workspace is missing project for Custom UI path ${customUIProjectName}. Make sure the Custom UI resource path references a project in your Nx workspace.`
     );
   }
 

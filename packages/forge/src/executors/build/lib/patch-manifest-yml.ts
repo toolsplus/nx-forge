@@ -4,7 +4,7 @@ import { joinPathFragments, logger } from '@nrwl/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
-import { loadManifestYml } from './load-manifest-yml';
+import { loadManifestYml } from '../../../utils/forge/load-manifest-yml';
 
 /**
  * Patches the output manifest.yml file to replace resource path parameters to point to the actual Custom UI build

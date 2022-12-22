@@ -64,4 +64,8 @@ Once the npm command completes run
 
     nx migrate --run-migrations
 
-Once that's complete, delete the migrations.json file and proceed with committing and submitting the changes to the repo.  
+Once that's complete, delete the migrations.json file.
+
+If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/forge/package.json` is matching the required Nx version.
+
+Finally, proceed with committing and submitting the changes to the repo.  
