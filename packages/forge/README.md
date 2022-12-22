@@ -159,6 +159,14 @@ That's it for the setup steps. You can now generate additional Custom UI resourc
 
 Run `nx build <forge-app-name>` to build the project. The build artifacts will be stored in the `dist/` directory.
 
+### Deploy
+
+Run `nx deploy <forge-app-name>` to deploy the project. The build artifacts will be deployed using the Forge CLI deploy command.
+
+### Tunnel
+
+Run `nx serve <forge-app-name>` to serve the project. This will start the `serve` target for all Custom UI projects defined in the app `manifest.yml` on their specified tunnel port. After that, it will start a build process in watch mode for the Forge app itself, before ultimately, starting the `forge tunnel` process for the Forge app.
+
 ## Further help on how to develop with Nx
 
 Visit the [Nx Documentation](https://nx.dev) to learn more.

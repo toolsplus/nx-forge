@@ -10,18 +10,9 @@ export function getServeConfig(
   options: NormalizedOptions
 ): TargetConfiguration {
   return {
-    executor: '@nrwl/workspace:run-commands',
+    executor: '@toolsplus/nx-forge:tunnel',
     options: {
-      commands: [
-        {
-          command: `nx run ${options.name}:build --watch`,
-        },
-        {
-          command: `forge tunnel`,
-        },
-      ],
-      cwd: joinPathFragments('dist', options.appProjectRoot),
-      parallel: true,
+      outputPath: joinPathFragments('dist', options.appProjectRoot),
     },
   };
 }
