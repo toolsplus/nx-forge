@@ -7,17 +7,29 @@ import { generateForgeApp } from './utils/generate-app';
 
 describe('forge app generate', () => {
   it('should create Forge app', async () => {
-    const plugin = await generateForgeApp();
-    const result = await runNxCommandAsync(`build ${plugin}`);
+    const appName = await generateForgeApp();
+
+    expect(() => checkFilesExist(`apps/${appName}/manifest.yml`)).not.toThrow();
+    expect(() => checkFilesExist(`apps/${appName}/package.json`)).not.toThrow();
+    expect(() => checkFilesExist(`apps/${appName}/src/index.ts`)).not.toThrow();
+
+    const result = await runNxCommandAsync(`build ${appName}`);
     expect(result.stdout).toContain('Executor ran');
   }, 240000);
 
   describe('--directory', () => {
     it('should create Forge app with src in the specified directory', async () => {
       const subdir = 'subdir';
-      const plugin = await generateForgeApp(`--directory ${subdir}`);
+      const appName = await generateForgeApp(`--directory ${subdir}`);
+
       expect(() =>
-        checkFilesExist(`apps/${subdir}/${plugin}/src/index.ts`)
+        checkFilesExist(`apps/${subdir}/${appName}/manifest.yml`)
+      ).not.toThrow();
+      expect(() =>
+        checkFilesExist(`apps/${subdir}/${appName}/package.json`)
+      ).not.toThrow();
+      expect(() =>
+        checkFilesExist(`apps/${subdir}/${appName}/src/index.ts`)
       ).not.toThrow();
     }, 240000);
   });

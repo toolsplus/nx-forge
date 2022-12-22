@@ -6,11 +6,11 @@ import {
 import { ensureCorrectWorkspaceRoot } from './e2e-workspace';
 
 export const generateForgeApp = async (options?: string): Promise<string> => {
-  const plugin = uniq('my-forge-app');
+  const appName = uniq('my-forge-app');
   ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
   ensureCorrectWorkspaceRoot();
   await runNxCommandAsync(
-    `generate @toolsplus/nx-forge:application ${plugin} ${options ?? ''}`
+    `generate @toolsplus/nx-forge:application ${appName} ${options ?? ''}`
   );
-  return plugin;
+  return appName;
 };
