@@ -2,7 +2,6 @@
   "version": 2,
   "outputCapture": "direct-nodejs",
   "$schema": "http://json-schema.org/schema",
-  "cli": "nx",
   "title": "Forge application build target",
   "description": "Forge application build target options for Build Facade",
   "type": "object",
@@ -21,5 +20,7 @@
       "default": false
     }
   },
-  "required": ["outputPath"]
+  "required": [
+    "outputPath"
+  ]
 }

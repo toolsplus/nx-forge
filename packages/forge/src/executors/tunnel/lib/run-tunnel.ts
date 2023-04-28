@@ -1,4 +1,4 @@
-import { ExecutorContext, logger } from '@nrwl/devkit';
+import { ExecutorContext, logger } from '@nx/devkit';
 import { join } from 'path';
 import { spawn } from 'child_process';
 import { TunnelExecutorOptions } from '../schema';

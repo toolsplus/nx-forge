@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
-import { joinPathFragments } from '@nrwl/devkit';
-import { tmpProjPath } from '@nrwl/nx-plugin/testing';
+import { joinPathFragments } from '@nx/devkit';
+import { tmpProjPath } from '@nx/plugin/testing';
 
 /**
  * Set Nx workspace root path via environment variable.

@@ -4,10 +4,10 @@ import {
   joinPathFragments,
   Tree,
   updateTsConfigsToJs,
-} from '@nrwl/devkit';
-import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
-import { Linter, lintProjectGenerator } from '@nrwl/linter';
-import { jestProjectGenerator } from '@nrwl/jest';
+} from '@nx/devkit';
+import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
+import { Linter, lintProjectGenerator } from '@nx/linter';
+import { jestProjectGenerator } from '@nx/jest';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions } from './schema';
 import { addProject, createFiles, normalizeOptions } from './lib';
@@ -50,7 +50,7 @@ export default async function (
       setupFile: 'none',
       skipSerializers: true,
       supportTsx: options.js,
-      babelJest: options.babelJest,
+      compiler: 'tsc',
       testEnvironment: 'node',
       skipFormat: true,
     });

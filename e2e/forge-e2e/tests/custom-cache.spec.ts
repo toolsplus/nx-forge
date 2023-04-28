@@ -1,21 +1,24 @@
-import {
-  ensureNxProject,
-  runNxCommandAsync,
-  uniq,
-} from '@nrwl/nx-plugin/testing';
-import { updateFile } from '@nrwl/nx-plugin/src/utils/testing-utils/utils';
+import { ensureNxProject, runNxCommandAsync } from '@nx/plugin/testing';
+import { updateFile } from '@nx/plugin/src/utils/testing-utils/utils';
+import { generateForgeApp } from './utils/generate-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 
 describe('forge app with custom Nx caching', () => {
-  it('should build Forge app after changing to custom cache location', async () => {
-    const plugin = uniq('my-forge-app');
+  beforeAll(() => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
     ensureCorrectWorkspaceRoot();
+  });
 
-    await runNxCommandAsync(
-      `generate @toolsplus/nx-forge:application ${plugin}`
-    );
-    const resultBeforeCustomCache = await runNxCommandAsync(`build ${plugin}`);
+  afterAll(async () => {
+    // `nx reset` kills the daemon, and performs
+    // some work which can help clean up e2e leftovers
+    await runNxCommandAsync('reset');
+  });
+
+  it('should build Forge app after changing to custom cache location', async () => {
+    const appName = await generateForgeApp();
+
+    const resultBeforeCustomCache = await runNxCommandAsync(`build ${appName}`);
     expect(resultBeforeCustomCache.stdout).toContain('Executor ran');
 
     // https://nx.dev/concepts/how-caching-works#customizing-the-cache-location
@@ -23,12 +26,12 @@ describe('forge app with custom Nx caching', () => {
       let config = JSON.parse(configString);
       config.tasksRunnerOptions.default.options = {
         ...config.tasksRunnerOptions.default.options,
-        cacheDirectory: '.nx/cache',
+        cacheDirectory: 'node_modules/.custom-cache/nx',
       };
       return JSON.stringify(config);
     });
 
-    const resultAfterCustomCache = await runNxCommandAsync(`build ${plugin}`);
+    const resultAfterCustomCache = await runNxCommandAsync(`build ${appName}`);
     expect(resultAfterCustomCache.stdout).toContain('Executor ran');
   }, 240000);
 });

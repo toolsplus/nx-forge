@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 import { dump } from 'js-yaml';
-import { joinPathFragments, logger } from '@nrwl/devkit';
+import { joinPathFragments, logger } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';

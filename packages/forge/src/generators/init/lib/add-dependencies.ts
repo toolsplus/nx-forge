@@ -1,6 +1,10 @@
-import type {GeneratorCallback, Tree} from '@nrwl/devkit';
-import {addDependenciesToPackageJson} from '@nrwl/devkit';
-import {forgeApiVersion, forgeResolverVersion, pluginVersion} from "../../../utils/versions";
+import type { GeneratorCallback, Tree } from '@nx/devkit';
+import { addDependenciesToPackageJson } from '@nx/devkit';
+import {
+  forgeApiVersion,
+  forgeResolverVersion,
+  pluginVersion,
+} from '../../../utils/versions';
 
 export function addDependencies(tree: Tree): GeneratorCallback {
   return addDependenciesToPackageJson(

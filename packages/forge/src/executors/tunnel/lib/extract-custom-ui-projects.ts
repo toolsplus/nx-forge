@@ -1,4 +1,4 @@
-import { ExecutorContext, joinPathFragments } from '@nrwl/devkit';
+import { ExecutorContext, joinPathFragments } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { loadManifestYml } from '../../../utils/forge/load-manifest-yml';

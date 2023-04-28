@@ -1,5 +1,5 @@
 import * as net from 'net';
-import { ExecutorContext, logger } from '@nrwl/devkit';
+import { ExecutorContext, logger } from '@nx/devkit';
 
 /**
  *

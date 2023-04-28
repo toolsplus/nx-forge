@@ -1,6 +1,5 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "cli": "nx",
   "$id": "NxForgeApplicationGenerator",
   "title": "Nx Application Options Schema",
   "type": "object",
@@ -27,13 +26,19 @@
     "linter": {
       "description": "Tool to use for running lint checks.",
       "type": "string",
-      "enum": ["eslint", "none"],
+      "enum": [
+        "eslint",
+        "none"
+      ],
       "default": "eslint"
     },
     "unitTestRunner": {
       "description": "Test runner to use for unit tests.",
       "type": "string",
-      "enum": ["jest", "none"],
+      "enum": [
+        "jest",
+        "none"
+      ],
       "default": "jest"
     },
     "tags": {
@@ -55,12 +60,10 @@
       "type": "boolean",
       "description": "Whether or not to configure the ESLint `parserOptions.project` option. We do not do this by default for lint performance reasons.",
       "default": false
-    },
-    "standaloneConfig": {
-      "description": "Split the project configuration into <projectRoot>/project.json rather than including it inside workspace.json",
-      "type": "boolean"
     }
   },
   "additionalProperties": false,
-  "required": ["name"]
+  "required": [
+    "name"
+  ]
 }

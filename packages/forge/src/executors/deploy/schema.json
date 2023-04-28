@@ -2,7 +2,6 @@
   "version": 2,
   "outputCapture": "direct-nodejs",
   "$schema": "http://json-schema.org/schema",
-  "cli": "nx",
   "title": "Forge application deploy target",
   "description": "Forge application deploy target",
   "type": "object",
@@ -14,7 +13,11 @@
     },
     "environment": {
       "type": "string",
-      "enum": ["development", "staging", "production"],
+      "enum": [
+        "development",
+        "staging",
+        "production"
+      ],
       "description": "Environment to deploy to: development, staging, production.",
       "alias": "e",
       "default": "development"
@@ -36,5 +39,7 @@
       "default": false
     }
   },
-  "required": ["outputPath"]
+  "required": [
+    "outputPath"
+  ]
 }
