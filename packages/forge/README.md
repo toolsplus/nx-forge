@@ -1,4 +1,4 @@
-#  Nx Forge
+# Nx Forge
 
 [Nx plugin](https://nx.dev) for [Atlassian Forge](https://developer.atlassian.com/platform/forge/) that aims to assist in efficient, scalable app development and remove the mental overhead of how to set up a Forge project.
 Building on top of Nx means shared code can easily be extracted into libraries, and [Custom UI](https://developer.atlassian.com/platform/forge/custom-ui/) can be integrated into the app and dev workflow without having to break with the monorepo structure that Nx provides.
@@ -16,9 +16,8 @@ You will be asked if you would like to use Nx Cloud or not (either option is fin
 Finally, make sure your workspace has the following packages (peer dependencies) installed
 
 ```shell
-npm install --save-dev @nrwl/node
+npm install --save-dev @nx/node
 ```
-
 
 ## Setting up
 
@@ -50,9 +49,9 @@ Replacing `<forge-app-name>` with the name of the app you're wanting to create.
 
 ### Add a Custom UI module
 
-Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not yet installed `@nrwl/react` in your workspace call `npm i -D @nrwl/react`. This allows us to generate a React application for our Custom UI:
+Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not yet installed `@nx/react` in your workspace call `npm i -D @nx/react`. This allows us to generate a React application for our Custom UI:
 
-    nx g @nrwl/react:app <custom-ui-app-name>
+    nx g @nx/react:app <custom-ui-app-name>
 
 > Hint: You can use the `--dry-run` flag to see what will be generated.
 
@@ -67,7 +66,7 @@ To get this React app working as a Forge Custom UI update the `apps/<custom-ui-a
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nx/webpack:webpack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
@@ -121,9 +120,7 @@ Finally, update the `apps/<forge-app-name>/project.json` file in the generated F
   "root": "apps/<forge-app-name>",
   "sourceRoot": "apps/<forge-app-name>/src",
   "projectType": "application",
-  "targets": {
-    
-  },
+  "targets": {...},
   "implicitDependencies": ["<custom-ui-app-name>"]
 }
 ```

@@ -2,10 +2,8 @@ import {
   addProjectConfiguration,
   joinPathFragments,
   ProjectConfiguration,
-  readWorkspaceConfiguration,
   Tree,
-  updateWorkspaceConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
 import { getBuildConfig } from './get-build-config';
 import { getDeployConfig } from './get-deploy-config';
@@ -34,11 +32,4 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
     project,
     options.standaloneConfig
   );
-
-  const workspace = readWorkspaceConfiguration(tree);
-
-  if (!workspace.defaultProject) {
-    workspace.defaultProject = options.name;
-    updateWorkspaceConfiguration(tree, workspace);
-  }
 }

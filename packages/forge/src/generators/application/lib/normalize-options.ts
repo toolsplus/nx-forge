@@ -1,6 +1,6 @@
-import { Linter } from '@nrwl/linter';
-import type { Tree } from '@nrwl/devkit';
-import { getWorkspaceLayout, joinPathFragments, names } from '@nrwl/devkit';
+import { Linter } from '@nx/linter';
+import type { Tree } from '@nx/devkit';
+import { getWorkspaceLayout, joinPathFragments, names } from '@nx/devkit';
 import type { ApplicationGeneratorOptions, NormalizedOptions } from '../schema';
 
 export function normalizeOptions(

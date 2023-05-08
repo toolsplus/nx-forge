@@ -1,5 +1,5 @@
-import { createTreeWithEmptyV1Workspace } from '@nrwl/devkit/testing';
-import { readJson, Tree } from '@nrwl/devkit';
+import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
+import { readProjectConfiguration, Tree } from '@nx/devkit';
 
 import generator from './generator';
 
@@ -7,29 +7,27 @@ describe('application generator', () => {
   let tree: Tree;
 
   beforeEach(() => {
-    tree = createTreeWithEmptyV1Workspace();
+    tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });
 
   describe('not nested', () => {
-    it('should update workspace.json', async () => {
+    it('should update project config', async () => {
       await generator(tree, { name: 'myApp' });
 
-      const workspaceJson = readJson(tree, 'workspace.json');
+      const project = readProjectConfiguration(tree, 'my-app');
 
-      expect(workspaceJson.projects['my-app'].root).toEqual('apps/my-app');
+      expect(project.root).toEqual('apps/my-app');
     });
 
-    it('should add tags to workspace.json', async () => {
+    it('should add tags to project config', async () => {
       await generator(tree, {
         name: 'myApp',
         tags: 'one,two',
       });
 
-      const workspaceJson = readJson(tree, 'workspace.json');
+      const project = readProjectConfiguration(tree, 'my-app');
 
-      expect(workspaceJson.projects['my-app'].tags).toEqual(
-        expect.arrayContaining(['one', 'two'])
-      );
+      expect(project.tags).toEqual(expect.arrayContaining(['one', 'two']));
     });
 
     it('should generate files', async () => {
@@ -41,29 +39,27 @@ describe('application generator', () => {
   });
 
   describe('nested', () => {
-    it('should update workspace.json', async () => {
+    it('should update project config', async () => {
       await generator(tree, {
         name: 'myForgeApp',
         directory: 'myDir',
       });
-      const workspaceJson = readJson(tree, '/workspace.json');
 
-      expect(workspaceJson.projects['my-dir-my-forge-app'].root).toEqual(
-        'apps/my-dir/my-forge-app'
-      );
+      const project = readProjectConfiguration(tree, 'my-dir-my-forge-app');
+
+      expect(project.root).toEqual('apps/my-dir/my-forge-app');
     });
 
-    it('should add tags to workspace.json', async () => {
+    it('should add tags to project config', async () => {
       await generator(tree, {
         name: 'myForgeApp',
         directory: 'myDir',
         tags: 'one,two',
       });
-      const workspaceJson = readJson(tree, '/workspace.json');
 
-      expect(workspaceJson.projects['my-dir-my-forge-app'].tags).toEqual(
-        expect.arrayContaining(['one', 'two'])
-      );
+      const project = readProjectConfiguration(tree, 'my-dir-my-forge-app');
+
+      expect(project.tags).toEqual(expect.arrayContaining(['one', 'two']));
     });
 
     it('should generate files', async () => {

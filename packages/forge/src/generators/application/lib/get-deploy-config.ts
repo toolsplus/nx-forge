@@ -3,7 +3,7 @@ import {
   joinPathFragments,
   ProjectConfiguration,
   TargetConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 
 export function getDeployConfig(
   project: ProjectConfiguration,

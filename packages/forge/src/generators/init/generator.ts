@@ -1,15 +1,19 @@
-import { formatFiles, GeneratorCallback, Tree } from '@nrwl/devkit';
-import { runTasksInSerial } from '@nrwl/workspace/src/utilities/run-tasks-in-serial';
+import {
+  formatFiles,
+  runTasksInSerial,
+  GeneratorCallback,
+  Tree,
+} from '@nx/devkit';
 import { InitGeneratorSchema } from './schema';
 import { addDependencies, normalizeOptions } from './lib';
-import { jestInitGenerator } from '@nrwl/jest';
+import { jestInitGenerator } from '@nx/jest';
 
 export default async function (
   tree: Tree,
   rawOptions: InitGeneratorSchema
 ): Promise<GeneratorCallback> {
   const options = normalizeOptions(rawOptions);
-  const jestTask = jestInitGenerator(tree, {});
+  const jestTask = await jestInitGenerator(tree, {});
   const installPackagesTask = addDependencies(tree);
 
   if (!options.skipFormat) {

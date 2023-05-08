@@ -1,7 +1,7 @@
 import { copySync } from 'fs-extra';
 import { existsSync, readdirSync } from 'fs';
-import type { ExecutorContext } from '@nrwl/devkit';
-import { joinPathFragments, logger } from '@nrwl/devkit';
+import type { ExecutorContext } from '@nx/devkit';
+import { joinPathFragments, logger } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';

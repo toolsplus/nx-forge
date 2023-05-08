@@ -1,11 +1,24 @@
 import {
   checkFilesExist,
+  ensureNxProject,
   readJson,
   runNxCommandAsync,
-} from '@nrwl/nx-plugin/testing';
+} from '@nx/plugin/testing';
 import { generateForgeApp } from './utils/generate-app';
+import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 
 describe('forge app generate', () => {
+  beforeAll(() => {
+    ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
+    ensureCorrectWorkspaceRoot();
+  });
+
+  afterAll(async () => {
+    // `nx reset` kills the daemon, and performs
+    // some work which can help clean up e2e leftovers
+    await runNxCommandAsync('reset');
+  });
+
   it('should create Forge app', async () => {
     const appName = await generateForgeApp();
 

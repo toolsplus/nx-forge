@@ -1,5 +1,5 @@
-import type { ProjectGraph } from '@nrwl/devkit';
-import { writeJsonFile, readJsonFile, DependencyType } from '@nrwl/devkit';
+import type { ProjectGraph } from '@nx/devkit';
+import { writeJsonFile, readJsonFile, DependencyType } from '@nx/devkit';
 import { sortObjectByKeys } from 'nx/src/utils/object-sort';
 import { NormalizedOptions } from '../schema';
 import { Resources } from '@forge/manifest';

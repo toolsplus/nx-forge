@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 import { DeployExecutorOptions } from './schema';
 
 export default async function runExecutor(options: DeployExecutorOptions) {

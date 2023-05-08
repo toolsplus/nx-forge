@@ -1,5 +1,5 @@
-import { createTreeWithEmptyV1Workspace } from '@nrwl/devkit/testing';
-import { readJson, Tree } from '@nrwl/devkit';
+import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
+import { readJson, Tree } from '@nx/devkit';
 
 import generator from './generator';
 
@@ -7,7 +7,7 @@ describe('init generator', () => {
   let tree: Tree;
 
   beforeEach(() => {
-    tree = createTreeWithEmptyV1Workspace();
+    tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
   });
 
   it('should add dependencies', async () => {

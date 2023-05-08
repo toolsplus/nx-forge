@@ -1,5 +1,5 @@
-import { ExecutorContext, logger, runExecutor } from '@nrwl/devkit';
-import { combineAsyncIterableIterators } from '@nrwl/devkit/src/utils/async-iterable';
+import { ExecutorContext, logger, runExecutor } from '@nx/devkit';
+import { combineAsyncIterables } from '@nx/devkit/src/utils/async-iterable';
 import { TunnelExecutorOptions } from './schema';
 import runTunnel from './lib/run-tunnel';
 import { getCustomUiProjects } from './lib/extract-custom-ui-projects';
@@ -33,7 +33,7 @@ export default async function runTunnelExecutor(
     );
 
     for (const { projectName, port } of customUiRestConfig ?? []) {
-      runAllCustomUiServe = combineAsyncIterableIterators(
+      runAllCustomUiServe = combineAsyncIterables(
         runAllCustomUiServe,
         await runExecutor(
           { project: projectName, target: 'serve' },
@@ -57,7 +57,7 @@ export default async function runTunnelExecutor(
 
   // once all executors are loaded, watch out for any failures
   // we combine (interleave) all executor iterators here
-  const combined = combineAsyncIterableIterators(
+  const combined = combineAsyncIterables(
     runAllCustomUiServe,
     runForgeAppBuild,
     runForgeTunnel

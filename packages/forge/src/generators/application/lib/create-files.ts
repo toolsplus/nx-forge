@@ -1,12 +1,12 @@
-import type { Tree } from '@nrwl/devkit';
+import type { Tree } from '@nx/devkit';
 import {
   generateFiles,
   joinPathFragments,
   offsetFromRoot,
   toJS,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
+import { getRelativePathToRootTsConfig } from '@nx/js';
 import type { NormalizedOptions } from '../schema';
-import { getRelativePathToRootTsConfig } from '@nrwl/workspace/src/utilities/typescript';
 
 export function createFiles(tree: Tree, options: NormalizedOptions): void {
   generateFiles(

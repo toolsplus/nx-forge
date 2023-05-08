@@ -1,7 +1,7 @@
 import { copyFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { logger } from '@nrwl/devkit';
-import { directoryExists } from '@nrwl/workspace/src/utilities/fileutils';
+import { logger } from '@nx/devkit';
+import { directoryExists } from '@nx/workspace/src/utilities/fileutils';
 import { NormalizedOptions } from '../schema';
 
 export function copyForgeAppAssets(options: NormalizedOptions) {
