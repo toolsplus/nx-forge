@@ -7,7 +7,7 @@ import {
 import { generateForgeApp } from './utils/generate-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 
-describe('forge app generate', () => {
+describe('Forge app generate', () => {
   beforeAll(() => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
     ensureCorrectWorkspaceRoot();
@@ -26,9 +26,9 @@ describe('forge app generate', () => {
     expect(() => checkFilesExist(`apps/${appName}/package.json`)).not.toThrow();
     expect(() => checkFilesExist(`apps/${appName}/src/index.ts`)).not.toThrow();
 
-    const result = await runNxCommandAsync(`build ${appName}`);
-    expect(result.stdout).toContain('Executor ran');
-  }, 240000);
+    const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
+    expect(nxBuildResult.stdout).toContain('Executor ran');
+  });
 
   describe('--directory', () => {
     it('should create Forge app with src in the specified directory', async () => {
@@ -44,14 +44,19 @@ describe('forge app generate', () => {
       expect(() =>
         checkFilesExist(`apps/${subdir}/${appName}/src/index.ts`)
       ).not.toThrow();
-    }, 240000);
+
+      const nxBuildResult = await runNxCommandAsync(
+        `build ${subdir}-${appName}`
+      );
+      expect(nxBuildResult.stdout).toContain('Executor ran');
+    });
   });
 
   describe('--tags', () => {
     it('should create Forge app with tags added to the project', async () => {
-      const plugin = await generateForgeApp(`--tags e2etag,e2ePackage`);
-      const project = readJson(`apps/${plugin}/project.json`);
+      const appName = await generateForgeApp(`--tags e2etag,e2ePackage`);
+      const project = readJson(`apps/${appName}/project.json`);
       expect(project.tags).toEqual(['e2etag', 'e2ePackage']);
-    }, 240000);
+    });
   });
 });
