@@ -3,7 +3,13 @@ import { updateFile } from '@nx/plugin/src/utils/testing-utils/utils';
 import { generateForgeApp } from './utils/generate-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 
-describe('forge app with custom Nx caching', () => {
+/**
+ * Note, running this test in parallel with other tests may fail because this is changing a
+ * Nx workspace setting which will cause running tests to fail unexpectedly.
+ *
+ * Use the `--runInBand` option to make sure tests run sequentially.
+ */
+describe('Forge app with custom Nx caching', () => {
   beforeAll(() => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
     ensureCorrectWorkspaceRoot();
@@ -33,5 +39,5 @@ describe('forge app with custom Nx caching', () => {
 
     const resultAfterCustomCache = await runNxCommandAsync(`build ${appName}`);
     expect(resultAfterCustomCache.stdout).toContain('Executor ran');
-  }, 240000);
+  });
 });

@@ -44,8 +44,9 @@ To publish packages to a local registry, do the following:
 2. Start Verdaccio by running `verdaccio` in a terminal
 3. From the plugin project root run `nx build forge`
 4. Make sure the `version` field in `dist/packages/forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
-5. From `dist/packages/forge` run `npm publish --registry=http://localhost:4873/`
-6. On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest --registry=http://localhost:4873`
+5. Run `npm adduser --registry=http://localhost:4873/` (real credentials are not required, you just need to be logged in. You can use test/test/test@test.io.)
+6. From `dist/packages/forge` run `npm publish --registry=http://localhost:4873/`
+7.On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest --registry=http://localhost:4873`
 
 ## Migrate to a newer Nx version
 

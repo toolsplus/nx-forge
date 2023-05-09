@@ -12,4 +12,5 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/e2e/forge-e2e',
   preset: '../../jest.preset.js',
+  testTimeout: 240000, // set the default test timeout to 2min for all e2e tests
 };

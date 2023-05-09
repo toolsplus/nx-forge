@@ -25,8 +25,7 @@ export async function processCustomUIDependencies(
 ): Promise<Resources> {
   const manifestPath = joinPathFragments(
     context.root,
-    'apps',
-    context.projectName,
+    context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'
   );
   const manifestSchema = await loadManifestYml(manifestPath);
