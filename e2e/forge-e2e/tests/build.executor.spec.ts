@@ -1,15 +1,9 @@
 import { ensureNxProject, runNxCommandAsync } from '@nx/plugin/testing';
-import { updateFile } from '@nx/plugin/src/utils/testing-utils/utils';
-import { generateForgeApp } from './utils/generate-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
+import { generateForgeApp } from './utils/generate-forge-app';
+import { updateFile } from '@nx/plugin/src/utils/testing-utils/utils';
 
-/**
- * Note, running this test in parallel with other tests may fail because this is changing a
- * Nx workspace setting which will cause running tests to fail unexpectedly.
- *
- * Use the `--runInBand` option to make sure tests run sequentially.
- */
-describe('Forge app with custom Nx caching', () => {
+describe('Forge build executor', () => {
   beforeAll(() => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
     ensureCorrectWorkspaceRoot();
@@ -21,7 +15,21 @@ describe('Forge app with custom Nx caching', () => {
     await runNxCommandAsync('reset');
   });
 
-  it('should build Forge app after changing to custom cache location', async () => {
+  it('should build a Forge app', async () => {
+    const appName = await generateForgeApp();
+    const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
+    expect(nxBuildResult.stdout).toContain('Executor ran');
+  });
+
+  it('should build a Forge app in a sub-directory', async () => {
+    const subdir = 'subdir';
+    const appName = await generateForgeApp(`--directory ${subdir}`);
+
+    const nxBuildResult = await runNxCommandAsync(`build ${subdir}-${appName}`);
+    expect(nxBuildResult.stdout).toContain('Executor ran');
+  });
+
+  it('should build a Forge app after changing to custom cache location', async () => {
     const appName = await generateForgeApp();
 
     const resultBeforeCustomCache = await runNxCommandAsync(`build ${appName}`);

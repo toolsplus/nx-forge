@@ -1,4 +1,5 @@
 import type { ExecutorContext } from '@nx/devkit';
+import { logger } from '@nx/devkit';
 import { BuildExecutorOptions } from './schema';
 import { normalizeOptions } from './lib/normalize-options';
 import { processCustomUIDependencies } from './lib/process-custom-ui-dependencies';
@@ -42,7 +43,7 @@ export default async function runExecutor(
     options
   );
 
-  console.log('Executor ran for build');
+  logger.info('Executor ran for build');
   return {
     success: true,
   };

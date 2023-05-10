@@ -4,8 +4,8 @@ import {
   joinPathFragments,
   Tree,
   updateTsConfigsToJs,
+  runTasksInSerial,
 } from '@nx/devkit';
-import { runTasksInSerial } from '@nx/workspace/src/utilities/run-tasks-in-serial';
 import { Linter, lintProjectGenerator } from '@nx/linter';
 import { jestProjectGenerator } from '@nx/jest';
 import initGenerator from '../init/generator';

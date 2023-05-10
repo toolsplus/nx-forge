@@ -1,6 +1,6 @@
-import { spawn } from 'child_process';
 import { logger } from '@nx/devkit';
 import { DeployExecutorOptions } from './schema';
+import { runForgeCommandAsync } from '../../utils/forge/async-commands';
 
 export default async function runExecutor(options: DeployExecutorOptions) {
   const args = [
@@ -11,27 +11,10 @@ export default async function runExecutor(options: DeployExecutorOptions) {
     ...(options.interactive === false ? ['--non-interactive'] : []),
   ];
 
-  const command = `forge ${args.join(' ')}`;
-  logger.log(`Running: ${command}`);
+  logger.log(`Running: forge ${args.join(' ')}`);
 
-  // https://2ality.com/2018/05/child-process-streams.html#running-commands-in-child-processes
-  const deploymentProcess = spawn('forge', args, {
+  await runForgeCommandAsync(args, {
     cwd: options.outputPath,
-    stdio: [process.stdin, process.stdout, process.stderr],
-  });
-
-  // https://2ality.com/2018/05/child-process-streams.html#waiting-for-a-child-process-to-exit-via-a-promise
-  await new Promise((resolve, reject) => {
-    deploymentProcess.once('exit', (code: number) => {
-      if (code === 0) {
-        resolve(undefined);
-      } else {
-        reject(new Error('Exit with error code: ' + code));
-      }
-    });
-    deploymentProcess.once('error', (err: Error) => {
-      reject(err);
-    });
   });
 
   logger.log('✅ Forge app deployed');
