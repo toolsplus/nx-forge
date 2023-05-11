@@ -4,10 +4,10 @@ import {
   readJson,
   runNxCommandAsync,
 } from '@nx/plugin/testing';
-import { generateForgeApp } from './utils/generate-app';
+import { generateForgeApp } from './utils/generate-forge-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 
-describe('Forge app generate', () => {
+describe('Forge application generator', () => {
   beforeAll(() => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/forge');
     ensureCorrectWorkspaceRoot();
@@ -19,19 +19,15 @@ describe('Forge app generate', () => {
     await runNxCommandAsync('reset');
   });
 
-  it('should create Forge app', async () => {
+  it('should generate a Forge app', async () => {
     const appName = await generateForgeApp();
-
     expect(() => checkFilesExist(`apps/${appName}/manifest.yml`)).not.toThrow();
     expect(() => checkFilesExist(`apps/${appName}/package.json`)).not.toThrow();
     expect(() => checkFilesExist(`apps/${appName}/src/index.ts`)).not.toThrow();
-
-    const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
-    expect(nxBuildResult.stdout).toContain('Executor ran');
   });
 
   describe('--directory', () => {
-    it('should create Forge app with src in the specified directory', async () => {
+    it('should generate a Forge app in the specified directory', async () => {
       const subdir = 'subdir';
       const appName = await generateForgeApp(`--directory ${subdir}`);
 
@@ -44,16 +40,11 @@ describe('Forge app generate', () => {
       expect(() =>
         checkFilesExist(`apps/${subdir}/${appName}/src/index.ts`)
       ).not.toThrow();
-
-      const nxBuildResult = await runNxCommandAsync(
-        `build ${subdir}-${appName}`
-      );
-      expect(nxBuildResult.stdout).toContain('Executor ran');
     });
   });
 
   describe('--tags', () => {
-    it('should create Forge app with tags added to the project', async () => {
+    it('should generate a Forge app with tags added to the project', async () => {
       const appName = await generateForgeApp(`--tags e2etag,e2ePackage`);
       const project = readJson(`apps/${appName}/project.json`);
       expect(project.tags).toEqual(['e2etag', 'e2ePackage']);

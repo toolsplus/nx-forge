@@ -5,6 +5,7 @@ import {
   Tree,
 } from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
+import { getRegisterConfig } from './get-register-config';
 import { getBuildConfig } from './get-build-config';
 import { getDeployConfig } from './get-deploy-config';
 import { getServeConfig } from './get-serve-config';
@@ -22,6 +23,7 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
     tags: options.parsedTags,
   };
 
+  project.targets.register = getRegisterConfig(project, options);
   project.targets.build = getBuildConfig(project, options);
   project.targets.serve = getServeConfig(project, options);
   project.targets.deploy = getDeployConfig(project, options);

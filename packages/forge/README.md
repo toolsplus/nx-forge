@@ -127,30 +127,37 @@ Finally, update the `apps/<forge-app-name>/project.json` file in the generated F
 
 This tells Nx that each time we build our Forge app, it needs to build the Custom UI project first.
 
-### Initial build and registration
+### Initial build, registration, deployment and installation
 
 Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build the Forge app using
 
     nx build <forge-app-name>
 
-Once that's finished, go to `dist/apps/<forge-app-name>` and run the following three commands
+Once that's finished, run
 
-```shell
-forge register
-forge deploy
-forge install
-```
+    nx register <forge-app-name>
 
-The Forge app is now registered, deployed and installed with the Forge platform. As a final last step, open the `dist/apps/<forge-app-name>/manifest.yml` and copy-paste the app id that was generated during app registration into the Forge app project under `apps/<forge-app-name>/manifest.yml`:
+This will use `<forge-app-name>` by default as the app name on the Forge platform. If you would like to use a different name add the app name flag as follows: `--appName="My Forge App"`.
 
-```yaml
-app:
-  id: ari:cloud:ecosystem::app/f2fc9c8f-5947-7da7-32ab-6367647e4b1a
-```
+Then run
+
+    nx deploy <forge-app-name>
+
+to deploy the Forge app to the default development environment.
+
+Finally go to `dist/apps/<forge-app-name>` and run the following command
+  
+    forge install
+
+The Forge app is now registered, deployed and installed with the Forge platform.
 
 That's it for the setup steps. You can now generate additional Custom UI resources, generate shared Nx libraries to keep shared app logic and depend on it in one or more Forge apps.
 
 ## Using the Nx Forge plugin
+
+### Register
+
+Run `nx register <forge-app-name>` to register the Forge app with the Forge platform.
 
 ### Build
 
