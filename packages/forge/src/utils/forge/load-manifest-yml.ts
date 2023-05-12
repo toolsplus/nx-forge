@@ -16,9 +16,13 @@ export async function loadManifestYml(
     errors,
   } = await new ManifestYmlValidator().process(manifestPath);
 
-  if (!isManifestParseSuccess) {
+  if (
+    !isManifestParseSuccess ||
+    !manifestObject ||
+    !manifestObject.typedContent
+  ) {
     throw new Error(
-      `Failed to parse manifest.yml (${manifestPath}): ${errors
+      `Failed to parse manifest.yml (${manifestPath}): ${(errors || [])
         .map((e) => e.message)
         .join('\n')}`
     );
