@@ -1,3 +1,5 @@
+import type { Linter } from '@nx/linter';
+
 export interface ApplicationGeneratorOptions {
   name: string;
   directory?: string;
@@ -13,7 +15,7 @@ export interface ApplicationGeneratorOptions {
 
 interface NormalizedOptions extends ApplicationGeneratorOptions {
   appProjectRoot: string;
-  linter: Exclude<Linter, Linter.TsLint>;
+  linter: Linter;
   unitTestRunner: UnitTestRunner;
   parsedTags: string[];
 }

@@ -20,6 +20,11 @@
       "implementation": "./src/executors/tunnel/executor",
       "schema": "./src/executors/tunnel/schema.json",
       "description": "tunnel executor"
+    },
+    "install": {
+      "implementation": "./src/executors/install/executor",
+      "schema": "./src/executors/install/schema.json",
+      "description": "install executor"
     }
   }
 }

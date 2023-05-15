@@ -9,6 +9,7 @@ import { getRegisterConfig } from './get-register-config';
 import { getBuildConfig } from './get-build-config';
 import { getDeployConfig } from './get-deploy-config';
 import { getServeConfig } from './get-serve-config';
+import { getInstallConfig } from './get-install-config';
 
 /**
  * Generate the new Forge app project in the workspace and configure
@@ -23,10 +24,12 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
     tags: options.parsedTags,
   };
 
+  project.targets = {};
   project.targets.register = getRegisterConfig(project, options);
   project.targets.build = getBuildConfig(project, options);
   project.targets.serve = getServeConfig(project, options);
   project.targets.deploy = getDeployConfig(project, options);
+  project.targets.install = getInstallConfig(project, options);
 
   addProjectConfiguration(
     tree,

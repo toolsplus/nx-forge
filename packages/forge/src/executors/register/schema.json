@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/schema",
   "version": 2,
   "title": "Forge application register target",
-  "description": "",
+  "description": "Register an app you didn't create so you can run commands for it",
   "type": "object",
   "properties": {
     "outputPath": {

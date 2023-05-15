@@ -145,9 +145,9 @@ Then run
 
 to deploy the Forge app to the default development environment.
 
-Finally go to `dist/apps/<forge-app-name>` and run the following command
+Finally, install the app in any of your sites with the following command
   
-    forge install
+    nx install <forge-app-name>
 
 The Forge app is now registered, deployed and installed with the Forge platform.
 
@@ -155,20 +155,21 @@ That's it for the setup steps. You can now generate additional Custom UI resourc
 
 ## Using the Nx Forge plugin
 
-### Register
+For any of the plugin targets below append `--help` or `-h` to explore all available options.
 
+### Register
 Run `nx register <forge-app-name>` to register the Forge app with the Forge platform.
 
 ### Build
-
 Run `nx build <forge-app-name>` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ### Deploy
-
 Run `nx deploy <forge-app-name>` to deploy the project. The build artifacts will be deployed using the Forge CLI deploy command.
 
-### Tunnel
+### Install
+Run `nx install <forge-app-name>` to install the Forge app. The CLI will prompt for site, product if they are not provided as parameters.
 
+### Tunnel (experimental)
 Run `nx serve <forge-app-name>` to serve the project. This will start the `serve` target for all Custom UI projects defined in the app `manifest.yml` on their specified tunnel port. After that, it will start a build process in watch mode for the Forge app itself, before ultimately, starting the `forge tunnel` process for the Forge app.
 
 ## Further help on how to develop with Nx

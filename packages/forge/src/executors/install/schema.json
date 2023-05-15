@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Forge application install target",
+  "description": "Manage app installations",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The output path of the Forge app files.",
+      "visible": false
+    },
+    "site":  {
+      "type": "string",
+      "description": "Atlassian site URL (example.atlassian.net)",
+      "alias": "s"
+    },
+    "product": {
+      "type": "string",
+      "description": "Atlassian product: jira, confluence, compass",
+      "enum": [
+        "jira",
+        "confluence",
+        "compass"
+      ],
+      "alias": "p"
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "development",
+        "staging",
+        "production"
+      ],
+      "description": "Environment to install to: development, staging, production.",
+      "alias": "e",
+      "default": "development"
+    },
+    "upgrade": {
+      "type": "boolean",
+      "description": "Upgrade an existing installation.",
+      "default": false
+    },
+    "confirmScopes": {
+      "type": "boolean",
+      "description": "Skip confirmation of scopes for the app before installing or upgrading the app.",
+      "default": false
+    },
+    "interactive": {
+      "type": "boolean",
+      "description": "Run installation with or without input prompts.",
+      "default": true
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Run installation in verbose mode.",
+      "alias": "v",
+      "default": false
+    }
+  },
+  "required": [
+    "outputPath",
+    "site",
+    "product"
+  ]
+}

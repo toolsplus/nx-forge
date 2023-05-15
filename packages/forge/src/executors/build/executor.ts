@@ -12,7 +12,8 @@ export default async function runExecutor(
   rawOptions: BuildExecutorOptions,
   context: ExecutorContext
 ) {
-  const { root, sourceRoot } = context.workspace.projects[context.projectName];
+  const { root, sourceRoot } =
+    context.projectsConfigurations!.projects[context.projectName!];
 
   if (!sourceRoot) {
     throw new Error(`${context.projectName} does not have a sourceRoot.`);
@@ -37,8 +38,8 @@ export default async function runExecutor(
   const customUIResources = await processCustomUIDependencies(options, context);
   await patchManifestYml(options);
   generatePackageJson(
-    context.projectName,
-    context.projectGraph,
+    context.projectName!,
+    context.projectGraph!,
     customUIResources,
     options
   );

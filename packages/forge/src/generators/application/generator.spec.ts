@@ -17,6 +17,18 @@ describe('application generator', () => {
       const project = readProjectConfiguration(tree, 'my-app');
 
       expect(project.root).toEqual('apps/my-app');
+
+      const executor = (name: string) => `@toolsplus/nx-forge:${name}`;
+      const expectedExecutorTargets = [
+        ['register', 'register'],
+        ['build', 'build'],
+        ['serve', 'tunnel'],
+        ['deploy', 'deploy'],
+        ['install', 'install'],
+      ];
+      expectedExecutorTargets.forEach(([target, executorName]) =>
+        expect(project.targets[target].executor).toEqual(executor(executorName))
+      );
     });
 
     it('should add tags to project config', async () => {
