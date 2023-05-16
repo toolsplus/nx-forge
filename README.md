@@ -8,7 +8,7 @@ Building on top of Nx means shared code can easily be extracted into libraries, 
 
 ## Plugin usage
 
-Refer to the [plugin README.md](packages/forge/README.md).
+Refer to the [plugin README.md](packages/nx-forge/README.md).
 
 ## Contributing
 

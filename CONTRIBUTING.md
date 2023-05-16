@@ -6,7 +6,7 @@
 
 To execute the unit tests via [Jest](https://jestjs.io) run
 
-    nx test forge
+    nx test nx-forge
 
 To execute the unit tests affected by a change run
 
@@ -16,9 +16,9 @@ To execute the unit tests affected by a change run
 
 To build the plugin and run end-to-end tests on a generated project run
 
-    nx run forge-e2e:e2e
+    nx run nx-forge-e2e:e2e
 
-Alternatively, you can also use the short from: `nx e2e forge-e2e`.
+Alternatively, you can also use the short from: `nx e2e nx-forge-e2e`.
 
 To execute the end-to-end tests affected by a change
 
@@ -42,10 +42,10 @@ To publish packages to a local registry, do the following:
 
 1. Install `npm install -g verdaccio` or refer to the [Verdaccio installation docs for other options](https://verdaccio.org/docs/installation).
 2. Start Verdaccio by running `verdaccio` in a terminal
-3. From the plugin project root run `nx build forge`
-4. Make sure the `version` field in `dist/packages/forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
+3. From the plugin project root run `nx build nx-forge`
+4. Make sure the `version` field in `dist/packages/nx-forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
 5. Run `npm adduser --registry=http://localhost:4873/` (real credentials are not required, you just need to be logged in. You can use test/test/test@test.io.)
-6. From `dist/packages/forge` run `npm publish --registry=http://localhost:4873/`
+6. From `dist/packages/nx-forge` run `npm publish --registry=http://localhost:4873/`
 7.On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest --registry=http://localhost:4873`
 
 ## Migrate to a newer Nx version
@@ -67,6 +67,6 @@ Once the npm command completes run
 
 Once that's complete, delete the migrations.json file.
 
-If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/forge/package.json` is matching the required Nx version.
+If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/nx-forge/package.json` is matching the required Nx version.
 
 Finally, proceed with committing and submitting the changes to the repo.  

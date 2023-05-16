@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "outputCapture": "direct-nodejs",
+  "$schema": "http://json-schema.org/schema",
+  "title": "Forge application serve target",
+  "description": "Forge application serve target",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "The output path of the Forge app files.",
+      "visible": false
+    },
+    "debug": {
+      "type": "boolean",
+      "description": "Run Forge tunnel in debug mode.",
+      "alias": "d",
+      "default": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Run Forge tunnel in verbose mode.",
+      "alias": "v",
+      "default": false
+    }
+  },
+  "required": ["outputPath"]
+}

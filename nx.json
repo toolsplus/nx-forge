@@ -1,5 +1,5 @@
 {
-  "npmScope": "@toolsplus/nx-forge",
+  "npmScope": "toolsplus",
   "affected": {
     "defaultBase": "main"
   },

@@ -1,0 +1,64 @@
+{
+  "name": "nx-forge",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nx-forge/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/nx-forge",
+        "main": "packages/nx-forge/src/index.ts",
+        "tsConfig": "packages/nx-forge/tsconfig.lib.json",
+        "updateBuildableProjectDepsInPackageJson": true,
+        "buildableProjectDepsInPackageJsonType": "dependencies",
+        "assets": [
+          "packages/nx-forge/*.md",
+          {
+            "input": "./packages/nx-forge/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/nx-forge/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/nx-forge",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/nx-forge",
+            "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/nx-forge",
+            "glob": "migrations.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "packages/nx-forge/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/nx-forge"],
+      "options": {
+        "jestConfig": "packages/nx-forge/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
