@@ -19,18 +19,18 @@ jobs:
           node-version: 'lts/*'
       - name: 'Create E2E env file'
         run: |
-          echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/forge-e2e/.env
-          echo FORGE_API_TOKEN=${{ secrets.FORGE_API_TOKEN }} >> e2e/forge-e2e/.env
-          echo ATLASSIAN_PRODUCT=${{ vars.ATLASSIAN_PRODUCT }} >> e2e/forge-e2e/.env
-          echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/forge-e2e/.env
+          echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env
+          echo FORGE_API_TOKEN=${{ secrets.FORGE_API_TOKEN }} >> e2e/nx-forge-e2e/.env
+          echo ATLASSIAN_PRODUCT=${{ vars.ATLASSIAN_PRODUCT }} >> e2e/nx-forge-e2e/.env
+          echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
       - name: Install dependencies
         run: npm ci
       - name: Build and test
         run: |
           rm -rf dist
-          npx nx run forge:build
-          npx nx run forge:test
-          npx nx run forge-e2e:e2e
+          npx nx run nx-forge:build
+          npx nx run nx-forge:test
+          npx nx run nx-forge-e2e:e2e
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

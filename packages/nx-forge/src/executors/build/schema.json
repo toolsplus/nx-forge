@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "outputCapture": "direct-nodejs",
+  "$schema": "http://json-schema.org/schema",
+  "title": "Forge application build target",
+  "description": "Forge application build target options for Build Facade",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "Output path of the generated files."
+    },
+    "customUIPath": {
+      "type": "string",
+      "description": "Custom UI output path relative to the outputPath."
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Enable re-building when files change.",
+      "default": false
+    }
+  },
+  "required": ["outputPath"]
+}
