@@ -147,21 +147,31 @@ For any of the plugin targets below append `--help` or `-h` to explore all avail
 
 Run `nx register <nx-forge-app-name>` to register the Forge app with the Forge platform.
 
+[Schema reference](./src/executors/register/schema.json)
+
 ### Build
 
 Run `nx build <nx-forge-app-name>` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+[Schema reference](./src/executors/build/schema.json)
 
 ### Deploy
 
 Run `nx deploy <nx-forge-app-name>` to deploy the project. The build artifacts will be deployed using the Forge CLI deploy command.
 
+[Schema reference](./src/executors/deploy/schema.json)
+
 ### Install
 
 Run `nx install <nx-forge-app-name>` to install the Forge app. The CLI will prompt for site, product if they are not provided as parameters.
 
+[Schema reference](./src/executors/install/schema.json)
+
 ### Tunnel (experimental)
 
 Run `nx serve <nx-forge-app-name>` to serve the project. This will start the `serve` target for all Custom UI projects defined in the app `manifest.yml` on their specified tunnel port. After that, it will start a build process in watch mode for the Forge app itself, before ultimately, starting the `nx-forge tunnel` process for the Forge app.
+
+[Schema reference](./src/executors/tunnel/schema.json)
 
 ## Migrate to a newer plugin version
 
