@@ -11,4 +11,5 @@ export interface NormalizedOptions extends BuildExecutorOptions {
   customUIPath: string;
   outputPath: string;
   outputFileName: string;
+  sourceMap: boolean;
 }

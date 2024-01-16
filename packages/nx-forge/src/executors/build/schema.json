@@ -18,6 +18,12 @@
       "type": "boolean",
       "description": "Enable re-building when files change.",
       "default": false
+    },
+    "sourceMap": {
+      "type": "boolean",
+      "description": "Enable source maps for the build.",
+      "default": false
+    }
     }
   },
   "required": ["outputPath"]
