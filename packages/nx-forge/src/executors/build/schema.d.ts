@@ -2,6 +2,7 @@ export interface BuildExecutorOptions {
   customUIPath?: string;
   outputPath: string;
   watch: boolean;
+  sourceMap: boolean;
 }
 
 export interface NormalizedOptions extends BuildExecutorOptions {

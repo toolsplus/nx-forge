@@ -16,5 +16,6 @@ export function normalizeOptions(
     outputPath: resolve(root, options.outputPath),
     outputFileName: 'index.js',
     watch: options.watch ?? false,
+    sourceMap: options.sourceMap
   };
 }
