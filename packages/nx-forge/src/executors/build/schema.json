@@ -24,7 +24,6 @@
       "description": "Enable source maps for the build.",
       "default": false
     }
-    }
   },
   "required": ["outputPath"]
 }
