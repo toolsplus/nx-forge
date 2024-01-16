@@ -48,6 +48,7 @@ function createPackageJson(
     projectRoot?: string;
     root?: string;
   }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   const customUIProjectNames = customUIResources.map((r) => r.path);
   const npmDeps = findAllNpmDeps(projectName, graph, customUIProjectNames);

@@ -40,3 +40,5 @@ Thumbs.db
 
 # Never commit .env files!
 .env
+
+.nx/cache

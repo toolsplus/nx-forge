@@ -10,7 +10,7 @@ export function compileWebpack(
   const webpackOptions: WebpackExecutorOptions = {
     target: 'node',
     compiler: 'tsc',
-    outputPath: joinPathFragments(options.outputPath, 'src'),
+    outputPath: joinPathFragments('dist', options.sourceRoot),
     outputFileName: 'index.js',
     tsConfig: `${options.projectRoot}/tsconfig.app.json`,
     main: `${options.projectRoot}/src/index.ts`,

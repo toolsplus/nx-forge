@@ -43,7 +43,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": [
@@ -55,8 +55,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/nx-forge"],
       "options": {
-        "jestConfig": "packages/nx-forge/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/nx-forge/jest.config.ts"
       }
     }
   },

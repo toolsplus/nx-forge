@@ -52,8 +52,8 @@ const getCustomUIStaticDependencies = async (
   };
 
   return customUIProjectNames.reduce((acc, customUIProjectName) => {
-    return (manifestFile.dependencies || []).find(
-      ({ type, target, source }) =>
+    return (manifestFile.deps || []).find(
+      ([source, target, type]) =>
         type === 'static' &&
         target === customUIProjectName &&
         source === projectName
