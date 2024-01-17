@@ -6,11 +6,14 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nx/webpack": "^16.0.0",
-    "@nx/workspace": "^16.0.0",
-    "@nx/node": "^16.0.0"
+    "@nx/webpack": "^17.0.0",
+    "@nx/workspace": "^17.0.0",
+    "@nx/node": "^17.0.0"
   },
   "nx-migrations": {
     "migrations": "./migrations.json"
+  },
+  "dependencies": {
+    "@nx/devkit": "17.2.8"
   }
 }

@@ -8,7 +8,7 @@ Building on top of Nx means shared code can easily be extracted into libraries, 
 The following setup procedure assumes you already have a Nx workspace. If you do not, make sure to create one using
 
 ```shell
-npx create-nx-workspace <workspace-name> --preset=apps
+npx create-nx-workspace@latest <workspace-name> --preset=apps
 ```
 
 You will be asked if you would like to use Nx Cloud or not (either option is fine). Once, the workspace has been created run `cd <workspace-name>`.
@@ -26,13 +26,13 @@ npm install --save-dev @nx/node
 Add the plugin to your Nx workspace using
 
 ```shell
-npm install --save-dev @toolsplus/nx-nx-forge
+npm install --save-dev @toolsplus/nx-forge
 ```
 
 or
 
 ```shell
-yarn add --dev @toolsplus/nx-nx-forge
+yarn add --dev @toolsplus/nx-forge
 ```
 
 ### Generate a Forge app
@@ -40,7 +40,7 @@ yarn add --dev @toolsplus/nx-nx-forge
 Once installed, run the Forge app generator to generate a Forge app.
 
 ```shell
-nx g @toolsplus/nx-nx-forge:app <nx-forge-app-name>
+nx g @toolsplus/nx-forge:app <nx-forge-app-name>
 ```
 
 > Hint: You can use the `--dry-run` flag to see what will be generated.

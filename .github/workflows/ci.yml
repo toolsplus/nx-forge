@@ -18,7 +18,7 @@ jobs:
         name: Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 'lts/*'
       - run: npm ci
       - run: npx nx affected --target=build --parallel=2
       - run: npx nx affected --target=test --parallel=2
@@ -35,7 +35,7 @@ jobs:
         name: Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 'lts/*'
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env

@@ -1,14 +1,13 @@
 import {
   formatFiles,
   GeneratorCallback,
+  joinPathFragments,
+  runTasksInSerial,
   Tree,
   updateTsConfigsToJs,
-  runTasksInSerial,
-  joinPathFragments,
 } from '@nx/devkit';
-import { Linter, lintProjectGenerator } from '@nx/linter';
+import { Linter, lintProjectGenerator } from '@nx/eslint';
 import { jestProjectGenerator } from '@nx/jest';
-import { mapLintPattern } from '@nx/linter/src/generators/lint-project/lint-project';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions } from './schema';
 import { addProject, createFiles, normalizeOptions } from './lib';
@@ -35,9 +34,6 @@ export default async function (
       project: options.name,
       tsConfigPaths: [
         joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
-      ],
-      eslintFilePatterns: [
-        mapLintPattern(options.appProjectRoot, options.js ? 'js' : 'ts'),
       ],
       unitTestRunner: options.unitTestRunner,
       skipFormat: true,

@@ -1,4 +1,4 @@
-import { Linter } from '@nx/linter';
+import { Linter } from '@nx/eslint';
 import type { Tree } from '@nx/devkit';
 import {
   extractLayoutDirectory,

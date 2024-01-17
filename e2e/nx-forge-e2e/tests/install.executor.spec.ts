@@ -82,7 +82,7 @@ describe('Forge install executor', () => {
     const uninstallResults = await Promise.all(
       installationIds.map(({ id }) =>
         runForgeCommandAsync(`uninstall ${id}`, {
-          cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', appName),
+          cwd: joinPathFragments(tmpProjPath(), 'dist', appName),
           silenceError: true,
         })
       )
@@ -97,7 +97,7 @@ describe('Forge install executor', () => {
       /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
     const registeredOutputManifestContent = readFile(
-      `dist/apps/${appName}/manifest.yml`
+      `dist/${appName}/manifest.yml`
     );
     const appIdMatch =
       registeredOutputManifestContent.match(registeredAppIdRegex);

@@ -5,11 +5,12 @@
   "sourceRoot": "e2e/nx-forge-e2e/src",
   "targets": {
     "e2e": {
-      "executor": "@nx/plugin:e2e",
+      "executor": "@nx/jest:jest",
       "options": {
-        "target": "nx-forge:build",
-        "jestConfig": "e2e/nx-forge-e2e/jest.config.js"
-      }
+        "jestConfig": "e2e/nx-forge-e2e/jest.config.js",
+        "runInBand": true
+      },
+      "dependsOn": ["nx-forge:build"]
     }
   },
   "tags": [],
