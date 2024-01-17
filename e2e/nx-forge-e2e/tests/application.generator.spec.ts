@@ -21,9 +21,9 @@ describe('Forge application generator', () => {
 
   it('should generate a Forge app', async () => {
     const appName = await generateForgeApp();
-    expect(() => checkFilesExist(`apps/${appName}/manifest.yml`)).not.toThrow();
-    expect(() => checkFilesExist(`apps/${appName}/package.json`)).not.toThrow();
-    expect(() => checkFilesExist(`apps/${appName}/src/index.ts`)).not.toThrow();
+    expect(() => checkFilesExist(`${appName}/manifest.yml`)).not.toThrow();
+    expect(() => checkFilesExist(`${appName}/package.json`)).not.toThrow();
+    expect(() => checkFilesExist(`${appName}/src/index.ts`)).not.toThrow();
   });
 
   describe('--directory', () => {
@@ -32,13 +32,13 @@ describe('Forge application generator', () => {
       const appName = await generateForgeApp(`--directory ${subdir}`);
 
       expect(() =>
-        checkFilesExist(`apps/${subdir}/${appName}/manifest.yml`)
+        checkFilesExist(`${subdir}/${appName}/manifest.yml`)
       ).not.toThrow();
       expect(() =>
-        checkFilesExist(`apps/${subdir}/${appName}/package.json`)
+        checkFilesExist(`${subdir}/${appName}/package.json`)
       ).not.toThrow();
       expect(() =>
-        checkFilesExist(`apps/${subdir}/${appName}/src/index.ts`)
+        checkFilesExist(`${subdir}/${appName}/src/index.ts`)
       ).not.toThrow();
     });
   });
@@ -46,7 +46,7 @@ describe('Forge application generator', () => {
   describe('--tags', () => {
     it('should generate a Forge app with tags added to the project', async () => {
       const appName = await generateForgeApp(`--tags e2etag,e2ePackage`);
-      const project = readJson(`apps/${appName}/project.json`);
+      const project = readJson(`${appName}/project.json`);
       expect(project.tags).toEqual(['e2etag', 'e2ePackage']);
     });
   });

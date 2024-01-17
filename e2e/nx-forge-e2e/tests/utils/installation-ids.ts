@@ -38,15 +38,27 @@ const installationListSchema = z.array(
  * @returns List of installation ids for the given app project
  */
 export const getInstallationIds = async (
-  projectName
+  projectName: string
 ): Promise<z.infer<typeof installationListSchema>> => {
   const listInstallationResult = await runForgeCommandAsync(
     'install list --json',
     {
-      cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', projectName),
+      cwd: joinPathFragments(tmpProjPath(), 'dist', projectName),
       silenceError: true,
     }
   );
-  const rawInstallationsJson = JSON.parse(listInstallationResult.stdout);
+  if (listInstallationResult.stderr) {
+    console.error(
+      `Failed to fetch list of installations: ${listInstallationResult.stderr}`
+    );
+  }
+  let rawInstallationsJson;
+  try {
+    rawInstallationsJson = JSON.parse(listInstallationResult.stdout);
+  } catch (error) {
+    throw new Error(
+      `Failed to parse installations JSON payload: ${listInstallationResult.stdout}`
+    );
+  }
   return installationListSchema.parse(rawInstallationsJson);
 };

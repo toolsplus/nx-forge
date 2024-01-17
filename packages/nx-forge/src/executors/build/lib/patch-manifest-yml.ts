@@ -6,6 +6,7 @@ import {
   readManifestYml,
   writeManifestYml,
 } from '../../../utils/forge/manifest-yml';
+import { resolve } from 'path';
 
 /**
  * Patches the output manifest.yml file to replace resource path parameters to point to the actual Custom UI build
@@ -16,7 +17,10 @@ import {
  * @param options Executor options
  */
 export async function patchManifestYml(options: NormalizedOptions) {
-  const manifestPath = joinPathFragments(options.outputPath, 'manifest.yml');
+  const manifestPath = joinPathFragments(
+    resolve(options.root, options.outputPath),
+    'manifest.yml'
+  );
 
   logger.info(`Patching ${manifestPath}...`);
 

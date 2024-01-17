@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import type { BuildExecutorOptions, NormalizedOptions } from '../schema';
 
 export function normalizeOptions(
@@ -13,7 +12,6 @@ export function normalizeOptions(
     sourceRoot,
     projectRoot,
     customUIPath: options.customUIPath ?? 'customUI',
-    outputPath: resolve(root, options.outputPath),
     outputFileName: 'index.js',
     watch: options.watch ?? false,
   };

@@ -39,7 +39,7 @@ describe('Forge register executor', () => {
     expect(nxBuildResult.stdout).toContain('Executor ran');
 
     const unregisteredOutputManifestContent = readFile(
-      `dist/apps/${appName}/manifest.yml`
+      `dist/${appName}/manifest.yml`
     );
     expect(unregisteredOutputManifestContent).toContain(
       'ari:cloud:ecosystem::app/to-be-generated'
@@ -56,14 +56,14 @@ describe('Forge register executor', () => {
       /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
     const registeredOutputManifestContent = readFile(
-      `dist/apps/${appName}/manifest.yml`
+      `dist/${appName}/manifest.yml`
     );
     const [appId] = registeredOutputManifestContent.match(registeredAppIdRegex);
     expect(appId).not.toBeNull();
     expect(appId).toBeDefined();
     expect(appId).not.toEqual('');
 
-    const projectManifestContent = readFile(`apps/${appName}/manifest.yml`);
+    const projectManifestContent = readFile(`${appName}/manifest.yml`);
     expect(projectManifestContent).toContain(appId);
 
     // Clean up the registered app

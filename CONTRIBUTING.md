@@ -2,6 +2,12 @@
 
 ## Plugin development
 
+Before you start developing or making any changes to the project, ensure that you have installed the project dependencies via
+
+    npm install
+
+This ensures the project toolchain is set up correctly. Specifically, this will install a husky commit hook that ensures commit messages follow the project guidelines.
+
 ### Running unit tests
 
 To execute the unit tests via [Jest](https://jestjs.io) run
