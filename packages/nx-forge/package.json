@@ -2,14 +2,26 @@
   "name": "@toolsplus/nx-forge",
   "version": "0.0.0-development",
   "description": "Atlassian Forge plugin for Nx",
-  "main": "src/index.js",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nx/webpack": "^17.0.0",
     "@nx/workspace": "^17.0.0",
-    "@nx/node": "^17.0.0"
+    "nx": "^17.0.0"
   },
+  "dependencies": {
+    "@forge/manifest": "^5.5.0",
+    "@nx/devkit": "17.2.8",
+    "@nx/eslint": "17.2.8",
+    "@nx/jest": "17.2.8",
+    "@nx/js": "17.2.8",
+    "@nx/webpack": "17.2.8",
+    "fs-extra": "^10.0.1",
+    "js-yaml": "^4.1.0",
+    "tslib": "^2.3.0"
+  },
+  "type": "commonjs",
   "nx-migrations": {
     "migrations": "./migrations.json"
   }

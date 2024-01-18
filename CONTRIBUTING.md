@@ -30,6 +30,10 @@ To execute the end-to-end tests affected by a change
 
     nx affected:e2e
 
+## Creating a beta release
+
+If you are working on a plugin version that contains breaking changes, it should be first merged into the beta branch. The beta branch will publish beta release beta versions of the plugin, e.g. @toolsplus/nx-forge@3.0.0-beta.1. This is great for acceptance testing before the changes are merged into the main branch.  
+
 ## Pre-releasing a branch
 
 If you create a new feature or fix that needs to be tested outside the project before the pull request is being merged you can create a new branch called `test-*` (replace `*` with the short name of your branch, e.g. `test-feat-add-prerelease-config`, or `test-fix-serious-bug`). After that, merge the branch into the `test-*` branch and push it to origin. Semantic release will pick it up and publish a pre-release version.
@@ -76,3 +80,7 @@ Once that's complete, delete the migrations.json file.
 If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/nx-forge/package.json` is matching the required Nx version.
 
 Finally, proceed with committing and submitting the changes to the repo.  
+
+## Update plugin dependencies
+
+If you are add or update plugin dependencies that the nx-forge plugin depends on, i.e. not dependencies used to build the nx-forge plugin, their version must be updated in `packages/nx-forge/package.json` to match the installed version. There are ESLint rules in place to verify that this correct and that all plugin dependencies are declared in the package.json.
