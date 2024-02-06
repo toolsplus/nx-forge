@@ -2,6 +2,12 @@
 
 ## Plugin development
 
+Before you start developing or making any changes to the project, ensure that you have installed the project dependencies via
+
+    npm install
+
+This ensures the project toolchain is set up correctly. Specifically, this will install a husky commit hook that ensures commit messages follow the project guidelines.
+
 ### Running unit tests
 
 To execute the unit tests via [Jest](https://jestjs.io) run
@@ -23,6 +29,10 @@ Alternatively, you can also use the short from: `nx e2e nx-forge-e2e`.
 To execute the end-to-end tests affected by a change
 
     nx affected:e2e
+
+## Creating a beta release
+
+If you are working on a plugin version that contains breaking changes, it should be first merged into the beta branch. The beta branch will publish beta release beta versions of the plugin, e.g. @toolsplus/nx-forge@3.0.0-beta.1. This is great for acceptance testing before the changes are merged into the main branch.  
 
 ## Pre-releasing a branch
 
@@ -70,3 +80,7 @@ Once that's complete, delete the migrations.json file.
 If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/nx-forge/package.json` is matching the required Nx version.
 
 Finally, proceed with committing and submitting the changes to the repo.  
+
+## Update plugin dependencies
+
+If you are add or update plugin dependencies that the nx-forge plugin depends on, i.e. not dependencies used to build the nx-forge plugin, their version must be updated in `packages/nx-forge/package.json` to match the installed version. There are ESLint rules in place to verify that this correct and that all plugin dependencies are declared in the package.json.

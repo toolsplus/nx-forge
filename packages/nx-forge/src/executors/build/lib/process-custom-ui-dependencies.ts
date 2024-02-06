@@ -75,6 +75,7 @@ const verifyAndCopyCustomUIDependency = (
   copySync(
     absoluteCustomUIBuildTargetOutputPath,
     joinPathFragments(
+      options.root,
       options.outputPath,
       options.customUIPath,
       customUIProjectName

@@ -38,10 +38,7 @@ describe('Forge build executor', () => {
     // https://nx.dev/concepts/how-caching-works#customizing-the-cache-location
     updateFile(`nx.json`, (configString) => {
       let config = JSON.parse(configString);
-      config.tasksRunnerOptions.default.options = {
-        ...config.tasksRunnerOptions.default.options,
-        cacheDirectory: 'node_modules/.custom-cache/nx',
-      };
+      config.cacheDirectory = 'node_modules/.custom-cache/nx';
       return JSON.stringify(config);
     });
 

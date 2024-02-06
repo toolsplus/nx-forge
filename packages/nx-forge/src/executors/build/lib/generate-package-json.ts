@@ -1,8 +1,9 @@
 import type { ProjectGraph } from '@nx/devkit';
-import { writeJsonFile, readJsonFile, DependencyType } from '@nx/devkit';
+import { DependencyType, readJsonFile, writeJsonFile } from '@nx/devkit';
 import { sortObjectByKeys } from 'nx/src/utils/object-sort';
 import { NormalizedOptions } from '../schema';
 import { Resources } from '@forge/manifest';
+import { resolve } from 'path';
 
 /**
  * Merges the existing package.json details with a generated package.json that includes
@@ -27,7 +28,10 @@ export function generatePackageJson(
   );
   packageJson.main = packageJson.main ?? options.outputFileName;
   delete packageJson.devDependencies;
-  writeJsonFile(`${options.outputPath}/package.json`, packageJson);
+  writeJsonFile(
+    `${resolve(options.root, options.outputPath)}/package.json`,
+    packageJson
+  );
 }
 
 /**
@@ -48,6 +52,7 @@ function createPackageJson(
     projectRoot?: string;
     root?: string;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   const customUIProjectNames = customUIResources.map((r) => r.path);
   const npmDeps = findAllNpmDeps(projectName, graph, customUIProjectNames);

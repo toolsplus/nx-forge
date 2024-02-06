@@ -21,6 +21,8 @@ export function compileWebpack(
     fileReplacements: [],
     extractLicenses: false,
     externalDependencies: 'all',
+    sourceMap: options.sourceMap,
+    webpackConfig: options.webpackConfig,
   };
 
   return webpackExecutor(webpackOptions, context);

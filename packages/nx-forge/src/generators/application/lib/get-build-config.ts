@@ -14,6 +14,7 @@ export function getBuildConfig(
     outputs: ['{options.outputPath}'],
     options: {
       outputPath: joinPathFragments('dist', options.appProjectRoot),
+      webpackConfig: joinPathFragments(project.root, 'webpack.config.js'),
     },
   };
 }

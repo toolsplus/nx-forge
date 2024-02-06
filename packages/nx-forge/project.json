@@ -10,8 +10,6 @@
         "outputPath": "dist/packages/nx-forge",
         "main": "packages/nx-forge/src/index.ts",
         "tsConfig": "packages/nx-forge/tsconfig.lib.json",
-        "updateBuildableProjectDepsInPackageJson": true,
-        "buildableProjectDepsInPackageJsonType": "dependencies",
         "assets": [
           "packages/nx-forge/*.md",
           {
@@ -43,20 +41,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "packages/nx-forge/**/*.ts"
-        ]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/nx-forge"],
       "options": {
-        "jestConfig": "packages/nx-forge/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/nx-forge/jest.config.ts"
       }
     }
   },
