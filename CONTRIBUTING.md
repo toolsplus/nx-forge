@@ -43,20 +43,17 @@ This practice is inspired by this post: https://www.benmvp.com/blog/create-one-o
 
 ## Publishing to a local registry
 
-To test if your changes will actually work once the changes are published,
-it can be useful to publish to a local registry.
-
-> We may adopt [Nx' local-registry script approach](https://github.com/nrwl/nx/blob/master/CONTRIBUTING.md#publishing-to-a-local-registry) by providing [a script](https://github.com/nrwl/nx/blob/master/scripts/local-registry.sh).
+To test if your changes will actually work once the changes are published, it can be useful to publish to a local registry.
 
 To publish packages to a local registry, do the following:
 
-1. Install `npm install -g verdaccio` or refer to the [Verdaccio installation docs for other options](https://verdaccio.org/docs/installation).
-2. Start Verdaccio by running `verdaccio` in a terminal
-3. From the plugin project root run `nx build nx-forge`
-4. Make sure the `version` field in `dist/packages/nx-forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
-5. Run `npm adduser --registry=http://localhost:4873/` (real credentials are not required, you just need to be logged in. You can use test/test/test@test.io.)
-6. From `dist/packages/nx-forge` run `npm publish --registry=http://localhost:4873/`
-7.On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest --registry=http://localhost:4873`
+1. Start Verdaccio by running `nx local-registry` in a terminal. This will become your main registry while the process is running.
+2. From the plugin project root run `nx build nx-forge`
+3. Make sure the `version` field in `dist/packages/nx-forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
+4. From `dist/packages/nx-forge` run `npm publish`
+5.On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest`
+
+Note that as soon as you terminate the process with the local Verdaccio registry, you will get back your previous registry configuration.
 
 ## Migrate to a newer Nx version
 
@@ -77,7 +74,7 @@ Once the npm command completes run
 
 Once that's complete, delete the migrations.json file.
 
-If this is a Nx major version upgrade, check that the Nx version listed under `peerDependencies` in `packages/nx-forge/package.json` is matching the required Nx version.
+If this is a Nx major version upgrade, check that the Nx versions listed under `dependencies` and `peerDependencies` in `packages/nx-forge/package.json` are matching the required Nx version.
 
 Finally, proceed with committing and submitting the changes to the repo.  
 
