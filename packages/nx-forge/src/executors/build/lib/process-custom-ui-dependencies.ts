@@ -9,12 +9,8 @@ import { readManifestYml } from '../../../utils/forge/manifest-yml';
 
 /**
  * Verifies that Custom UI projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
- * output directory.
- *
- * In particular this will make sure that each resource listed in the manifest.yml has its path configured to point to
- * a Nx project in this workspace. Additionally, this will ensure that each specified Custom UI project is listed as an
- * implicit dependency of the project. This requirement ensures that Custom UI dependencies are being built before the
- * Forge app is being built.
+ * output directory. In particular, this will make sure that each resource listed in the manifest.yml has its path
+ * configured to point to a Nx project in this workspace.
  *
  * @param options Executor options
  * @param context Executor context
