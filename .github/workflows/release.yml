@@ -5,6 +5,8 @@ on:
       - main
       - 'test-*'
       - 'beta'
+    paths-ignore:
+      - 'docs/**'
 jobs:
   release:
     name: Release
