@@ -1,7 +1,3 @@
----
-sidebar_position: 10
----
-
 # Motivation
 
 Atlassian Forge is a platform that simplifies Atlassian app development and hosting. However, setting up and configuring a Forge application beyond the basic use case is not that simple - here is why:
@@ -10,7 +6,7 @@ Atlassian Forge is a platform that simplifies Atlassian app development and host
 
 Atlassian's Forge platform requires Forge applications to be fully self-contained when they are deployed to the platform. This means the Forge application must contain all static artifacts, such as Custom UI or UI Kit 2, within the Forge app root directory at deployment time, as illustrated by the directory structure below:
 
-```text title="Forge application structure including Custom UI and UI Kit 2 artifacts"
+```
 my-forge-app/
 ├── resources
 │   ├── custom-ui-1
@@ -21,7 +17,7 @@ my-forge-app/
 └── package.json
 ```
 
-## Challenges left to the developer
+## Challenges
 
 The main challenge with the code organization requirement illustrated above is that there is no tooling to support it.
 
@@ -49,7 +45,7 @@ How do you set up your project such that you can run each Custom UI and Forge ap
 
 Forge itself does not have, and probably should not have, an opinion on how you solve these challenges. However, the absence of any tooling also means that every developer will figure out their way to solve them. We believe writing a sophisticated Forge application should be easy.
 
-:::tip[Nx Forge]
+:::tip IDEA
 
 Nx Forge provides a solution to build Forge apps in a consistent, scalable way, and, most importantly, it removes the mental overhead of how to set up a Forge application project. 
 
@@ -59,4 +55,4 @@ Nx Forge is a plugin to [Nx](https://nx.dev/) that allows us to inherit all the 
 
 Nx Forge treats Forge app resources, such as Custom UI modules, as their own projects that can be managed, built, and tested outside and independent of the Forge app project context. Yet, Nx Forge provides the context to Nx that the Forge app depends on one or more resource projects and allows developers to build the complete Forge app, including all its dependencies, in a single command.
 
-For more details about how Nx Forge addresses the challenges described above, refer to [the workspace layout](workspace-layout.md) and [project graph](project-graph.md) documentation.
+For more details about how Nx Forge addresses the challenges described above, refer to [the workspace layout](workspace-layout) and [project graph](project-graph) documentation.

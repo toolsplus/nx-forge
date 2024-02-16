@@ -1,12 +1,10 @@
----
-sidebar_position: 10
----
-
 # Generators
 
 Documents [the generators](https://nx.dev/features/generate-code) provided by the Nx Forge plugin.
 
-Append `--help` or `-h` for any of the plugin generators below to explore all available options.
+Append `--help` or `-h` for any of the plugin generators to explore all available options.
+
+[//]: # (Used https://brianwendt.github.io/json-schema-md-doc/ to generate the properties markdown from schema.json files)
 
 ## Application
 
@@ -14,7 +12,7 @@ Append `--help` or `-h` for any of the plugin generators below to explore all av
 nx generate @toolsplus/nx-forge:app <nx-forge-app-name>
 ```
 
-Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all cases, you probably want to run [the Forge app registration task](executors.md#register) immediately after this generator to register the app with the Forge platform.
+Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all cases, you probably want to run [the Forge app registration task](executors#register) immediately after this generator to register the app with the Forge platform.
 
 **_Properties_**
 

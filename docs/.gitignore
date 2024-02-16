@@ -3,9 +3,10 @@
 
 # Production
 /build
+.vitepress/dist
+.vitepress/cache
 
 # Generated files
-.docusaurus
 .cache-loader
 
 # Misc

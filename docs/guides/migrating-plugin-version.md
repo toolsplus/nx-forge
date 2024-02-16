@@ -1,7 +1,3 @@
----
-sidebar_position: 90
----
-
 # Migrating to a newer plugin version
 
 As of plugin version 2.2.0, the plugin ships with migration scripts that allow you to use the [`nx migrate`](https://nx.dev/packages/nx/documents/migrate) to update your workspace to a newer version of `nx-forge`.
