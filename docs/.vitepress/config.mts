@@ -1,11 +1,13 @@
 import {defineConfig} from 'vitepress'
 
+const base = '/nx-forge/'
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: '/nx-forge/',
+  base,
   title: "Nx Forge",
   description: "Efficient and scalable Forge app development",
-  head: [['link', {rel: 'icon', href: '/favicon.ico'}]],
+  head: [['link', {rel: 'icon', href: `${base}favicon.ico`}]],
   cleanUrls: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
