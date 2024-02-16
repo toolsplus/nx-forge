@@ -1,16 +1,10 @@
----
-sidebar_position: 20
----
-
 # Executors
 
 Documents [the executors](https://nx.dev/concepts/executors-and-configurations) provided by the Nx Forge plugin.
 
-Append `--help` or `-h` for any of the plugin executors below to explore all available options.
+Append `--help` or `-h` for any of the plugin executors to explore all available options.
 
-{/*
-Used https://brianwendt.github.io/json-schema-md-doc/ to generate the properties markdown from schema.json files
-*/}
+[//]: # (Used https://brianwendt.github.io/json-schema-md-doc/ to generate the properties markdown from schema.json files)
 
 ## Register
 
@@ -148,11 +142,7 @@ _Mirrors the [install command](https://developer.atlassian.com/platform/forge/cl
   - Default: _false_
 
 
-## Tunnel
-
-<p class="alert alert--info" role="alert">
-  <b>🧪 Experimental:</b> The tunnel command is experimental and may not work as expected.
-</p>
+## Tunnel <Badge type="warning" text="Experimental" />
 
 ```shell
 nx serve <nx-forge-app-name>

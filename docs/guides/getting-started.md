@@ -6,7 +6,7 @@ sidebar_position: 10
 
 ## Prerequisites
 
-The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/intro) and have an existing Nx workspace. If you do not, make sure to create one using
+The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx) and have an existing Nx workspace. If you do not, make sure to create one using
 
 ```shell
 npx create-nx-workspace@latest <workspace-name> --preset=apps
@@ -30,7 +30,7 @@ Add the plugin to your Nx workspace using
 npm install --save-dev @toolsplus/nx-forge@latest
 ```
 
-:::info
+:::tip NOTE
 
 Ensure that [Nx peer dependency version listed in the nx-forge package](https://github.com/toolsplus/nx-forge/blob/d656cbb61a008d4112a847262e9e88be2f65cf32/packages/nx-forge/package.json#L10) matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
 
@@ -38,37 +38,25 @@ Ensure that [Nx peer dependency version listed in the nx-forge package](https://
 
 ### Generating a Forge app
 
-Once installed, run the Forge app generator to generate a Forge app. Replace `<nx-forge-app-name>` with the name of the app you want to create.
+Once installed, run the Forge app generator to generate a Forge app. Replace `<nx-forge-app-name>` with the name of the app you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
 nx g @toolsplus/nx-forge:app <nx-forge-app-name>
 ```
 
-:::tip
-
-Use the `--dry-run` flag to see what will be generated.
-
-:::
-
 ### Adding a Custom UI module
 
-Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm i -D @nx/react`. This plugin allows us to generate a React application for our Custom UI:
+Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm i -D @nx/react`. This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
 nx g @nx/react:app <custom-ui-app-name>
 ```
 
-Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create.
-
-:::tip
-
-Use the `--dry-run` flag to see what will be generated.
-
-:::
 
 To get the React app working as a Forge Custom UI, update the `apps/<custom-ui-app-name>/project.json` file by replacing the `baseHref` value in the build options with `.` instead of `/`. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets):
 
-```json showLineNumbers
+::: code-group
+```json[project.json]:line-numbers
 {
   "root": "apps/<custom-ui-app-name>",
   "sourceRoot": "apps/<custom-ui-app-name>/src",
@@ -82,8 +70,7 @@ To get the React app working as a Forge Custom UI, update the `apps/<custom-ui-a
         "compiler": "babel",
         "outputPath": "dist/apps/<custom-ui-app-name>",
         "index": "apps/<custom-ui-app-name>/src/index.html",
-        // highlight-next-line
-        "baseHref": ".",
+        "baseHref": ".", // [!code highlight]
         ...
       }
     },
@@ -91,26 +78,25 @@ To get the React app working as a Forge Custom UI, update the `apps/<custom-ui-a
   }
 }
 ```
+:::
 
 ### Wiring the Custom UI project with the Forge app project
 
 Back in the Forge app project, open the generated `manifest.yml` file, add a Custom UI module, the corresponding resource entry, and the `permissions` declaration:
 
-```yaml showLineNumbers
+::: code-group
+```yaml{2-8,12-20}[manifest.yml]:line-numbers
 modules:
-# highlight-start
   jira:projectPage:
     - key: project-page
       title: Project page Custom UI
       layout: basic
       resource: project-page
       resolver:
-        function: resolver
-# highlight-end  
+        function: resolver  
   function:
     - key: resolver
       handler: index.handler
-# highlight-start
 resources:
   - key: project-page
     path: <custom-ui-app-name>
@@ -120,12 +106,12 @@ permissions:
   content:
     styles:
       - 'unsafe-inline'
-# highlight-end
 app:
   id: ari:cloud:ecosystem::app/to-be-generated
 ```
+:::
 
-The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](./concepts/project-graph.md) for further details.
+The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
 
 ### Initial build, registration, deployment, and installation
 
@@ -157,6 +143,6 @@ Finally, install the app on any of your sites with the following command
 nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
 ```
 
-🎉 The Forge app is now registered, deployed, and installed with the Forge platform.
+:tada: The Forge app is now registered, deployed, and installed with the Forge platform.
 
-That's it for the setup steps. You can now generate additional [Forge application projects](./guides/generating-a-forge-app.md), [Custom UI projects](./guides/adding-a-custom-ui-module.mdx), or [library projects](https://nx.dev/concepts/more-concepts/applications-and-libraries) to maintain shared app logic and depend on it in one or more Forge apps.
+That's it for the setup steps. You can now generate additional [Forge application projects](generating-a-forge-app), [Custom UI projects](adding-a-custom-ui-module), or [library projects](https://nx.dev/concepts/more-concepts/applications-and-libraries) to maintain shared app logic and depend on it in one or more Forge apps.

@@ -1,23 +1,16 @@
----
-sidebar_position: 20
----
-
 # Workspace layout
 
 This document describes the idea behind using Nx to structure and build Forge applications.
 
-<details>
-<summary>What is Nx?</summary>
-<p>
+:::details What is Nx?
 In one sentence, Nx is an open-source build system that provides tools and techniques for enhancing developer productivity, optimizing CI performance, and maintaining code quality.
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/-_4WMl-Fn0w?si=_zWHiOFzci0Oo0lb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-</p>
-</details>
+:::
 
-The schema below illustrates a typical layout of an Nx workspace when using the Nx Forge plugin. Most notably, [workspace is strucuted in to _apps_ and _libs_](https://nx.dev/concepts/more-concepts/applications-and-libraries). This distinction allows a more modular architecture by following a separation of concerns methodology, incentivizing the organization of our source code and logic into smaller, more focused, and highly cohesive units.
+The schema below illustrates a typical layout of an Nx workspace when using the Nx Forge plugin. Most notably, [the workspace is structured in to _apps_ and _libs_](https://nx.dev/concepts/more-concepts/applications-and-libraries). This distinction allows a more modular architecture by following a separation of concerns methodology, incentivizing the organization of our source code and logic into smaller, more focused, and highly cohesive units.
 
-```text title="Nx Forge workspace layout"
+```
 my-nx-workspace/
 ├── apps
 │   ├── my-forge-app-1
@@ -62,4 +55,4 @@ When using Nx with Javascript, it defaults to Typescript. Nx provides and largel
 
 ### Scaling
 
-Similar to the previous point, because [Nx knows about project and task dependencies](project-graph.md), it can build Forge applications that are split into many different pieces in a single command. Nx will build each dependent part before building the Forge application itself. Among many other features, Nx also provides tooling to [enforce module boundaries](https://nx.dev/recipes/enforce-module-boundaries#enforce-module-boundaries) and [cache task results](https://nx.dev/features/cache-task-results) to maintain a snappy experience.
+Similar to the previous point, because [Nx knows about project and task dependencies](project-graph), it can build Forge applications that are split into many different pieces in a single command. Nx will build each dependent part before building the Forge application itself. Among many other features, Nx also provides tooling to [enforce module boundaries](https://nx.dev/recipes/enforce-module-boundaries#enforce-module-boundaries) and [cache task results](https://nx.dev/features/cache-task-results) to maintain a snappy experience.

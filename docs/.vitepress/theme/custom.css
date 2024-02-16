@@ -1,0 +1,20 @@
+/* Using Atlassian colors: https://atlassian.design/foundations/color-new/color-palette-new/ */
+:root {
+  /*Blue700*/
+  --vp-c-brand-1: #0C66E4;
+  /*Blue800*/
+  --vp-c-brand-2: #0055CC;
+  /*Blue700*/
+  --vp-c-brand-3: #0C66E4;
+}
+
+.dark {
+  /*Blue400*/
+  --vp-c-brand-1: #579DFF;
+  /*Blue300*/
+  --vp-c-brand-2: #85B8FF;
+  /*Blue400*/
+  --vp-c-brand-3: #579DFF;
+  /*DarkNeutral-100*/
+  --vp-button-brand-text: #101214;
+}
