@@ -1,15 +1,33 @@
 import {
+  addDependenciesToPackageJson,
   formatFiles,
   GeneratorCallback,
   NxJsonConfiguration,
   readJson,
+  removeDependenciesFromPackageJson,
   runTasksInSerial,
   Tree,
   writeJson,
 } from '@nx/devkit';
 import { InitGeneratorSchema } from './schema';
-import { addDependencies, normalizeOptions } from './lib';
-import { jestInitGenerator } from '@nx/jest';
+import {
+  forgeApiVersion,
+  forgeResolverVersion,
+  pluginVersion,
+} from '../../utils/versions';
+
+function addDependencies(tree: Tree): GeneratorCallback {
+  return addDependenciesToPackageJson(
+    tree,
+    {
+      '@forge/api': forgeApiVersion,
+      '@forge/resolver': forgeResolverVersion,
+    },
+    {
+      '@toolsplus/nx-forge': pluginVersion,
+    }
+  );
+}
 
 function updateNxJson(host: Tree) {
   const nxJson: NxJsonConfiguration = readJson(host, 'nx.json');
@@ -22,19 +40,15 @@ function updateNxJson(host: Tree) {
 
 export default async function (
   tree: Tree,
-  rawOptions: InitGeneratorSchema
+  options: InitGeneratorSchema
 ): Promise<GeneratorCallback> {
-  const options = normalizeOptions(rawOptions);
   updateNxJson(tree);
 
   const tasks: GeneratorCallback[] = [];
 
-  if (options.unitTestRunner === 'jest') {
-    tasks.push(
-      await jestInitGenerator(tree, { ...rawOptions, testEnvironment: 'node' })
-    );
-  }
-
+  tasks.push(
+    removeDependenciesFromPackageJson(tree, ['@toolsplus/nx-forge'], [])
+  );
   tasks.push(addDependencies(tree));
 
   if (!options.skipFormat) {

@@ -14,12 +14,9 @@ describe('init generator', () => {
     await generator(tree, {});
     const packageJson = readJson(tree, 'package.json');
     expect(packageJson.dependencies['@toolsplus/nx-forge']).toBeUndefined();
+    expect(packageJson.dependencies['@forge/api']).toBeDefined();
+    expect(packageJson.dependencies['@forge/resolver']).toBeDefined();
     expect(packageJson.devDependencies['@toolsplus/nx-forge']).toBeDefined();
-  });
-
-  it('should not add jest config if unitTestRunner is none', async () => {
-    await generator(tree, { unitTestRunner: 'none' });
-    expect(tree.exists('jest.config.js')).toEqual(false);
   });
 
   it('should register nx plugin', async () => {

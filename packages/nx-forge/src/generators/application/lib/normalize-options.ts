@@ -1,29 +1,26 @@
 import { Linter } from '@nx/eslint';
 import type { Tree } from '@nx/devkit';
-import {
-  extractLayoutDirectory,
-  getWorkspaceLayout,
-  joinPathFragments,
-  names,
-} from '@nx/devkit';
 import type { ApplicationGeneratorOptions, NormalizedOptions } from '../schema';
+import { determineProjectNameAndRootOptions } from '@nx/devkit/src/generators/project-name-and-root-utils';
 
-export function normalizeOptions(
+export async function normalizeOptions(
   tree: Tree,
   options: ApplicationGeneratorOptions
-): NormalizedOptions {
-  const { layoutDirectory, projectDirectory } = extractLayoutDirectory(
-    options.directory
-  );
-  const appsDir = layoutDirectory ?? getWorkspaceLayout(tree).appsDir;
-
-  const appDirectory = projectDirectory
-    ? `${names(projectDirectory).fileName}/${names(options.name).fileName}`
-    : names(options.name).fileName;
-
-  const appProjectName = appDirectory.replace(new RegExp('/', 'g'), '-');
-
-  const appProjectRoot = joinPathFragments(appsDir, appDirectory);
+): Promise<NormalizedOptions> {
+  const {
+    projectName: appProjectName,
+    projectRoot: appProjectRoot,
+    projectNameAndRootFormat,
+  } = await determineProjectNameAndRootOptions(tree, {
+    name: options.name,
+    projectType: 'application',
+    directory: options.directory,
+    projectNameAndRootFormat: options.projectNameAndRootFormat,
+    rootProject: options.rootProject,
+    callingGenerator: '@toolsplus/nx-forge:application',
+  });
+  options.rootProject = appProjectRoot === '.';
+  options.projectNameAndRootFormat = projectNameAndRootFormat;
 
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
@@ -31,10 +28,11 @@ export function normalizeOptions(
 
   return {
     ...options,
-    name: names(appProjectName).fileName,
+    name: appProjectName,
     appProjectRoot,
+    parsedTags,
     linter: options.linter ?? Linter.EsLint,
     unitTestRunner: options.unitTestRunner ?? 'jest',
-    parsedTags,
+    rootProject: options.rootProject ?? false,
   };
 }
