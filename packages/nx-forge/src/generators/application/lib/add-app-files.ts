@@ -8,7 +8,7 @@ import {
 import { getRelativePathToRootTsConfig } from '@nx/js';
 import type { NormalizedOptions } from '../schema';
 
-export function createFiles(tree: Tree, options: NormalizedOptions): void {
+export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
   generateFiles(
     tree,
     joinPathFragments(__dirname, '..', 'files'),

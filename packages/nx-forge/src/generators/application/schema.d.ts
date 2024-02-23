@@ -1,21 +1,26 @@
 import type { Linter } from '@nx/eslint';
+import { ProjectNameAndRootFormat } from '@nx/devkit/src/generators/project-name-and-root-utils';
 
-export interface ApplicationGeneratorOptions {
+interface ApplicationGeneratorOptions {
   name: string;
   directory?: string;
+  projectNameAndRootFormat?: ProjectNameAndRootFormat;
   skipFormat?: boolean;
-  linter?: Exclude<Linter, Linter.TsLint>;
+  linter?: Linter;
   standaloneConfig?: boolean;
   tags?: string;
-  unitTestRunner?: UnitTestRunner;
+  unitTestRunner?: 'jest' | 'none';
+  swcJest?: boolean;
+  /** @deprecated use `swcJest` instead */
   babelJest?: boolean;
   js?: boolean;
   setParserOptionsProject?: boolean;
+  rootProject?: boolean;
 }
 
 interface NormalizedOptions extends ApplicationGeneratorOptions {
   appProjectRoot: string;
   linter: Linter;
-  unitTestRunner: UnitTestRunner;
+  unitTestRunner: 'jest' | 'none';
   parsedTags: string[];
 }

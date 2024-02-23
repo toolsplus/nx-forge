@@ -1,8 +1,19 @@
-import { copyFileSync, mkdirSync } from 'fs';
+import { copyFileSync, mkdirSync, statSync, PathLike } from 'fs';
 import { join, resolve } from 'path';
 import { logger } from '@nx/devkit';
-import { directoryExists } from '@nx/workspace/src/utilities/fileutils';
 import { NormalizedOptions } from '../schema';
+
+/**
+ * Check if a directory exists
+ * @param path Path to directory
+ */
+function directoryExists(path: PathLike): boolean {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
 
 export function copyForgeAppAssets(options: NormalizedOptions) {
   logger.info('Copying Forge app assets...');

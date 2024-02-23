@@ -7,7 +7,6 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "@nx/workspace": "^17.0.0",
     "nx": "^17.0.0"
   },
   "dependencies": {
