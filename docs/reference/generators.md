@@ -22,6 +22,12 @@ Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all c
 - <b id="#NxForgeApplicationGenerator/properties/directory">directory</b>
   - _Directory where the project is placed_
   - Type: `string`
+- <b id="#NxForgeApplicationGenerator/properties/projectNameAndRootFormat">projectNameAndRootFormat</b>
+  - _Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`)._
+  - Type: `string`
+  - The value is restricted to the following:
+    1. _"as-provided"_
+    2. _"derived"_
 - <b id="#NxForgeApplicationGenerator/properties/skipFormat">skipFormat</b>
   - _Skip formatting files._
   - Type: `boolean`
@@ -43,10 +49,15 @@ Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all c
 - <b id="#NxForgeApplicationGenerator/properties/tags">tags</b>
   - _Add tags to the project (used for linting)_
   - Type: `string`
-- <b id="#NxForgeApplicationGenerator/properties/babelJest">babelJest</b>
+- <b id="#NxForgeApplicationGenerator/properties/swcJest">swcJest</b>
+  - _Use `@swc/jest` instead `ts-jest` for faster test compilation._
+  - Type: `boolean`
+  - Default: _false_
+- <b id="#NxForgeApplicationGenerator/properties/babelJest">babelJest</b> <Badge type="warning" text="Deprecated" />
   - _Use `babel` instead of `ts-jest`._
   - Type: `boolean`
   - Default: _false_
+  - _Deprecated: Use `--swcJest` instead_
 - <b id="#NxForgeApplicationGenerator/properties/js">js</b>
   - _Generate JavaScript files rather than TypeScript files._
   - Type: `boolean`
