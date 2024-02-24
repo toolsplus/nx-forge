@@ -9,16 +9,10 @@ sidebar_position: 10
 The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx) and have an existing Nx workspace. If you do not, make sure to create one using
 
 ```shell
-npx create-nx-workspace@latest <workspace-name> --preset=apps
+npx create-nx-workspace@17 <workspace-name> --preset=apps
 ```
 
-You will be asked if you would like to use Nx Cloud (either option is fine). Once the workspace has been created, run `cd <workspace-name>`.
-
-Finally, make sure your workspace has the following packages (peer dependencies) installed
-
-```shell
-npm install --save-dev @nx/node
-```
+You will be asked if you would like to use Nx Cloud and/or remote caching. Either option is fine. Once the workspace has been created, run `cd <workspace-name>`.
 
 ## Setting up
 
@@ -41,15 +35,21 @@ Ensure that [Nx peer dependency version listed in the nx-forge package](https://
 Once installed, run the Forge app generator to generate a Forge app. Replace `<nx-forge-app-name>` with the name of the app you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-nx g @toolsplus/nx-forge:app <nx-forge-app-name>
+npx nx g @toolsplus/nx-forge:app <nx-forge-app-name> --directory apps/<nx-forge-app-name> --projectNameAndRootFormat as-provided
 ```
+
+:::info
+
+Starting with Nx 19 the flag `--projectNameAndRootFormat as-provided` will become the default and will no longer be required. 
+
+:::
 
 ### Adding a Custom UI module
 
 Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm i -D @nx/react`. This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-nx g @nx/react:app <custom-ui-app-name>
+npx nx g @nx/react:app <custom-ui-app-name>
 ```
 
 
@@ -118,13 +118,13 @@ The most significant bit to note here is that the `path` property of the `projec
 Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build the Forge app using
 
 ```shell
-nx build <nx-forge-app-name>
+npx nx build <nx-forge-app-name>
 ```
 
 Once that's finished, run
 
 ```shell
-nx register <nx-forge-app-name>
+npx nx register <nx-forge-app-name>
 ```
 
 This command will use `<nx-forge-app-name>` by default as the app name on the Forge platform. If you would like to use a different name, add the app name flag as follows: `--appName="My Forge App"`.
@@ -132,7 +132,7 @@ This command will use `<nx-forge-app-name>` by default as the app name on the Fo
 Then run
 
 ```shell
-nx deploy <nx-forge-app-name>
+npx nx deploy <nx-forge-app-name>
 ```
 
 to deploy the Forge app to the default development environment.
@@ -140,7 +140,7 @@ to deploy the Forge app to the default development environment.
 Finally, install the app on any of your sites with the following command
 
 ```shell
-nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
+npx nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
 ```
 
 :tada: The Forge app is now registered, deployed, and installed with the Forge platform.
