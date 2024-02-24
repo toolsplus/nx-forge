@@ -53,13 +53,13 @@
     "babelJest": {
       "type": "boolean",
       "description": "Use `babel` instead of `ts-jest`.",
-      "default": false
+      "default": false,
+      "x-deprecated": "Use --swcJest instead for faster compilation"
     },
     "js": {
       "type": "boolean",
       "description": "Generate JavaScript files rather than TypeScript files.",
-      "default": false,
-      "x-deprecated": "Use --swcJest instead for faster compilation"
+      "default": false
     },
     "setParserOptionsProject": {
       "type": "boolean",
