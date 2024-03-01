@@ -37,6 +37,12 @@ nx build <nx-forge-app-name>
 
 Builds the Forge app project named `<nx-forge-app-name>` to the directory specified in the `outputPath` property. If the Forge app project has dependent resource projects (Custom UI), this will build dependent projects first before building the Forge app itself. 
 
+::: info
+We are considering deprecating and removing the `build` executor in favor of the `package` executor.
+
+Read more about this in the following discussion: https://github.com/toolsplus/nx-forge/discussions/86
+:::
+
 **_Properties_**
 
 - <b id="#/properties/outputPath">outputPath</b> `required`
@@ -54,6 +60,23 @@ Builds the Forge app project named `<nx-forge-app-name>` to the directory specif
 - <b id="#/properties/webpackConfig">webpackConfig</b>
   - _Path to a function which takes a webpack config, some context and returns the resulting webpack config. See https://nx.dev/guides/customize-webpack_
   - Type: `string`
+
+## Package
+
+```shell
+nx package <nx-forge-app-name>
+```
+
+Packages the Forge app project named `<nx-forge-app-name>` into a deployable artifact accepted by the Forge platform. Expects the build output to be available in the `outputPath` directory.
+
+**_Properties_**
+
+ - <b id="#/properties/outputPath">outputPath</b> `required`
+	 - _Output path of the generated files._
+	 - Type: `string`
+ - <b id="#/properties/resourcePath">resourcePath</b>
+	 - _Path where resource files such as Custom UI output is placed relative to the outputPath._
+	 - Type: `string`
 
 ## Deploy
 
