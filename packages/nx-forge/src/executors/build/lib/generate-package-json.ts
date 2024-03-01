@@ -5,6 +5,8 @@ import { NormalizedOptions } from '../schema';
 import { Resources } from '@forge/manifest';
 import { resolve } from 'path';
 
+type Options = Pick<NormalizedOptions, 'root' | 'projectRoot' | 'outputPath'>;
+
 /**
  * Merges the existing package.json details with a generated package.json that includes
  * all required dependencies.
@@ -18,7 +20,7 @@ export function generatePackageJson(
   projectName: string,
   graph: ProjectGraph,
   customUIResources: Resources,
-  options: NormalizedOptions
+  options: Options
 ) {
   const packageJson = createPackageJson(
     projectName,
@@ -26,7 +28,7 @@ export function generatePackageJson(
     customUIResources,
     options
   );
-  packageJson.main = packageJson.main ?? options.outputFileName;
+  packageJson.main = packageJson.main ?? 'index.js';
   delete packageJson.devDependencies;
   writeJsonFile(
     `${resolve(options.root, options.outputPath)}/package.json`,

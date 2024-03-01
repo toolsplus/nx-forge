@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { joinPathFragments, logger } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
@@ -6,7 +7,8 @@ import {
   readManifestYml,
   writeManifestYml,
 } from '../../../utils/forge/manifest-yml';
-import { resolve } from 'path';
+
+type Options = Pick<NormalizedOptions, 'root' | 'outputPath' | 'customUIPath'>;
 
 /**
  * Patches the output manifest.yml file to replace resource path parameters to point to the actual Custom UI build
@@ -16,7 +18,7 @@ import { resolve } from 'path';
  *
  * @param options Executor options
  */
-export async function patchManifestYml(options: NormalizedOptions) {
+export async function patchManifestYml(options: Options) {
   const manifestPath = joinPathFragments(
     resolve(options.root, options.outputPath),
     'manifest.yml'

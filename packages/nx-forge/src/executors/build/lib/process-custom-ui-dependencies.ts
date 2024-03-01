@@ -7,6 +7,8 @@ import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
 
+type Options = Pick<NormalizedOptions, 'root' | 'outputPath' | 'customUIPath'>;
+
 /**
  * Verifies that Custom UI projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
  * output directory. In particular, this will make sure that each resource listed in the manifest.yml has its path
@@ -16,7 +18,7 @@ import { readManifestYml } from '../../../utils/forge/manifest-yml';
  * @param context Executor context
  */
 export async function processCustomUIDependencies(
-  options: NormalizedOptions,
+  options: Options,
   context: ExecutorContext
 ): Promise<Resources> {
   const manifestPath = joinPathFragments(
@@ -37,7 +39,7 @@ export async function processCustomUIDependencies(
 const verifyAndCopyCustomUIDependency = (
   resource: HostedResourcesSchema,
   context: ExecutorContext,
-  options: NormalizedOptions
+  options: Options
 ): void => {
   const customUIProjectName = resource.path;
 
