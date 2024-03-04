@@ -51,7 +51,14 @@ export default defineConfig({
             items: [
               {text: 'Migrating to a newer plugin version', link: 'migrating-plugin-version'},
             ]
+          },
+          {
+            text: 'Examples',
+            items: [
+              {text: 'Nx Forge Examples', link: 'examples'},
+            ]
           }
+
         ]
       },
       '/reference/': {
