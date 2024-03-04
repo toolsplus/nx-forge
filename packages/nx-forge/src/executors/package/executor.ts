@@ -3,6 +3,7 @@ import { NormalizedOptions, PackageExecutorSchema } from './schema';
 import { processCustomUIDependencies } from '../build/lib/process-custom-ui-dependencies';
 import { patchManifestYml } from '../build/lib/patch-manifest-yml';
 import { generatePackageJson } from '../build/lib/generate-package-json';
+import { copyForgeAppAssets } from '../build/lib/copy-forge-app-assets';
 
 export function normalizeOptions(
   options: PackageExecutorSchema,
@@ -35,6 +36,8 @@ export default async function runExecutor(
   }
 
   const options = normalizeOptions(rawOptions, context.root, sourceRoot, root);
+
+  copyForgeAppAssets(options);
 
   const customUIResources = await processCustomUIDependencies(
     { ...options, customUIPath: options.resourcePath },
