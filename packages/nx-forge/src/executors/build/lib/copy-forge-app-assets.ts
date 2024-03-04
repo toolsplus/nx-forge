@@ -15,7 +15,9 @@ function directoryExists(path: PathLike): boolean {
   }
 }
 
-export function copyForgeAppAssets(options: NormalizedOptions) {
+type Options = Pick<NormalizedOptions, 'root' | 'outputPath' | 'projectRoot'>;
+
+export function copyForgeAppAssets(options: Options) {
   logger.info('Copying Forge app assets...');
 
   const absoluteOutputPath = resolve(options.root, options.outputPath);
