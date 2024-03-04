@@ -1,6 +1,6 @@
 #  Nx Forge
 
-[![CI](https://img.shields.io/github/actions/workflow/status/toolsplus/nx-forge/ci.yml?branch=main&label=CI&style=flat&logo=github)](https://github.com/toolsplus/nx-forge/actions/workflows/ci.yml)
+[![CI](https://github.com/toolsplus/nx-forge/actions/workflows/ci-main.yml/badge.svg)](https://github.com/toolsplus/nx-forge/actions/workflows/ci-main.yml)
 [![npm version](https://img.shields.io/npm/v/@toolsplus/nx-forge?style=flat&logo=npm)](https://www.npmjs.com/package/@toolsplus/nx-forge)
 
 [Nx plugin](https://nx.dev) for [Atlassian Forge](https://developer.atlassian.com/platform/forge/) that aims to assist in efficient, scalable app development and remove the mental overhead of how to set up a Forge project. 
