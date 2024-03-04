@@ -5,6 +5,7 @@ import { getBuildConfig } from '../shared/targets/get-build-config';
 import { getServeConfig } from '../shared/targets/get-serve-config';
 import { getDeployConfig } from '../shared/targets/get-deploy-config';
 import { getInstallConfig } from '../shared/targets/get-install-config';
+import { getForgeCliConfig } from '../shared/targets/get-forge-cli-config';
 
 const registerProjectTargets = (projectRoot: string) => {
   const outputPath =
@@ -22,6 +23,7 @@ const registerProjectTargets = (projectRoot: string) => {
   targets.serve = getServeConfig({ outputPath });
   targets.deploy = getDeployConfig({ outputPath });
   targets.install = getInstallConfig({ outputPath });
+  targets.forge = getForgeCliConfig({ outputPath });
 
   return targets;
 };
