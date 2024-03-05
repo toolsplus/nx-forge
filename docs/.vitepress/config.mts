@@ -43,7 +43,6 @@ export default defineConfig({
             items: [
               {text: 'Generating a Forge app', link: 'generating-a-forge-app'},
               {text: 'Adding a Custom UI module', link: 'adding-a-custom-ui-module'},
-              {text: 'Adding a Forge CLI executor', link: 'adding-a-forge-cli-executor'},
             ]
           },
           {
