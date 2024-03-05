@@ -69,6 +69,12 @@ nx package <nx-forge-app-name>
 
 Packages the Forge app project named `<nx-forge-app-name>` into a deployable artifact accepted by the Forge platform. Expects the build output to be available in the `outputPath` directory.
 
+::: info
+The `package` executor is intended to be used with a standard Nx `build` executor, for example, Webpack or EsBuild.
+
+Read more about this in the following discussion: https://github.com/toolsplus/nx-forge/discussions/86
+:::
+
 **_Properties_**
 
  - <b id="#/properties/outputPath">outputPath</b> `required`
@@ -77,6 +83,7 @@ Packages the Forge app project named `<nx-forge-app-name>` into a deployable art
  - <b id="#/properties/resourcePath">resourcePath</b>
 	 - _Path where resource files such as Custom UI output is placed relative to the outputPath._
 	 - Type: `string`
+
 
 ## Deploy
 
@@ -189,3 +196,26 @@ _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli
   - Type: `boolean`
   - Default: _false_
 
+
+## Forge
+
+```shell
+nx forge <nx-forge-app-name> <forge-cli-options>
+```
+
+Runs any Forge CLI command in the `<nx-forge-app-name>` output directory. Refer to [the Forge CLI reference documentation](https://developer.atlassian.com/platform/forge/cli-reference/) for a list of all available commands.
+
+:::info
+
+Where a custom executor is provided by Nx Forge, prefer using the custom executor over calling the Forge CLI directly.
+
+:::
+
+**_Properties_**
+
+- <b id="#/properties/outputPath">outputPath</b> `required`
+  - _The output path of the Forge app files._
+  - Type: `string`
+
+Nx Forge-provided executors ensure that the Nx project configuration is updated where necessary when the Forge command has run. For example, registering a Forge app using `nx forge <nx-forge-app-name> register` will invoke the Forge CLI directly and only update the Forge app ID in the manifest file in the output directory. The next time you run `nx build <nx-forge-app-name>` the manifest file in the output path will be overwritten.
+The correct way to do this is to run [`nx register <nx-forge-app-name>`](#register), which will update the app ID of the `manifest.yml` within the `<nx-forge-app-name>` project root.
