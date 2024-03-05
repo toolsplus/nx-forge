@@ -23,6 +23,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -75,17 +76,6 @@ describe('application generator', () => {
               outputPath: 'dist/my-forge-app',
             },
           },
-          lint: {
-            executor: '@nx/eslint:lint',
-            outputs: ['{options.outputFile}'],
-          },
-          test: {
-            executor: '@nx/jest:jest',
-            outputs: ['{workspaceRoot}/coverage/{projectRoot}'],
-            options: {
-              jestConfig: 'my-forge-app/jest.config.ts',
-            },
-          },
         })
       );
     });
@@ -95,6 +85,7 @@ describe('application generator', () => {
         name: 'my-forge-app',
         tags: 'one,two',
         projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
       });
 
       const projects = Object.fromEntries(getProjects(tree));
@@ -109,6 +100,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
       });
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeTruthy();
       expect(tree.exists('my-forge-app/manifest.yml')).toBeTruthy();
@@ -191,6 +183,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
       });
 
       const tsconfig = readJson(tree, 'my-forge-app/tsconfig.json');
@@ -204,16 +197,57 @@ describe('application generator', () => {
         name: 'my-forge-app',
         directory: 'my-dir/my-forge-app',
         projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
 
-      expect(project.root).toEqual('my-dir/my-forge-app');
-
-      expect(project.targets.lint).toEqual({
-        executor: '@nx/eslint:lint',
-        outputs: ['{options.outputFile}'],
-      });
+      expect(project).toMatchInlineSnapshot(`
+        {
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "name": "my-forge-app",
+          "projectType": "application",
+          "root": "my-dir/my-forge-app",
+          "sourceRoot": "my-dir/my-forge-app/src",
+          "tags": [],
+          "targets": {
+            "build": {
+              "executor": "@toolsplus/nx-forge:build",
+              "options": {
+                "outputPath": "dist/my-dir/my-forge-app",
+                "webpackConfig": "my-dir/my-forge-app/webpack.config.js",
+              },
+              "outputs": [
+                "{options.outputPath}",
+              ],
+            },
+            "deploy": {
+              "executor": "@toolsplus/nx-forge:deploy",
+              "options": {
+                "outputPath": "dist/my-dir/my-forge-app",
+              },
+            },
+            "install": {
+              "executor": "@toolsplus/nx-forge:install",
+              "options": {
+                "outputPath": "dist/my-dir/my-forge-app",
+              },
+            },
+            "register": {
+              "executor": "@toolsplus/nx-forge:register",
+              "options": {
+                "outputPath": "dist/my-dir/my-forge-app",
+              },
+            },
+            "serve": {
+              "executor": "@toolsplus/nx-forge:tunnel",
+              "options": {
+                "outputPath": "dist/my-dir/my-forge-app",
+              },
+            },
+          },
+        }
+      `);
     });
 
     it('should add tags to project config', async () => {
@@ -221,6 +255,7 @@ describe('application generator', () => {
         name: 'my-forge-app',
         directory: 'myDir',
         tags: 'one,two',
+        addPlugin: true,
       });
 
       const projects = Object.fromEntries(getProjects(tree));
@@ -235,6 +270,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         directory: 'myDir',
+        addPlugin: true,
       });
 
       [
@@ -284,16 +320,11 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         unitTestRunner: 'none',
+        addPlugin: true,
       });
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(tree.exists('my-forge-app/tsconfig.spec.json')).toBeFalsy();
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeFalsy();
-      const project = readProjectConfiguration(tree, 'my-forge-app');
-      expect(project.targets.test).toBeUndefined();
-      expect(project.targets.lint).toEqual({
-        executor: '@nx/eslint:lint',
-        outputs: ['{options.outputFile}'],
-      });
     });
   });
 
@@ -303,6 +334,7 @@ describe('application generator', () => {
         name: 'my-forge-app',
         tags: 'one,two',
         swcJest: true,
+        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
@@ -329,6 +361,7 @@ describe('application generator', () => {
         name: 'my-forge-app',
         tags: 'one,two',
         babelJest: true,
+        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
@@ -354,6 +387,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         js: true,
+        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.exists(`my-forge-app/jest.config.js`)).toBeTruthy();
@@ -381,6 +415,7 @@ describe('application generator', () => {
         name: 'my-forge-app',
         directory: 'myDir',
         js: true,
+        addPlugin: true,
       } as ApplicationGeneratorOptions);
       expect(tree.exists(`my-dir/my-forge-app/jest.config.js`)).toBeTruthy();
       expect(tree.exists('my-dir/my-forge-app/src/index.js')).toBeTruthy();
@@ -391,7 +426,7 @@ describe('application generator', () => {
     it('should format files by default', async () => {
       jest.spyOn(devkit, 'formatFiles');
 
-      await generator(tree, { name: 'my-forge-app' });
+      await generator(tree, { name: 'my-forge-app', addPlugin: true });
 
       expect(devkit.formatFiles).toHaveBeenCalled();
     });
@@ -402,6 +437,7 @@ describe('application generator', () => {
       await generator(tree, {
         name: 'my-forge-app',
         skipFormat: true,
+        addPlugin: true,
       });
 
       expect(devkit.formatFiles).not.toHaveBeenCalled();

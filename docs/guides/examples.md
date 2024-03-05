@@ -1,6 +1,6 @@
 # Nx Forge Examples
 
-Refer to the examples in the Nx Forge Examples repository. We aim to keep those examples updated with the current best practices.
+Refer to the examples in the [Nx Forge Examples repository](https://github.com/toolsplus/nx-forge-examples). We aim to keep those examples updated with the current best practices.
 
 https://github.com/toolsplus/nx-forge-examples
 

@@ -16,9 +16,11 @@ interface ApplicationGeneratorOptions {
   js?: boolean;
   setParserOptionsProject?: boolean;
   rootProject?: boolean;
+  addPlugin?: boolean;
 }
 
 interface NormalizedOptions extends ApplicationGeneratorOptions {
+  addPlugin: boolean;
   appProjectRoot: string;
   linter: Linter;
   unitTestRunner: 'jest' | 'none';
