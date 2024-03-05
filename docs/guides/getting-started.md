@@ -2,14 +2,18 @@
 sidebar_position: 10
 ---
 
+<script setup>
+const nxVersion = 18
+</script>
+
 # Getting started
 
 ## Prerequisites
 
 The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx) and have an existing Nx workspace. If you do not, make sure to create one using
 
-```shell
-npx create-nx-workspace@17 <workspace-name> --preset=apps
+```shell-vue
+npx create-nx-workspace@{{nxVersion}} <workspace-name> --preset=apps
 ```
 
 You will be asked if you would like to use Nx Cloud and/or remote caching. Either option is fine. Once the workspace has been created, run `cd <workspace-name>`.
@@ -46,7 +50,7 @@ Starting with Nx 19 the flag `--projectNameAndRootFormat as-provided` will becom
 
 ### Adding a Custom UI module
 
-Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm i -D @nx/react`. This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
+Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm add -D @nx/react@{{nxVersion}}`. This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
 npx nx g @nx/react:app <custom-ui-app-name>

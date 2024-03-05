@@ -8,7 +8,7 @@ import {
   updateTsConfigsToJs,
 } from '@nx/devkit';
 import { Linter, lintProjectGenerator } from '@nx/eslint';
-import { configurationGenerator, jestInitGenerator } from '@nx/jest';
+import { configurationGenerator } from '@nx/jest';
 import { initGenerator as jsInitGenerator, tsConfigBaseOptions } from '@nx/js';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
@@ -44,6 +44,7 @@ export default async function (
   schema: ApplicationGeneratorOptions
 ) {
   return await applicationGeneratorInternal(tree, {
+    addPlugin: false,
     projectNameAndRootFormat: 'derived',
     ...schema,
   });
@@ -76,12 +77,6 @@ async function applicationGeneratorInternal(
 
   updateTsConfigOptions(tree, options);
 
-  if (options.unitTestRunner === 'jest') {
-    tasks.push(
-      await jestInitGenerator(tree, { ...rawOptions, testEnvironment: 'node' })
-    );
-  }
-
   if (options.linter === Linter.EsLint) {
     const lintTask = await lintProjectGenerator(tree, {
       linter: options.linter,
@@ -92,6 +87,7 @@ async function applicationGeneratorInternal(
       unitTestRunner: options.unitTestRunner,
       skipFormat: true,
       setParserOptionsProject: options.setParserOptionsProject,
+      addPlugin: options.addPlugin,
     });
     tasks.push(lintTask);
   }
