@@ -14,6 +14,11 @@
       "type": "string",
       "description": "Custom UI output path relative to the outputPath."
     },
+    "resourceOutputPathMap": {
+      "type": "object",
+      "description": "Map of resource project names to their respective output path.",
+      "default": {}
+    },
     "watch": {
       "type": "boolean",
       "description": "Enable re-building when files change.",

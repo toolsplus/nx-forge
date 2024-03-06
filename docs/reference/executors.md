@@ -51,6 +51,10 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
 - <b id="#/properties/customUIPath">customUIPath</b>
   - _Custom UI output path relative to the outputPath._
   - Type: `string`
+- <b id="#/properties/resourceOutputPathMap">resourceOutputPathMap</b>
+  - _Map of resource project names to their respective output path._
+  - Type: `object`
+  - Default: `{}`
 - <b id="#/properties/watch">watch</b>
   - _Enable re-building when files change._
   - Type: `boolean`
@@ -83,7 +87,18 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
  - <b id="#/properties/resourcePath">resourcePath</b>
 	 - _Path where resource files such as Custom UI output is placed relative to the outputPath._
 	 - Type: `string`
+ - <b id="#/properties/resourceOutputPathMap">resourceOutputPathMap</b>
+   - _Map of resource project names to their respective output path._
+   - Type: `object`
+   - Default: `{}`
 
+The executor tries to infer the output path of dependent resources (Custom UI) from the dependent project's `build` target configuration as follows:
+
+  1. if a mapping is defined using `resourceOutputPathMap` use the mapping
+  2. else if the `build` target definition has `options.outputPath` define use that
+  3. else use the `build` target's `outputs` definition, if there is only one entry
+
+In all other cases, the plugin will not be able to infer the build output path and the output path should be defined explicitly using the `resourceOutputPathMap` option.
 
 ## Deploy
 
