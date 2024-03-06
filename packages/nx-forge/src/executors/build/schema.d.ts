@@ -4,6 +4,7 @@ export interface BuildExecutorOptions {
   watch: boolean;
   sourceMap?: boolean | 'hidden';
   webpackConfig?: string;
+  resourceOutputPathMap?: Record<string, string>;
 }
 
 export interface NormalizedOptions extends BuildExecutorOptions {
@@ -13,4 +14,5 @@ export interface NormalizedOptions extends BuildExecutorOptions {
   customUIPath: string;
   outputPath: string;
   outputFileName: string;
+  resourceOutputPathMap: Record<string, string>;
 }

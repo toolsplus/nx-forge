@@ -12,6 +12,11 @@
     "resourcePath": {
       "type": "string",
       "description": "Path where resource files such as Custom UI output is placed relative to the outputPath."
+    },
+    "resourceOutputPathMap": {
+      "type": "object",
+      "description": "Map of resource project names to their respective output path.",
+      "default": {}
     }
   },
   "required": ["outputPath"]

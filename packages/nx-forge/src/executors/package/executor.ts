@@ -17,6 +17,7 @@ export function normalizeOptions(
     sourceRoot,
     projectRoot,
     resourcePath: options.resourcePath ?? 'resources',
+    resourceOutputPathMap: options.resourceOutputPathMap ?? {},
   };
 }
 

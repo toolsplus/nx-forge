@@ -12,6 +12,7 @@ export function normalizeOptions(
     sourceRoot,
     projectRoot,
     customUIPath: options.customUIPath ?? 'customUI',
+    resourceOutputPathMap: options.resourceOutputPathMap ?? {},
     outputFileName: 'index.js',
     watch: options.watch ?? false,
   };
