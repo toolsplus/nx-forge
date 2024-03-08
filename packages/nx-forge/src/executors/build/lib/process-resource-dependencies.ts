@@ -14,18 +14,20 @@ import { readManifestYml } from '../../../utils/forge/manifest-yml';
 
 type Options = Pick<
   NormalizedOptions,
-  'root' | 'outputPath' | 'customUIPath' | 'resourceOutputPathMap'
->;
+  'root' | 'outputPath' | 'resourceOutputPathMap'
+> & {
+  resourcePath: string;
+};
 
 /**
- * Verifies that Custom UI projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
+ * Verifies that resource projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
  * output directory. In particular, this will make sure that each resource listed in the manifest.yml has its path
  * configured to point to a Nx project in this workspace.
  *
  * @param options Executor options
  * @param context Executor context
  */
-export async function processCustomUIDependencies(
+export async function processResourceDependencies(
   options: Options,
   context: ExecutorContext
 ): Promise<Resources> {
@@ -38,7 +40,7 @@ export async function processCustomUIDependencies(
   const resources = manifestSchema.resources ?? [];
 
   resources.forEach((r) =>
-    verifyAndCopyCustomUIDependency(r, context, options)
+    verifyAndCopyResourceDependency(r, context, options)
   );
 
   return resources;
@@ -86,52 +88,52 @@ const getResourceOutputPath = (
   );
 };
 
-const verifyAndCopyCustomUIDependency = (
+const verifyAndCopyResourceDependency = (
   resource: HostedResourcesSchema,
   context: ExecutorContext,
   options: Options
 ): void => {
-  const customUIProjectName = resource.path;
-  const customUIProjectGraphNode =
-    context.projectGraph.nodes[customUIProjectName];
-  const customUIProjectConfiguration = customUIProjectGraphNode?.data;
+  const resourceProjectName = resource.path;
+  const resourceProjectGraphNode =
+    context.projectGraph.nodes[resourceProjectName];
+  const resourceProjectConfiguration = resourceProjectGraphNode?.data;
 
-  if (!customUIProjectGraphNode || !customUIProjectConfiguration) {
+  if (!resourceProjectGraphNode || !resourceProjectConfiguration) {
     throw new Error(
-      `Nx workspace is missing project for Custom UI path ${customUIProjectName}. Make sure the Custom UI resource path references a project in your Nx workspace.`
+      `Nx workspace is missing project for resource path ${resourceProjectName}. Make sure the resource path references a project in your Nx workspace.`
     );
   }
 
-  const customUIBuildTargetOutputPath = getResourceOutputPath(
+  const resourceBuildTargetOutputPath = getResourceOutputPath(
     options,
-    customUIProjectGraphNode,
+    resourceProjectGraphNode,
     context.configurationName
   );
-  const absoluteCustomUIBuildTargetOutputPath = joinPathFragments(
+  const absoluteResourceBuildTargetOutputPath = joinPathFragments(
     context.root,
-    customUIBuildTargetOutputPath
+    resourceBuildTargetOutputPath
   );
 
   if (
-    !customUIBuildTargetOutputPath ||
-    !existsSync(absoluteCustomUIBuildTargetOutputPath) ||
-    readdirSync(absoluteCustomUIBuildTargetOutputPath).length === 0
+    !resourceBuildTargetOutputPath ||
+    !existsSync(absoluteResourceBuildTargetOutputPath) ||
+    readdirSync(absoluteResourceBuildTargetOutputPath).length === 0
   ) {
     throw new Error(
-      `Project ${customUIProjectName} has no build artifacts in output directory '${customUIBuildTargetOutputPath}'. Make sure the project produces Custom UI compatible build artifacts.`
+      `Project ${resourceProjectName} has no build artifacts in output directory '${resourceBuildTargetOutputPath}'. Make sure the project produces compatible build artifacts.`
     );
   }
 
-  logger.info(`Copying ${customUIProjectName} Custom UI build artifacts...`);
+  logger.info(`Copying ${resourceProjectName} resource build artifacts...`);
   copySync(
-    absoluteCustomUIBuildTargetOutputPath,
+    absoluteResourceBuildTargetOutputPath,
     joinPathFragments(
       options.root,
       options.outputPath,
-      options.customUIPath,
-      customUIProjectName
+      options.resourcePath,
+      resourceProjectName
     ),
     { recursive: true }
   );
-  logger.info(`Done copying ${customUIProjectName} Custom UI build artifacts.`);
+  logger.info(`Done copying ${resourceProjectName} resource build artifacts.`);
 };

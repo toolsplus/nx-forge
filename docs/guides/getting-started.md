@@ -30,7 +30,7 @@ npm install --save-dev @toolsplus/nx-forge@latest
 
 :::tip NOTE
 
-Ensure that [Nx peer dependency version listed in the nx-forge package](https://github.com/toolsplus/nx-forge/blob/d656cbb61a008d4112a847262e9e88be2f65cf32/packages/nx-forge/package.json#L10) matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
+Ensure that [Nx peer dependency version listed in the nx-forge package] matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
 
 :::
 

@@ -52,7 +52,7 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
   - _Custom UI output path relative to the outputPath._
   - Type: `string`
 - <b id="#/properties/resourceOutputPathMap">resourceOutputPathMap</b>
-  - _Map of resource project names to their respective output path._
+  - _Map of resource project names to their respective output path (relative to the workspace root)._
   - Type: `object`
   - Default: `{}`
 - <b id="#/properties/watch">watch</b>
@@ -64,6 +64,10 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
 - <b id="#/properties/webpackConfig">webpackConfig</b>
   - _Path to a function which takes a webpack config, some context and returns the resulting webpack config. See https://nx.dev/guides/customize-webpack_
   - Type: `string`
+- <b id="#/properties/uiKit2Packaging">uiKit2Packaging</b> <Badge type="warning" text="Experimental" />
+  - _Enables UI Kit 2 compatible packaging._
+  - Type: `boolean`
+  - Default: _false_
 
 ## Package
 
@@ -71,7 +75,7 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
 nx package <nx-forge-app-name>
 ```
 
-Packages the Forge app project named `<nx-forge-app-name>` into a deployable artifact accepted by the Forge platform. Expects the build output to be available in the `outputPath` directory.
+Packages the Forge app project named `<nx-forge-app-name>` into a deployable artifact accepted by the Forge platform. Expects the build output from `<nx-forge-app-name>` app to be available in the `outputPath` directory.
 
 ::: info
 The `package` executor is intended to be used with a standard Nx `build` executor, for example, Webpack or EsBuild.
@@ -88,17 +92,21 @@ Read more about this in the following discussion: https://github.com/toolsplus/n
 	 - _Path where resource files such as Custom UI output is placed relative to the outputPath._
 	 - Type: `string`
  - <b id="#/properties/resourceOutputPathMap">resourceOutputPathMap</b>
-   - _Map of resource project names to their respective output path._
+   - _Map of resource project names to their respective output path (relative to the workspace root)._
    - Type: `object`
    - Default: `{}`
+- <b id="#/properties/uiKit2Packaging">uiKit2Packaging</b> <Badge type="warning" text="Experimental" />
+  - _Enables UI Kit 2 compatible packaging._
+  - Type: `boolean`
+  - Default: _false_
 
-The executor tries to infer the output path of dependent resources (Custom UI) from the dependent project's `build` target configuration as follows:
+This executor will copy the output of dependent resource project builds to the `resourcePath` directory. To do this, the executor tries to infer the output path of dependent resources (Custom UI, UI Kit 2) from the dependent project's `build` target configuration as follows:
 
   1. if a mapping is defined using `resourceOutputPathMap` use the mapping
   2. else if the `build` target definition has `options.outputPath` define use that
   3. else use the `build` target's `outputs` definition, if there is only one entry
 
-In all other cases, the plugin will not be able to infer the build output path and the output path should be defined explicitly using the `resourceOutputPathMap` option.
+In cases where the output path cannot be inferred or is inferred incorrectly, the output path should be defined explicitly using the `resourceOutputPathMap` option.
 
 ## Deploy
 
