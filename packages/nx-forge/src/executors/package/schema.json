@@ -17,6 +17,11 @@
       "type": "object",
       "description": "Map of resource project names to their respective output path.",
       "default": {}
+    },
+    "uiKit2Packaging": {
+      "type": "boolean",
+      "description": "Enables UI Kit 2 compatible packaging.",
+      "default": false
     }
   },
   "required": ["outputPath"]

@@ -43,6 +43,7 @@ export default defineConfig({
             items: [
               {text: 'Generating a Forge app', link: 'generating-a-forge-app'},
               {text: 'Adding a Custom UI module', link: 'adding-a-custom-ui-module'},
+              {text: 'Adding a UI Kit 2 module', link: 'adding-a-ui-kit-2-module'},
             ]
           },
           {

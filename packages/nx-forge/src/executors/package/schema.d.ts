@@ -2,6 +2,7 @@ export interface PackageExecutorSchema {
   outputPath: string;
   resourcePath?: string;
   resourceOutputPathMap?: Record<string, string>;
+  uiKit2Packaging: boolean;
 }
 
 export interface NormalizedOptions extends PackageExecutorSchema {

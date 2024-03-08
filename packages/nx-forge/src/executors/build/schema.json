@@ -41,6 +41,11 @@
       "x-completion-type": "file",
       "x-completion-glob": "webpack?(*)@(.js|.ts)",
       "x-priority": "important"
+    },
+    "uiKit2Packaging": {
+      "type": "boolean",
+      "description": "Enables UI Kit 2 compatible packaging.",
+      "default": false
     }
   },
   "required": ["outputPath"]

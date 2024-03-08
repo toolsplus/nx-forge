@@ -5,6 +5,7 @@ export interface BuildExecutorOptions {
   sourceMap?: boolean | 'hidden';
   webpackConfig?: string;
   resourceOutputPathMap?: Record<string, string>;
+  uiKit2Packaging: boolean;
 }
 
 export interface NormalizedOptions extends BuildExecutorOptions {

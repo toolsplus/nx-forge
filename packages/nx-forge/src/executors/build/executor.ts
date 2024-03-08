@@ -3,7 +3,7 @@ import type { ExecutorContext } from '@nx/devkit';
 import { logger } from '@nx/devkit';
 import { BuildExecutorOptions } from './schema';
 import { normalizeOptions } from './lib/normalize-options';
-import { processCustomUIDependencies } from './lib/process-custom-ui-dependencies';
+import { processResourceDependencies } from './lib/process-resource-dependencies';
 import { patchManifestYml } from './lib/patch-manifest-yml';
 import { generatePackageJson } from './lib/generate-package-json';
 import { compileWebpack } from './lib/compile-webpack';
@@ -46,12 +46,16 @@ export default async function runExecutor(
   }
 
   copyForgeAppAssets(options);
-  const customUIResources = await processCustomUIDependencies(options, context);
-  await patchManifestYml(options);
+
+  const resources = await processResourceDependencies(
+    { ...options, resourcePath: options.customUIPath },
+    context
+  );
+  await patchManifestYml({ ...options, resourcePath: options.customUIPath });
   generatePackageJson(
     context.projectName!,
     context.projectGraph!,
-    customUIResources,
+    resources,
     options
   );
 
