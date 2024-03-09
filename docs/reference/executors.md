@@ -143,6 +143,11 @@ _Mirrors the [deploy command](https://developer.atlassian.com/platform/forge/cli
   - _Run deployment in verbose mode._
   - Type: `boolean`
   - Default: _false_
+- <b id="#/properties/manifestTransform">manifestTransform</b>
+  - _A JSONata expression that transforms the manifest.yml content before the deployment._
+  - Type: `string`
+
+For details on how to use the `manifestTransform` parameter, refer to the [guide on transforming the manifest](../guides/transforming-the-manifest).
 
 ## Install
 

@@ -4,4 +4,5 @@ export interface DeployExecutorOptions {
   verify: boolean;
   interactive: boolean;
   verbose: boolean;
+  manifestTransform?: string;
 }
