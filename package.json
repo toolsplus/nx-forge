@@ -59,13 +59,14 @@
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/sensible": "~5.2.0",
-    "@forge/manifest": "^5.5.3",
+    "@forge/manifest": "^6.1.0",
     "@swc/helpers": "~0.5.2",
     "axios": "1.6.7",
     "fastify": "~4.13.0",
     "fastify-plugin": "~4.5.0",
     "fs-extra": "^10.0.1",
     "js-yaml": "^4.1.0",
+    "jsonata": "^2.0.4",
     "tslib": "^2.0.0"
   },
   "repository": {
@@ -76,4 +77,3 @@
     "includedScripts": []
   }
 }
-

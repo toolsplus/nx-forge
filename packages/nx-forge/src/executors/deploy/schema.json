@@ -33,6 +33,10 @@
       "description": "Run deployment in verbose mode.",
       "alias": "v",
       "default": false
+    },
+    "manifestTransform": {
+      "type": "string",
+      "description": "A JSONata expression that transforms the manifest.yml content before the deployment."
     }
   },
   "required": ["outputPath"]

@@ -8,6 +8,7 @@ import {
 import * as FULL_SCHEMA from '@forge/manifest/out/schema/manifest-schema.json';
 import { dump } from 'js-yaml';
 import { writeFileSync } from 'fs';
+import { ManifestValidationResult } from '@forge/manifest/out/types';
 
 class ManifestYmlValidator extends AbstractValidationProcessor<ManifestSchema> {
   constructor() {
@@ -18,33 +19,57 @@ class ManifestYmlValidator extends AbstractValidationProcessor<ManifestSchema> {
     ]);
   }
 }
-export async function readManifestYml(path: string): Promise<ManifestSchema> {
-  const {
-    manifestObject,
-    success: isManifestParseSuccess,
-    errors,
-  } = await new ManifestYmlValidator().process(path);
 
-  if (
-    !isManifestParseSuccess ||
-    !manifestObject ||
-    !manifestObject.typedContent
-  ) {
-    throw new Error(
-      `Failed to parse manifest.yml (${path}): ${(errors || [])
-        .map((e) => e.message)
-        .join('\n')}`
-    );
-  }
+type ManifestSchemaValidator<T> = (
+  input: T
+) => Promise<ManifestValidationResult<ManifestSchema>>;
 
-  const manifestSchema: ManifestSchema = manifestObject.typedContent;
+const schemaAndFileValidator: ManifestSchemaValidator<string> = (
+  manifestFilePath: string
+) => new ManifestYmlValidator().process(manifestFilePath);
 
-  if (!manifestSchema) {
-    throw new Error('Manifest parse result did not return any content.');
-  }
+const schemaContentValidator: ManifestSchemaValidator<ManifestSchema> = (
+  manifestContent: ManifestSchema
+) =>
+  new SchemaValidator<ManifestSchema>(FULL_SCHEMA).validate({
+    yamlContent: manifestContent,
+  });
 
-  return manifestSchema;
-}
+const validateManifestSchema =
+  <T>(validator: ManifestSchemaValidator<T>) =>
+  async (input: T) => {
+    const {
+      manifestObject,
+      success: isManifestParseSuccess,
+      errors,
+    } = await validator(input);
+
+    if (
+      !isManifestParseSuccess ||
+      !manifestObject ||
+      !manifestObject.typedContent
+    ) {
+      throw new Error(
+        `Failed to validate manifest input: ${(errors || [])
+          .map((e) => e.message)
+          .join('\n')}`
+      );
+    }
+
+    const manifestSchema: ManifestSchema = manifestObject.typedContent;
+
+    if (!manifestSchema) {
+      throw new Error('Manifest parse result did not return any content.');
+    }
+
+    return manifestSchema;
+  };
+
+export const validateManifestContent = (manifestContent: ManifestSchema) =>
+  validateManifestSchema(schemaContentValidator)(manifestContent);
+
+export const readManifestYml = (path: string): Promise<ManifestSchema> =>
+  validateManifestSchema(schemaAndFileValidator)(path);
 
 /**
  * Writes the given manifest file to the specified file path.
