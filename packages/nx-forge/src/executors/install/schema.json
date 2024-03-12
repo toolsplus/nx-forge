@@ -23,8 +23,7 @@
     },
     "environment": {
       "type": "string",
-      "enum": ["development", "staging", "production"],
-      "description": "Environment to install to: development, staging, production.",
+      "description": "Environment to install to.",
       "alias": "e",
       "default": "development"
     },

@@ -124,12 +124,8 @@ _Mirrors the [deploy command](https://developer.atlassian.com/platform/forge/cli
   - _The output path of the Forge app files._
   - Type: `string`
 - <b id="#/properties/environment">environment</b>
-  - _Environment to deploy to: development, staging, production._
+  - _Environment to deploy to._
   - Type: `string`
-  - The value is restricted to the following:
-    1. _"development"_
-    2. _"staging"_
-    3. _"production"_
   - Default: _"development"_
 - <b id="#/properties/verify">verify</b>
   - _Run pre-deployment checks._
@@ -175,12 +171,8 @@ _Mirrors the [install command](https://developer.atlassian.com/platform/forge/cl
     2. _"confluence"_
     3. _"compass"_
 - <b id="#/properties/environment">environment</b>
-  - _Environment to install to: development, staging, production._
+  - _Environment to install to._
   - Type: `string`
-  - The value is restricted to the following:
-    1. _"development"_
-    2. _"staging"_
-    3. _"production"_
   - Default: _"development"_
 - <b id="#/properties/upgrade">upgrade</b>
   - _Upgrade an existing installation._

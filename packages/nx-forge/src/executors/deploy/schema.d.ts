@@ -1,6 +1,6 @@
 export interface DeployExecutorOptions {
   outputPath: string;
-  environment: 'development' | 'staging' | 'production';
+  environment: string;
   verify: boolean;
   interactive: boolean;
   verbose: boolean;
