@@ -6,7 +6,20 @@ To transform the manifest file, Nx Forge expects the `manifestTransform` to be a
 
 ## Developing and testing manifest transforms
 
-To develop manifest transform expressions, convert the manifest YAML content to JSON and paste it into [the JSONata exerciser](https://try.jsonata.org/), allowing you to test JSONata expressions. 
+To develop manifest transform expressions, convert the manifest YAML content to JSON and paste it into [the JSONata exerciser](https://try.jsonata.org/), allowing you to test JSONata expressions.
+
+If you are [injecting environment variables in your expression](#using-environment-variables-in-transforms), you may want to use the following code block to emulate the `$env` function:
+
+```jsonata
+(
+    $env := $lookup({
+        'CONNECT_APP_KEY': 'io.toolsplus.hello',
+        'CONNECT_REMOTE_BASE_URL': 'https://connect-base-url.com'
+    }, ?);
+    
+    $ ~> |app.connect|{'key': $env('CONNECT_APP_KEY')}| ~> |remotes[key='connect']|{'baseUrl': $env('CONNECT_REMOTE_BASE_URL')}|
+)
+```
 
 ## Manifest transform examples
 
@@ -34,12 +47,12 @@ $
 ~> |app|{'id': 'ari:cloud:ecosystem::app/407bc6a8-...'}|
 ~> |app|{'licensing': {'enabled': true}}|
 ~> |app.connect|{'key': 'my-connect-key'}| 
-~> |remotes|{'baseUrl': 'https://my-connect-base-url.com?source=forge'}|
+~> |remotes|{'baseUrl': 'https://my-connect-base-url.com'}|
 ```
 
 ## Using environment variables in transforms
 
-Nx Forge provides the function `$env(string): string|null` to allow `manifestTransform` expressions to read environment variables at runtime. Inject environment variables into an expression using the `$env()` function, as shown in the example below.
+Nx Forge provides two functions `$env(string): string` and `$envOrNull(string): string|null` to allow `manifestTransform` expressions to read environment variables at runtime. Prefer the `$env()` function to inject environment variables, as this will throw and abort the deployment process if the variable is undefined. 
 
 ```jsonata
 $ 
@@ -61,7 +74,7 @@ Nx executors accept a [`configurations` property](https://nx.dev/concepts/execut
       },
       "configurations": {
         "development-exra": {
-          "manifestTransform": "$ ~> |app|{'licensing': {'enabled': false}}| ~> |remotes|{'baseUrl': 'https://my-local-connect-base-url.com?source=forge'}|"
+          "manifestTransform": "$ ~> |app|{'licensing': {'enabled': false}}| ~> |remotes|{'baseUrl': 'https://my-local-connect-base-url.com'}|"
         },
         "development": {
           "manifestTransform": "$ ~> |app|{'licensing': {'enabled': false}}|"

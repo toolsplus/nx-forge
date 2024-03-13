@@ -35,7 +35,18 @@ export const transformManifestYml = async (
 
   const manifest = await readManifestYml(manifestPath);
 
-  expression.registerFunction('env', (s) => process.env[s], '<s:(sl)>');
+  expression.registerFunction(
+    'env',
+    (s) => {
+      if (process.env[s]) {
+        return process.env[s];
+      } else {
+        throw new Error(`Environment variable '${s}' is not defined`);
+      }
+    },
+    '<s:(s)>'
+  );
+  expression.registerFunction('envOrNull', (s) => process.env[s], '<s:(sl)>');
 
   const transformedManifest = await expression.evaluate(manifest);
 
