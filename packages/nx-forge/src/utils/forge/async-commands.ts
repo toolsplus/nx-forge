@@ -16,6 +16,7 @@ export const runForgeCommandAsync = (
     cwd: opts.cwd,
     env: { ...process.env, ...opts.env },
     stdio: [process.stdin, process.stdout, process.stderr],
+    shell: true
   });
   return new Promise((resolve, reject) => {
     cliProcess.once('exit', (code: number) => {
