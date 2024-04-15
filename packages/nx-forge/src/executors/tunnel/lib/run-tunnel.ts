@@ -60,6 +60,7 @@ export default async function runTunnel(
       )}:/app/node_modules`,
     },
     stdio: 'inherit',
+    shell: true,
   });
 
   return new Promise<{ success: boolean }>((resolve, reject) => {
