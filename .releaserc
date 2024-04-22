@@ -10,7 +10,10 @@
     ["@semantic-release/npm", {
       "pkgRoot": "dist/packages/nx-forge"
     }],
-    "@semantic-release/github"
+    ["@semantic-release/github", {
+      "successComment": false,
+      "failTitle": false
+    }]
   ],
   "preset": "angular"
 }
