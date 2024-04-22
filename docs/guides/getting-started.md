@@ -117,6 +117,55 @@ app:
 
 The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
 
+### Configuring targets dependencies
+
+Configure `build` target dependencies to ensure Nx builds the Custom UI project before the Forge app. Open the `nx.json` file in your workspace root and update the `targetDefault as follows:
+
+::: code-group
+```json{4-8}[nx.json]:line-numbers
+{
+  ...
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    ...
+  },
+  ...
+}
+```
+:::
+
+This setting tells Nx that when we call the `build` target on a project, it should first run the `build` target on all dependent projects ([`^build`](https://nx.dev/reference/project-configuration#dependson)). This works because Nx knows about project dependencies.
+
+Feel free to customize and play around with these settings to tune them to your liking. For example, another helpful setting could be to run the `build` target before the [`package` target](../reference/executors.md#package) runs:
+
+::: code-group
+```json{9-15}[nx.json]:line-numbers
+{
+  ...
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "package": {
+      "dependsOn": ["build"],
+      "executor": "@toolsplus/nx-forge:package",
+      "options": {
+        "outputPath": "dist/{projectRoot}"
+      }
+    }
+    ...
+  },
+  ...
+}
+```
+:::
+
 ### Initial build, registration, deployment, and installation
 
 Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build the Forge app using
