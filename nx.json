@@ -1,7 +1,4 @@
 {
-  "affected": {
-    "defaultBase": "main"
-  },
   "workspaceLayout": {
     "appsDir": "e2e",
     "libsDir": "packages"
@@ -42,5 +39,6 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/src/test-setup.[jt]s"
     ]
-  }
+  },
+  "defaultBase": "main"
 }
