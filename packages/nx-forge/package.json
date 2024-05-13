@@ -7,15 +7,15 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "peerDependencies": {
-    "nx": "^18.0.0"
+    "nx": "^19.0.0"
   },
   "dependencies": {
     "@forge/manifest": "^6.1.0",
-    "@nx/devkit": "18.0.6",
-    "@nx/eslint": "18.0.6",
-    "@nx/jest": "18.0.6",
-    "@nx/js": "18.0.6",
-    "@nx/webpack": "18.0.6",
+    "@nx/devkit": "19.0.2",
+    "@nx/eslint": "19.0.2",
+    "@nx/jest": "19.0.2",
+    "@nx/js": "19.0.2",
+    "@nx/webpack": "19.0.2",
     "fs-extra": "^10.0.1",
     "js-yaml": "^4.1.0",
     "jsonata": "^2.0.4",

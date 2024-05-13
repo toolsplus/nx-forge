@@ -87,6 +87,7 @@ async function applicationGeneratorInternal(
       unitTestRunner: options.unitTestRunner,
       skipFormat: true,
       setParserOptionsProject: options.setParserOptionsProject,
+      rootProject: options.rootProject,
       addPlugin: options.addPlugin,
     });
     tasks.push(lintTask);
