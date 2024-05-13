@@ -3,7 +3,7 @@ sidebar_position: 10
 ---
 
 <script setup>
-const nxVersion = 18
+const nxVersion = 19
 </script>
 
 # Getting started
@@ -30,7 +30,7 @@ npm install --save-dev @toolsplus/nx-forge@latest
 
 :::tip NOTE
 
-Ensure that [Nx peer dependency version listed in the nx-forge package] matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
+Ensure that Nx peer dependency version listed in the nx-forge package matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
 
 :::
 
@@ -44,7 +44,7 @@ npx nx g @toolsplus/nx-forge:app <nx-forge-app-name> --directory apps/<nx-forge-
 
 :::info
 
-Starting with Nx 19 the flag `--projectNameAndRootFormat as-provided` will become the default and will no longer be required. 
+Starting with Nx 20 the flag `--projectNameAndRootFormat as-provided` will become the default and will no longer be required. 
 
 :::
 
