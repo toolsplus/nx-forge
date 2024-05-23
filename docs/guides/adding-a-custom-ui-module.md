@@ -21,7 +21,7 @@ npm i -D @nx/react
 With the React plugin installed, we can use the [React application generator](https://nx.dev/nx-api/react/generators/application) to scaffold a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ::: tip
-If you are asked about the project name and where the project should be generated, select "as provided" (this will become the default in Nx 19).
+If you are asked about the project name and where the project should be generated, select "as provided" (this will become the default in Nx 20).
 :::
 
 ```shell
