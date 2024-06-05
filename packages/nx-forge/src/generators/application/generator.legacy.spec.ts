@@ -6,7 +6,7 @@ import {
 } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
-import generator from './generator';
+import { applicationGenerator } from './generator';
 
 describe('application generator (legacy)', () => {
   let tree: Tree;
@@ -18,8 +18,9 @@ describe('application generator (legacy)', () => {
   });
 
   it('should not skip the build target', async () => {
-    await generator(tree, {
+    await applicationGenerator(tree, {
       name: 'my-forge-app',
+      bundler: 'webpack',
       projectNameAndRootFormat: 'as-provided',
       addPlugin: false,
     });
@@ -27,9 +28,22 @@ describe('application generator (legacy)', () => {
     expect(project.root).toEqual('my-forge-app');
     expect(project.targets.build).toMatchInlineSnapshot(`
     {
-      "executor": "@toolsplus/nx-forge:build",
+      "configurations": {
+        "development": {},
+        "production": {},
+      },
+      "defaultConfiguration": "production",
+      "executor": "@nx/webpack:webpack",
       "options": {
-        "outputPath": "dist/my-forge-app",
+        "assets": [
+          "my-forge-app/src/assets",
+        ],
+        "compiler": "tsc",
+        "main": "my-forge-app/src/index.ts",
+        "outputFileName": "index.js",
+        "outputPath": "dist/my-forge-app/src",
+        "target": "node",
+        "tsConfig": "my-forge-app/tsconfig.app.json",
         "webpackConfig": "my-forge-app/webpack.config.js",
       },
       "outputs": [

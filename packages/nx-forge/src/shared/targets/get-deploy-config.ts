@@ -11,5 +11,9 @@ export function getDeployConfig(
     options: {
       outputPath: options.outputPath,
     },
+    metadata: {
+      technologies: ['forge'],
+      description: 'Deploys the Forge app to the Forge platform',
+    },
   };
 }

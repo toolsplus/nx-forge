@@ -36,7 +36,15 @@ describe('Forge register executor', () => {
     const appName = await generateForgeApp();
     const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
     expect(nxBuildResult.stderr).toEqual('');
-    expect(nxBuildResult.stdout).toContain('Executor ran');
+    expect(nxBuildResult.stdout).toEqual(
+      expect.stringContaining('Successfully ran target build for project')
+    );
+
+    const nxPackageResult = await runNxCommandAsync(`package ${appName}`);
+    expect(nxPackageResult.stderr).toEqual('');
+    expect(nxPackageResult.stdout).toEqual(
+      expect.stringContaining('Successfully ran target package for project')
+    );
 
     const unregisteredOutputManifestContent = readFile(
       `dist/${appName}/manifest.yml`

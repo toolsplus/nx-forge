@@ -8,41 +8,19 @@ import {
   runTasksInSerial,
   Tree,
   writeJson,
-  logger,
 } from '@nx/devkit';
 import { InitGeneratorSchema } from './schema';
-import { pluginVersion } from '../../utils/versions';
-
-async function getLatestPackageVersion(
-  pkg: string
-): Promise<string | undefined> {
-  try {
-    const response = await fetch(`https://registry.npmjs.org/${pkg}`);
-    const json = await response.json();
-    return json?.['dist-tags']?.['latest'];
-  } catch (error) {
-    logger.error(`Failed to fetch latest version of ${pkg}: ${error}`);
-    throw new Error(`Failed to fetch latest version of ${pkg}`);
-  }
-}
+import pluginPackageJson from '../../../package.json';
 
 async function addDependencies(
   tree: Tree,
   keepExistingVersions: boolean
 ): Promise<GeneratorCallback> {
-  const latestForgeApiVersion = await getLatestPackageVersion('@forge/api');
-  const latestForgeResolverVersion = await getLatestPackageVersion(
-    '@forge/resolver'
-  );
-
   return addDependenciesToPackageJson(
     tree,
+    {},
     {
-      '@forge/api': latestForgeApiVersion,
-      '@forge/resolver': latestForgeResolverVersion,
-    },
-    {
-      '@toolsplus/nx-forge': pluginVersion,
+      '@toolsplus/nx-forge': pluginPackageJson.version,
     },
     undefined,
     keepExistingVersions

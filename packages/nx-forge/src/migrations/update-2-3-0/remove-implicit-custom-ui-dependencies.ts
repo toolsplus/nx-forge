@@ -15,7 +15,6 @@ export default async function update(host: Tree) {
   const isForgeProjectProject = (config: ProjectConfiguration): boolean => {
     return (
       config.projectType === 'application' &&
-      config.targets?.build?.executor === '@toolsplus/nx-forge:build' &&
       host.exists(joinPathFragments(config.root, 'manifest.yml'))
     );
   };
