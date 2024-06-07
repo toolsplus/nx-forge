@@ -6,30 +6,30 @@ Append `--help` or `-h` for any of the plugin executors to explore all available
 
 [//]: # (Used https://brianwendt.github.io/json-schema-md-doc/ to generate the properties markdown from schema.json files)
 
-## Register
+## Forge
 
 ```shell
-nx register <nx-forge-app-name>
+nx forge <nx-forge-app-name> <forge-cli-options>
 ```
 
-Registers the Forge app project named `<nx-forge-app-name>` with the Forge platform. This command will automatically update the manifest file in the `<nx-forge-app-name>` project with the generated app id.
+Runs any Forge CLI command in the `<nx-forge-app-name>` output directory. Refer to [the Forge CLI reference documentation](https://developer.atlassian.com/platform/forge/cli-reference/) for a list of all available commands.
 
-_Mirrors the [register command](https://developer.atlassian.com/platform/forge/cli-reference/register/) of the Forge CLI._
+:::info
+
+Where a custom executor is provided by Nx Forge, prefer using the custom executor over calling the Forge CLI directly.
+
+:::
 
 **_Properties_**
 
 - <b id="#/properties/outputPath">outputPath</b> `required`
   - _The output path of the Forge app files._
   - Type: `string`
-- <b id="#/properties/appName">appName</b> `required`
-  - _Name of the app on the Forge platform. The app name can include dashes, spaces, and underscores. Defaults to the project name_
-  - Type: `string`
-- <b id="#/properties/verbose">verbose</b>
-  - _Run registration in verbose mode._
-  - Type: `boolean`
-  - Default: _false_
 
-## Build
+Nx Forge-provided executors ensure that the Nx project configuration is updated where necessary when the Forge command has run. For example, registering a Forge app using `nx forge <nx-forge-app-name> register` will invoke the Forge CLI directly and only update the Forge app ID in the manifest file in the output directory. The next time you run `nx build <nx-forge-app-name>` the manifest file in the output path will be overwritten.
+The correct way to do this is to run [`nx register <nx-forge-app-name>`](#register), which will update the app ID of the `manifest.yml` within the `<nx-forge-app-name>` project root.
+
+## Build <Badge type="warning" text="Deprecated" />
 
 ```shell
 nx build <nx-forge-app-name>
@@ -37,10 +37,8 @@ nx build <nx-forge-app-name>
 
 Builds the Forge app project named `<nx-forge-app-name>` to the directory specified in the `outputPath` property. If the Forge app project has dependent resource projects (Custom UI), this will build dependent projects first before building the Forge app itself. 
 
-::: info
-We are considering deprecating and removing the `build` executor in favor of the `package` executor.
-
-Read more about this in the following discussion: https://github.com/toolsplus/nx-forge/discussions/86
+::: warning
+The `build` executor is deprecated in favor of a native Nx build (webpack or esbuild) in combination with the `package` executor. Refer to the [migration guide](../guides/migrating-to-package-executor) for more information.
 :::
 
 **_Properties_**
@@ -78,9 +76,7 @@ nx package <nx-forge-app-name>
 Packages the Forge app project named `<nx-forge-app-name>` into a deployable artifact accepted by the Forge platform. Expects the build output from `<nx-forge-app-name>` app to be available in the `outputPath` directory.
 
 ::: info
-The `package` executor is intended to be used with a standard Nx `build` executor, for example, Webpack or EsBuild.
-
-Read more about this in the following discussion: https://github.com/toolsplus/nx-forge/discussions/86
+The `package` executor is intended to be used with a standard Nx `build` executor, for example, Webpack or esbuild. Refer to the [migration guide](../guides/migrating-to-package-executor) for more information.
 :::
 
 **_Properties_**
@@ -144,6 +140,29 @@ _Mirrors the [deploy command](https://developer.atlassian.com/platform/forge/cli
   - Type: `string`
 
 For details on how to use the `manifestTransform` parameter, refer to the [guide on transforming the manifest](../guides/transforming-the-manifest).
+
+## Register
+
+```shell
+nx register <nx-forge-app-name>
+```
+
+Registers the Forge app project named `<nx-forge-app-name>` with the Forge platform. This command will automatically update the manifest file in the `<nx-forge-app-name>` project with the generated app id.
+
+_Mirrors the [register command](https://developer.atlassian.com/platform/forge/cli-reference/register/) of the Forge CLI._
+
+**_Properties_**
+
+- <b id="#/properties/outputPath">outputPath</b> `required`
+  - _The output path of the Forge app files._
+  - Type: `string`
+- <b id="#/properties/appName">appName</b> `required`
+  - _Name of the app on the Forge platform. The app name can include dashes, spaces, and underscores. Defaults to the project name_
+  - Type: `string`
+- <b id="#/properties/verbose">verbose</b>
+  - _Run registration in verbose mode._
+  - Type: `boolean`
+  - Default: _false_
 
 ## Install
 
@@ -215,27 +234,3 @@ _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli
   - _Run Forge tunnel in verbose mode._
   - Type: `boolean`
   - Default: _false_
-
-
-## Forge
-
-```shell
-nx forge <nx-forge-app-name> <forge-cli-options>
-```
-
-Runs any Forge CLI command in the `<nx-forge-app-name>` output directory. Refer to [the Forge CLI reference documentation](https://developer.atlassian.com/platform/forge/cli-reference/) for a list of all available commands.
-
-:::info
-
-Where a custom executor is provided by Nx Forge, prefer using the custom executor over calling the Forge CLI directly.
-
-:::
-
-**_Properties_**
-
-- <b id="#/properties/outputPath">outputPath</b> `required`
-  - _The output path of the Forge app files._
-  - Type: `string`
-
-Nx Forge-provided executors ensure that the Nx project configuration is updated where necessary when the Forge command has run. For example, registering a Forge app using `nx forge <nx-forge-app-name> register` will invoke the Forge CLI directly and only update the Forge app ID in the manifest file in the output directory. The next time you run `nx build <nx-forge-app-name>` the manifest file in the output path will be overwritten.
-The correct way to do this is to run [`nx register <nx-forge-app-name>`](#register), which will update the app ID of the `manifest.yml` within the `<nx-forge-app-name>` project root.
