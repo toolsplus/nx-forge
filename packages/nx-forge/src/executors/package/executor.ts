@@ -26,7 +26,7 @@ export default async function runExecutor(
   context: ExecutorContext
 ) {
   const { root, sourceRoot } =
-    context.projectsConfigurations!.projects[context.projectName!];
+    context.projectsConfigurations.projects[context.projectName];
 
   if (!sourceRoot) {
     throw new Error(`${context.projectName} does not have a sourceRoot.`);
@@ -48,8 +48,8 @@ export default async function runExecutor(
   await patchManifestYml({ ...options, resourcePath: options.resourcePath });
 
   generatePackageJson(
-    context.projectName!,
-    context.projectGraph!,
+    context.projectName,
+    context.projectGraph,
     resources,
     options
   );

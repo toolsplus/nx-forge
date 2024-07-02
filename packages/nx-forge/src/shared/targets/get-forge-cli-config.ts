@@ -12,5 +12,9 @@ export function getForgeCliConfig(
       command: 'forge',
       cwd: options.outputPath,
     },
+    metadata: {
+      technologies: ['forge'],
+      description: 'Runs a Forge CLI command for the project',
+    },
   };
 }

@@ -4,3 +4,5 @@ modules:
       handler: index.handler
 app:
   id: ari:cloud:ecosystem::app/to-be-generated
+  runtime:
+    name: nodejs18.x

@@ -28,6 +28,12 @@
       "type": "boolean",
       "default": false
     },
+    "skipPackageJson": {
+      "type": "boolean",
+      "default": false,
+      "description": "Do not add dependencies to `package.json`.",
+      "x-priority": "internal"
+    },
     "linter": {
       "description": "Tool to use for running lint checks.",
       "type": "string",
@@ -39,6 +45,13 @@
       "type": "string",
       "enum": ["jest", "none"],
       "default": "jest"
+    },
+    "bundler": {
+      "description": "Bundler which is used to package the application",
+      "type": "string",
+      "enum": ["esbuild", "webpack"],
+      "default": "webpack",
+      "x-priority": "important"
     },
     "tags": {
       "type": "string",
