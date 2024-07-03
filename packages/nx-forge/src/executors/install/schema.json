@@ -17,8 +17,8 @@
     },
     "product": {
       "type": "string",
-      "description": "Atlassian product: jira, confluence, compass",
-      "enum": ["jira", "confluence", "compass"],
+      "description": "Atlassian product: jira, confluence, compass, bitbucket",
+      "enum": ["jira", "confluence", "compass", "bitbucket"],
       "alias": "p"
     },
     "environment": {

@@ -183,12 +183,13 @@ _Mirrors the [install command](https://developer.atlassian.com/platform/forge/cl
   - _Atlassian site URL (example.atlassian.net)_
   - Type: `string`
 - <b id="#/properties/product">product</b> `required`
-  - _Atlassian product: jira, confluence, compass_
+  - _Atlassian product: jira, confluence, compass, bitbucket_
   - Type: `string`
   - The value is restricted to the following:
     1. _"jira"_
     2. _"confluence"_
     3. _"compass"_
+    4. _"bitbucket"_
 - <b id="#/properties/environment">environment</b>
   - _Environment to install to._
   - Type: `string`
