@@ -20,22 +20,24 @@ describe('Forge application generator', () => {
   });
 
   it('should generate a Forge app', async () => {
-    const appName = await generateForgeApp();
+    const appName = await generateForgeApp('--bundler=webpack');
     expect(() => checkFilesExist(`${appName}/manifest.yml`)).not.toThrow();
-    expect(() => checkFilesExist(`${appName}/package.json`)).not.toThrow();
+    expect(() => checkFilesExist(`${appName}/webpack.config.js`)).not.toThrow();
     expect(() => checkFilesExist(`${appName}/src/index.ts`)).not.toThrow();
   });
 
   describe('--directory', () => {
     it('should generate a Forge app in the specified directory', async () => {
       const subdir = 'subdir';
-      const appName = await generateForgeApp(`--directory ${subdir}`);
+      const appName = await generateForgeApp(
+        `--directory ${subdir} --bundler=webpack`
+      );
 
       expect(() =>
         checkFilesExist(`${subdir}/${appName}/manifest.yml`)
       ).not.toThrow();
       expect(() =>
-        checkFilesExist(`${subdir}/${appName}/package.json`)
+        checkFilesExist(`${subdir}/${appName}/webpack.config.js`)
       ).not.toThrow();
       expect(() =>
         checkFilesExist(`${subdir}/${appName}/src/index.ts`)

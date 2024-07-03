@@ -11,5 +11,9 @@ export function getServeConfig(
     options: {
       outputPath: options.outputPath,
     },
+    metadata: {
+      technologies: ['forge'],
+      description: 'Tunnels the Forge app',
+    },
   };
 }

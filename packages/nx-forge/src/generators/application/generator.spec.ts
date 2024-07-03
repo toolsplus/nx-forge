@@ -7,7 +7,7 @@ import {
   Tree,
 } from '@nx/devkit';
 
-import generator from './generator';
+import { applicationGenerator } from './generator';
 import { ApplicationGeneratorOptions } from './schema';
 
 describe('application generator', () => {
@@ -20,68 +20,91 @@ describe('application generator', () => {
 
   describe('not nested', () => {
     it('should update project config', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
+        bundler: 'webpack',
         projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
+      expect(project).toMatchInlineSnapshot(`
+        {
+          "$schema": "../node_modules/nx/schemas/project-schema.json",
+          "name": "my-forge-app",
+          "projectType": "application",
+          "root": "my-forge-app",
+          "sourceRoot": "my-forge-app/src",
+          "tags": [],
+          "targets": {},
+        }
+      `);
+    });
 
-      expect(project.root).toEqual('my-forge-app');
+    it('should update project config with esbuild', async () => {
+      await applicationGenerator(tree, {
+        name: 'my-forge-app',
+        bundler: 'esbuild',
+        projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
+      });
 
-      const executor = (name: string) => `@toolsplus/nx-forge:${name}`;
-      const expectedExecutorTargets = [
-        ['register', 'register'],
-        ['build', 'build'],
-        ['serve', 'tunnel'],
-        ['deploy', 'deploy'],
-        ['install', 'install'],
-      ];
-      expectedExecutorTargets.forEach(([target, executorName]) =>
-        expect(project.targets[target].executor).toEqual(executor(executorName))
-      );
-
-      expect(project.targets).toEqual(
-        expect.objectContaining({
-          register: {
-            executor: '@toolsplus/nx-forge:register',
-            options: {
-              outputPath: 'dist/my-forge-app',
+      const project = readProjectConfiguration(tree, 'my-forge-app');
+      expect(project).toMatchInlineSnapshot(`
+        {
+          "$schema": "../node_modules/nx/schemas/project-schema.json",
+          "name": "my-forge-app",
+          "projectType": "application",
+          "root": "my-forge-app",
+          "sourceRoot": "my-forge-app/src",
+          "tags": [],
+          "targets": {
+            "build": {
+              "configurations": {
+                "development": {},
+                "production": {
+                  "esbuildOptions": {
+                    "outExtension": {
+                      ".js": ".js",
+                    },
+                    "sourcemap": false,
+                  },
+                },
+              },
+              "defaultConfiguration": "production",
+              "executor": "@nx/esbuild:esbuild",
+              "options": {
+                "assets": [
+                  "my-forge-app/src/assets",
+                ],
+                "bundle": true,
+                "esbuildOptions": {
+                  "outExtension": {
+                    ".js": ".js",
+                  },
+                  "sourcemap": true,
+                },
+                "format": [
+                  "cjs",
+                ],
+                "generatePackageJson": false,
+                "main": "my-forge-app/src/index.ts",
+                "outputFileName": "index.js",
+                "outputPath": "dist/my-forge-app/src",
+                "platform": "node",
+                "tsConfig": "my-forge-app/tsconfig.app.json",
+              },
+              "outputs": [
+                "{options.outputPath}",
+              ],
             },
           },
-          build: {
-            executor: '@toolsplus/nx-forge:build',
-            outputs: ['{options.outputPath}'],
-            options: {
-              outputPath: 'dist/my-forge-app',
-              webpackConfig: 'my-forge-app/webpack.config.js',
-            },
-          },
-          serve: {
-            executor: '@toolsplus/nx-forge:tunnel',
-            options: {
-              outputPath: 'dist/my-forge-app',
-            },
-          },
-          deploy: {
-            executor: '@toolsplus/nx-forge:deploy',
-            options: {
-              outputPath: 'dist/my-forge-app',
-            },
-          },
-          install: {
-            executor: '@toolsplus/nx-forge:install',
-            options: {
-              outputPath: 'dist/my-forge-app',
-            },
-          },
-        })
-      );
+        }
+      `);
     });
 
     it('should add tags to project config', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         tags: 'one,two',
         projectNameAndRootFormat: 'as-provided',
@@ -97,11 +120,13 @@ describe('application generator', () => {
     });
 
     it('should generate files', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
+        bundler: 'webpack',
         projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
+      expect(tree.exists('my-forge-app/webpack.config.js')).toBeTruthy();
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeTruthy();
       expect(tree.exists('my-forge-app/manifest.yml')).toBeTruthy();
       expect(tree.exists('my-forge-app/src/index.ts')).toBeTruthy();
@@ -180,7 +205,7 @@ describe('application generator', () => {
     it('should extend from root tsconfig.json when no tsconfig.base.json', async () => {
       tree.rename('tsconfig.base.json', 'tsconfig.json');
 
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
@@ -193,8 +218,33 @@ describe('application generator', () => {
 
   describe('nested', () => {
     it('should update project config', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
+        bundler: 'webpack',
+        directory: 'my-dir/my-forge-app',
+        projectNameAndRootFormat: 'as-provided',
+        addPlugin: true,
+      });
+
+      const project = readProjectConfiguration(tree, 'my-forge-app');
+
+      expect(project).toMatchInlineSnapshot(`
+        {
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "name": "my-forge-app",
+          "projectType": "application",
+          "root": "my-dir/my-forge-app",
+          "sourceRoot": "my-dir/my-forge-app/src",
+          "tags": [],
+          "targets": {},
+        }
+      `);
+    });
+
+    it('should update project config with esbuild', async () => {
+      await applicationGenerator(tree, {
+        name: 'my-forge-app',
+        bundler: 'esbuild',
         directory: 'my-dir/my-forge-app',
         projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
@@ -212,38 +262,43 @@ describe('application generator', () => {
           "tags": [],
           "targets": {
             "build": {
-              "executor": "@toolsplus/nx-forge:build",
+              "configurations": {
+                "development": {},
+                "production": {
+                  "esbuildOptions": {
+                    "outExtension": {
+                      ".js": ".js",
+                    },
+                    "sourcemap": false,
+                  },
+                },
+              },
+              "defaultConfiguration": "production",
+              "executor": "@nx/esbuild:esbuild",
               "options": {
-                "outputPath": "dist/my-dir/my-forge-app",
-                "webpackConfig": "my-dir/my-forge-app/webpack.config.js",
+                "assets": [
+                  "my-dir/my-forge-app/src/assets",
+                ],
+                "bundle": true,
+                "esbuildOptions": {
+                  "outExtension": {
+                    ".js": ".js",
+                  },
+                  "sourcemap": true,
+                },
+                "format": [
+                  "cjs",
+                ],
+                "generatePackageJson": false,
+                "main": "my-dir/my-forge-app/src/index.ts",
+                "outputFileName": "index.js",
+                "outputPath": "dist/my-dir/my-forge-app/src",
+                "platform": "node",
+                "tsConfig": "my-dir/my-forge-app/tsconfig.app.json",
               },
               "outputs": [
                 "{options.outputPath}",
               ],
-            },
-            "deploy": {
-              "executor": "@toolsplus/nx-forge:deploy",
-              "options": {
-                "outputPath": "dist/my-dir/my-forge-app",
-              },
-            },
-            "install": {
-              "executor": "@toolsplus/nx-forge:install",
-              "options": {
-                "outputPath": "dist/my-dir/my-forge-app",
-              },
-            },
-            "register": {
-              "executor": "@toolsplus/nx-forge:register",
-              "options": {
-                "outputPath": "dist/my-dir/my-forge-app",
-              },
-            },
-            "serve": {
-              "executor": "@toolsplus/nx-forge:tunnel",
-              "options": {
-                "outputPath": "dist/my-dir/my-forge-app",
-              },
             },
           },
         }
@@ -251,7 +306,7 @@ describe('application generator', () => {
     });
 
     it('should add tags to project config', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         directory: 'myDir',
         tags: 'one,two',
@@ -267,7 +322,7 @@ describe('application generator', () => {
     });
 
     it('should generate files', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         directory: 'myDir',
         addPlugin: true,
@@ -317,7 +372,7 @@ describe('application generator', () => {
 
   describe('--unit-test-runner none', () => {
     it('should not generate test configuration', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         unitTestRunner: 'none',
         addPlugin: true,
@@ -330,7 +385,7 @@ describe('application generator', () => {
 
   describe('--swcJest', () => {
     it('should use @swc/jest for jest', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         tags: 'one,two',
         swcJest: true,
@@ -357,7 +412,7 @@ describe('application generator', () => {
 
   describe('--babelJest (deprecated)', () => {
     it('should use babel for jest', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         tags: 'one,two',
         babelJest: true,
@@ -384,7 +439,7 @@ describe('application generator', () => {
 
   describe('--js flag', () => {
     it('should generate js files instead of ts files', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         js: true,
         addPlugin: true,
@@ -411,7 +466,7 @@ describe('application generator', () => {
     });
 
     it('should generate js files for nested libs as well', async () => {
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         directory: 'myDir',
         js: true,
@@ -426,7 +481,10 @@ describe('application generator', () => {
     it('should format files by default', async () => {
       jest.spyOn(devkit, 'formatFiles');
 
-      await generator(tree, { name: 'my-forge-app', addPlugin: true });
+      await applicationGenerator(tree, {
+        name: 'my-forge-app',
+        addPlugin: true,
+      });
 
       expect(devkit.formatFiles).toHaveBeenCalled();
     });
@@ -434,7 +492,7 @@ describe('application generator', () => {
     it('should not format files when --skipFormat=true', async () => {
       jest.spyOn(devkit, 'formatFiles');
 
-      await generator(tree, {
+      await applicationGenerator(tree, {
         name: 'my-forge-app',
         skipFormat: true,
         addPlugin: true,

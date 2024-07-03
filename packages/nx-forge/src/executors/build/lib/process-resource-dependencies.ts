@@ -68,16 +68,25 @@ const getResourceOutputPath = (
     return maybeBuildTargetOutputPathOption;
   }
 
-  const [firstOutputDefinition, ...otherOutputDefinitions] =
-    getOutputsForTargetAndConfiguration(
-      {
-        project: resourceProjectName,
-        target: 'build',
-        configuration: configurationName,
-      },
-      {},
-      resourceProjectGraphNode
+  let firstOutputDefinition: string;
+  let otherOutputDefinitions: string[];
+
+  try {
+    [firstOutputDefinition, ...otherOutputDefinitions] =
+      getOutputsForTargetAndConfiguration(
+        {
+          project: resourceProjectName,
+          target: 'build',
+          configuration: configurationName,
+        },
+        {},
+        resourceProjectGraphNode
+      );
+  } catch (error) {
+    throw new Error(
+      `Failed to find 'build' target for resource project '${resourceProjectName}': Make sure the project's build target is named 'build', or define an explicit output path mapping using the 'resourceOutputPathMap' option of this executor. Add an entry to the mapping object as follows: {'${resourceProjectName}': '<replace-with-project-output-path>'}.`
     );
+  }
 
   if (firstOutputDefinition && otherOutputDefinitions.length === 0) {
     return firstOutputDefinition;

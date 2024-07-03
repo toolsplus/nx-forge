@@ -1,20 +1,19 @@
 import { TargetConfiguration } from '@nx/devkit';
 
-interface GetInstallConfigOptions {
+interface GetPackageConfigOptions {
   outputPath: string;
 }
-
-export function getInstallConfig(
-  options: GetInstallConfigOptions
+export function getPackageConfig(
+  options: GetPackageConfigOptions
 ): TargetConfiguration {
   return {
-    executor: '@toolsplus/nx-forge:install',
+    executor: '@toolsplus/nx-forge:package',
     options: {
       outputPath: options.outputPath,
     },
     metadata: {
       technologies: ['forge'],
-      description: 'Installs the Forge app on a Atlassian site',
+      description: 'Packages the Forge app for deployment',
     },
   };
 }

@@ -22,6 +22,13 @@ Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all c
 - <b id="#NxForgeApplicationGenerator/properties/directory">directory</b>
   - _Directory where the project is placed_
   - Type: `string`
+- <b id="#NxForgeApplicationGenerator/properties/bundler">bundler</b>
+  - _Bundler which is used to package the application_
+  - Type: `string`
+  - The value is restricted to the following:
+    1. _"esbuild"_
+    2. _"webpack"_
+  - Default: _"webpack"_
 - <b id="#NxForgeApplicationGenerator/properties/projectNameAndRootFormat">projectNameAndRootFormat</b>
   - _Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`)._
   - Type: `string`

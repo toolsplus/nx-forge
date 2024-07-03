@@ -14,8 +14,8 @@ describe('init generator', () => {
     await generator(tree, {});
     const packageJson = readJson(tree, 'package.json');
     expect(packageJson.dependencies['@toolsplus/nx-forge']).toBeUndefined();
-    expect(packageJson.dependencies['@forge/api']).toBeDefined();
-    expect(packageJson.dependencies['@forge/resolver']).toBeDefined();
+    expect(packageJson.dependencies['@forge/api']).toBeUndefined();
+    expect(packageJson.dependencies['@forge/resolver']).toBeUndefined();
     expect(packageJson.devDependencies['@toolsplus/nx-forge']).toBeDefined();
   });
 

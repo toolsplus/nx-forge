@@ -6,9 +6,11 @@ interface ApplicationGeneratorOptions {
   directory?: string;
   projectNameAndRootFormat?: ProjectNameAndRootFormat;
   skipFormat?: boolean;
+  skipPackageJson?: boolean;
   linter?: Linter;
   standaloneConfig?: boolean;
   tags?: string;
+  bundler?: 'esbuild' | 'webpack';
   unitTestRunner?: 'jest' | 'none';
   swcJest?: boolean;
   /** @deprecated use `swcJest` instead */

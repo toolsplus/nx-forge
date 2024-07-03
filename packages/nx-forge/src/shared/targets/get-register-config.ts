@@ -11,5 +11,9 @@ export function getRegisterConfig(
     options: {
       outputPath: options.outputPath,
     },
+    metadata: {
+      technologies: ['forge'],
+      description: 'Registers the app with the Forge platform',
+    },
   };
 }

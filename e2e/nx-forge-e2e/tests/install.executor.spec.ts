@@ -50,7 +50,15 @@ describe('Forge install executor', () => {
       silenceError: true,
     });
     expect(nxBuildResult.stderr).toEqual('');
-    expect(nxBuildResult.stdout).toContain('Executor ran');
+    expect(nxBuildResult.stdout).toContain(
+      'Successfully ran target build for project'
+    );
+
+    const nxPackageResult = await runNxCommandAsync(`package ${appName}`);
+    expect(nxPackageResult.stderr).toEqual('');
+    expect(nxPackageResult.stdout).toEqual(
+      expect.stringContaining('Successfully ran target package for project')
+    );
 
     const nxRegisterResult = await runNxCommandAsync(`register ${appName}`, {
       silenceError: true,

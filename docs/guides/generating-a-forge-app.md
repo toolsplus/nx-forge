@@ -17,10 +17,12 @@ nx g @toolsplus/nx-forge:app <nx-forge-app-name>
 
 Refer to [the generator reference documentation](../reference/generators#application) for details on the available generator options.
 
-When the generator completes, you have a blank Forge app project. In most cases, you would want to run the [Forge register command](../reference/executors#register) immediately after that:
+When the generator completes, you have a blank Forge app project. To register the new app with the Forge platform, run the following [build](../reference/executors#build), [package](../reference/executors#package), and [register](../reference/executors#register) commands in this order:
 
 ```shell
+nx build <nx-forge-app-name>
+nx package <nx-forge-app-name>
 nx register <nx-forge-app-name> --appName="My Forge App"
 ```
 
-This command will register the newly created app with the Forge platform and update the `app.id` in the manifest file to the value returned from the registration.
+The register command updates the `app.id` in the manifest file to the value returned from the registration.

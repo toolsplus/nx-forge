@@ -1,7 +1,9 @@
 import {
+  ensurePackage,
   formatFiles,
   GeneratorCallback,
   joinPathFragments,
+  NX_VERSION,
   runTasksInSerial,
   Tree,
   updateJson,
@@ -13,6 +15,8 @@ import { initGenerator as jsInitGenerator, tsConfigBaseOptions } from '@nx/js';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
 import { addProject, addAppFiles, normalizeOptions } from './lib';
+import { addProjectDependencies } from './lib/add-project-dependencies';
+import { logShowProjectCommand } from '@nx/devkit/src/utils/log-show-project-command';
 
 function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
   updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => {
@@ -39,7 +43,7 @@ function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
   });
 }
 
-export default async function (
+export async function applicationGenerator(
   tree: Tree,
   schema: ApplicationGeneratorOptions
 ) {
@@ -50,7 +54,7 @@ export default async function (
   });
 }
 
-async function applicationGeneratorInternal(
+export async function applicationGeneratorInternal(
   tree: Tree,
   rawOptions: ApplicationGeneratorOptions
 ): Promise<GeneratorCallback> {
@@ -71,6 +75,21 @@ async function applicationGeneratorInternal(
     skipFormat: true,
   });
   tasks.push(initTask);
+
+  const installTask = await addProjectDependencies(tree, options);
+  tasks.push(installTask);
+
+  if (options.bundler === 'webpack') {
+    const { webpackInitGenerator } = ensurePackage<
+      typeof import('@nx/webpack')
+    >('@nx/webpack', NX_VERSION);
+    const webpackInitTask = await webpackInitGenerator(tree, {
+      skipPackageJson: options.skipPackageJson,
+      skipFormat: true,
+      addPlugin: options.addPlugin,
+    });
+    tasks.push(webpackInitTask);
+  }
 
   addAppFiles(tree, options);
   addProject(tree, options);
@@ -115,5 +134,11 @@ async function applicationGeneratorInternal(
     await formatFiles(tree);
   }
 
+  tasks.push(() => {
+    logShowProjectCommand(options.name);
+  });
+
   return runTasksInSerial(...tasks);
 }
+
+export default applicationGenerator;

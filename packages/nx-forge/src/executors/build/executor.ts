@@ -17,12 +17,26 @@ function fileExists(path: PathLike) {
   }
 }
 
+/**
+ * The build executor is deprecated. Use the webpack or esbuild executor in combination
+ * with the `package` executor instead.
+ *
+ * @see https://github.com/toolsplus/nx-forge/discussions/86
+ *
+ * @deprecated
+ */
 export default async function runExecutor(
   rawOptions: BuildExecutorOptions,
   context: ExecutorContext
 ) {
+  logger.warn(
+    `The build executor is deprecated and will be removed in the next major nx-forge plugin release.
+
+    Use a default Nx 'webpack' or 'esbuild' executor to build, and the 'package' executor to assemble the Forge app.`
+  );
+
   const { root, sourceRoot } =
-    context.projectsConfigurations!.projects[context.projectName!];
+    context.projectsConfigurations.projects[context.projectName];
 
   if (!sourceRoot) {
     throw new Error(`${context.projectName} does not have a sourceRoot.`);
@@ -53,8 +67,8 @@ export default async function runExecutor(
   );
   await patchManifestYml({ ...options, resourcePath: options.customUIPath });
   generatePackageJson(
-    context.projectName!,
-    context.projectGraph!,
+    context.projectName,
+    context.projectGraph,
     resources,
     options
   );

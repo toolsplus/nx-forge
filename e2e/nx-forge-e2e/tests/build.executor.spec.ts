@@ -37,25 +37,14 @@ describe('Forge build executor', () => {
     await runNxCommandAsync('reset');
   });
 
+  const buildSuccessMessage = 'Successfully ran target build for project';
+
   it('should build a Forge app', async () => {
     const appName = await generateForgeApp();
     const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
-    expect(nxBuildResult.stdout).toContain('Executor ran');
-  });
-
-  it('should build a Forge app with no source', async () => {
-    const appName = await generateForgeApp();
-    deleteFile(`${appName}/src/index.ts`);
-    const nxBuildResultWithoutEntry = await runNxCommandAsync(
-      `build ${appName}`
+    expect(nxBuildResult.stdout).toEqual(
+      expect.stringContaining(buildSuccessMessage)
     );
-    expect(nxBuildResultWithoutEntry.stdout).toContain('Executor ran');
-
-    deleteFile(`${appName}/src/`);
-    const nxBuildResultWithoutSourceFolder = await runNxCommandAsync(
-      `build ${appName}`
-    );
-    expect(nxBuildResultWithoutSourceFolder.stdout).toContain('Executor ran');
   });
 
   it('should build a Forge app in a sub-directory', async () => {
@@ -63,14 +52,18 @@ describe('Forge build executor', () => {
     const appName = await generateForgeApp(`--directory ${subdir}`);
 
     const nxBuildResult = await runNxCommandAsync(`build ${subdir}-${appName}`);
-    expect(nxBuildResult.stdout).toContain('Executor ran');
+    expect(nxBuildResult.stdout).toEqual(
+      expect.stringContaining(buildSuccessMessage)
+    );
   });
 
   it('should build a Forge app after changing to custom cache location', async () => {
     const appName = await generateForgeApp();
 
     const resultBeforeCustomCache = await runNxCommandAsync(`build ${appName}`);
-    expect(resultBeforeCustomCache.stdout).toContain('Executor ran');
+    expect(resultBeforeCustomCache.stdout).toEqual(
+      expect.stringContaining(buildSuccessMessage)
+    );
 
     // https://nx.dev/concepts/how-caching-works#customizing-the-cache-location
     updateFile(`nx.json`, (configString) => {
@@ -80,6 +73,8 @@ describe('Forge build executor', () => {
     });
 
     const resultAfterCustomCache = await runNxCommandAsync(`build ${appName}`);
-    expect(resultAfterCustomCache.stdout).toContain('Executor ran');
+    expect(resultAfterCustomCache.stdout).toEqual(
+      expect.stringContaining(buildSuccessMessage)
+    );
   });
 });

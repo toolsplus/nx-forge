@@ -23,7 +23,7 @@ export default defineConfig({
       {text: 'Home', link: '/'},
       {text: 'Guides', link: '/guides/getting-started', activeMatch: '/guides/'},
       {text: 'Reference', link: '/reference/generators', activeMatch: '/reference/'},
-      {text: 'Concepts', link: '/concepts/motivation', activeMatch: '/concepts/'},
+      {text: 'Concepts', link: '/concepts/plugin-concepts', activeMatch: '/concepts/'},
       {text: 'Discussions', link: 'https://github.com/toolsplus/nx-forge/discussions'},
       {text: 'Releases', link: 'https://github.com/toolsplus/nx-forge/releases'},
       {text: 'Contributing', link: 'https://github.com/toolsplus/nx-forge/blob/main/CONTRIBUTING.md'}
@@ -51,6 +51,8 @@ export default defineConfig({
             text: 'Maintenance',
             items: [
               {text: 'Migrating to a newer plugin version', link: 'migrating-plugin-version'},
+              {text: 'Migrating to the package executor', link: 'migrating-to-package-executor'},
+              {text: 'Migrating to inferred tasks', link: 'migrating-to-inferred-tasks'},
             ]
           },
           {
@@ -80,6 +82,7 @@ export default defineConfig({
           {
             text: 'Concepts',
             items: [
+              {text: 'Plugin concepts', link: 'plugin-concepts'},
               {text: 'Motivation', link: 'motivation'},
               {text: 'Workspace layout', link: 'workspace-layout'},
               {text: 'Project graph', link: 'project-graph'}

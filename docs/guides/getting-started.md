@@ -20,17 +20,29 @@ You will be asked if you would like to use Nx Cloud and/or remote caching. Eithe
 
 ## Setting up
 
+:::info
+
+The following steps assume that nx is installed globally. If you have not, you can do so by running `npm install -g nx`.
+
+:::
+
+### Installing Nx Console
+
+Nx Console is the Nx IDE plugin for VSCode and JetBrains IDEs. This step is optional, however, if you are new to Nx or generally prefer a user interface over a terminal, we highly recommend installing Nx Console: https://nx.dev/getting-started/editor-setup
+
+With Nx Console, you can run generator and executor commands from your IDE user interface instead of using the terminal. It also helps with task discovery, since [plugin targets are inferred](https://nx.dev/concepts/inferred-tasks) from configuration instead of explicitly defined (where possible).
+
 ### Installing the plugin
 
 Add the plugin to your Nx workspace using
 
 ```shell
-npm install --save-dev @toolsplus/nx-forge@latest
+nx add @toolsplus/nx-forge
 ```
 
 :::tip NOTE
 
-Ensure that Nx peer dependency version listed in the nx-forge package matches the Nx major version of your workspace. If you are starting new, most of the time `latest` should be fine. If you use an older Nx version, please install the nx-forge plugin version accordingly. 
+The plugin is compatible with Nx version {{nxVersion}}. If you use an older Nx version, we recommend upgrading to avoid compatibility issues. 
 
 :::
 
@@ -39,7 +51,7 @@ Ensure that Nx peer dependency version listed in the nx-forge package matches th
 Once installed, run the Forge app generator to generate a Forge app. Replace `<nx-forge-app-name>` with the name of the app you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-npx nx g @toolsplus/nx-forge:app <nx-forge-app-name> --directory apps/<nx-forge-app-name> --projectNameAndRootFormat as-provided
+nx g @toolsplus/nx-forge:app <nx-forge-app-name> --directory apps/<nx-forge-app-name> --projectNameAndRootFormat as-provided
 ```
 
 :::info
@@ -50,10 +62,16 @@ Starting with Nx 20 the flag `--projectNameAndRootFormat as-provided` will becom
 
 ### Adding a Custom UI module
 
-Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. If you have not installed `@nx/react` in your workspace, call `npm add -D @nx/react@{{nxVersion}}`. This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
+Forge apps require at least one module before they can be deployed. Let's start with a simple Custom UI module to get started. Run the following command from the workspace root to add Nx React support:
+
+```shell-vue
+nx add @nx/react@{{nxVersion}}
+```
+
+This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-npx nx g @nx/react:app <custom-ui-app-name>
+nx g @nx/react:app <custom-ui-app-name>
 ```
 
 
@@ -117,48 +135,21 @@ app:
 
 The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
 
-### Configuring targets dependencies
+### Configuring target defaults
 
-Configure `build` target dependencies to ensure Nx builds the Custom UI project before the Forge app. Open the `nx.json` file in your workspace root and update the `targetDefault as follows:
+Technically, we already have everything in place to build, package, and deploy our Forge app. However, to make our lives even easier, it is helpful to configure a few target defaults. Open the `nx.json` file in your workspace root and update or add the `targetDefaults` as follows:
 
 ::: code-group
 ```json{4-8}[nx.json]:line-numbers
 {
   ...
   "targetDefaults": {
-    "build": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    ...
-  },
-  ...
-}
-```
-:::
-
-This setting tells Nx that when we call the `build` target on a project, it should first run the `build` target on all dependent projects ([`^build`](https://nx.dev/reference/project-configuration#dependson)). This works because Nx knows about project dependencies.
-
-Feel free to customize and play around with these settings to tune them to your liking. For example, another helpful setting could be to run the `build` target before the [`package` target](../reference/executors.md#package) runs:
-
-::: code-group
-```json{9-15}[nx.json]:line-numbers
-{
-  ...
-  "targetDefaults": {
-    "build": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+    "deploy": {
+      "dependsOn": ["package"],
     },
     "package": {
       "dependsOn": ["build"],
-      "executor": "@toolsplus/nx-forge:package",
-      "options": {
-        "outputPath": "dist/{projectRoot}"
-      }
-    }
+    },
     ...
   },
   ...
@@ -166,18 +157,22 @@ Feel free to customize and play around with these settings to tune them to your 
 ```
 :::
 
+These settings tell Nx that when we call the `deploy` target on a project, it should first run the `package` target. Additionally, we make the `package` target dependent on the `build` target. With these ([target dependencies](https://nx.dev/reference/project-configuration#dependson)) in place, we can call `nx deploy <nx-forge-app-name>`, and Nx will ensure that the app is first built, then packaged and finally deployed.
+
+Feel free to customize and play around with these settings to tune them to your liking.
+
 ### Initial build, registration, deployment, and installation
 
-Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build the Forge app using
+Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build and package the Forge app (assuming you have configured the target dependencies above):
 
 ```shell
-npx nx build <nx-forge-app-name>
+nx package <nx-forge-app-name>
 ```
 
 Once that's finished, run
 
 ```shell
-npx nx register <nx-forge-app-name>
+nx register <nx-forge-app-name>
 ```
 
 This command will use `<nx-forge-app-name>` by default as the app name on the Forge platform. If you would like to use a different name, add the app name flag as follows: `--appName="My Forge App"`.
@@ -185,7 +180,7 @@ This command will use `<nx-forge-app-name>` by default as the app name on the Fo
 Then run
 
 ```shell
-npx nx deploy <nx-forge-app-name>
+nx deploy <nx-forge-app-name>
 ```
 
 to deploy the Forge app to the default development environment.
@@ -193,7 +188,7 @@ to deploy the Forge app to the default development environment.
 Finally, install the app on any of your sites with the following command
 
 ```shell
-npx nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
+nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
 ```
 
 :tada: The Forge app is now registered, deployed, and installed with the Forge platform.
