@@ -5,6 +5,9 @@ const { join } = require('path');
 module.exports = {
   output: {
     path: join(__dirname, '<%= offset %><%= webpackPluginOptions.outputPath %>'),
+    library: {
+      type: 'commonjs2',
+    },
   },
   plugins: [
     new NxAppWebpackPlugin({
