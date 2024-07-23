@@ -1,5 +1,5 @@
 import type { ProjectGraph } from '@nx/devkit';
-import { DependencyType, readJsonFile, writeJsonFile } from '@nx/devkit';
+import { readJsonFile, writeJsonFile } from '@nx/devkit';
 import { sortObjectByKeys } from 'nx/src/utils/object-sort';
 import { NormalizedOptions } from '../schema';
 import { Resources } from '@forge/manifest';
@@ -116,11 +116,8 @@ function findAllNpmDeps(
   } else {
     // we are not interested in the dependencies of external projects
     graph.dependencies[projectName]?.forEach((dep) => {
-      // Only include dependencies if they are either not implicit, or if it is not a Custom UI project
-      if (
-        dep.type !== DependencyType.implicit ||
-        !customUIProjectNames.includes(dep.target)
-      ) {
+      // Only include dependencies if they are not a Custom UI project
+      if (!customUIProjectNames.includes(dep.target)) {
         findAllNpmDeps(dep.target, graph, customUIProjectNames, list, seen);
       }
     });
