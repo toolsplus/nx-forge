@@ -2,7 +2,7 @@ import { ExecutorContext, logger } from '@nx/devkit';
 import { NormalizedOptions, PackageExecutorSchema } from './schema';
 import { processResourceDependencies } from '../build/lib/process-resource-dependencies';
 import { patchManifestYml } from '../build/lib/patch-manifest-yml';
-import { generatePackageJson } from '../build/lib/generate-package-json';
+import { generatePackageJson } from './lib/generate-package-json';
 import { copyForgeAppAssets } from '../build/lib/copy-forge-app-assets';
 
 export function normalizeOptions(
@@ -47,12 +47,15 @@ export default async function runExecutor(
 
   await patchManifestYml({ ...options, resourcePath: options.resourcePath });
 
-  generatePackageJson(
-    context.projectName,
-    context.projectGraph,
-    resources,
-    options
-  );
+  generatePackageJson({
+    root: options.root,
+    projectRoot: options.projectRoot,
+    outputPath: options.outputPath,
+    tsConfig: options.tsConfig,
+    projectName: context.projectName,
+    projectGraph: context.projectGraph,
+    manifestResources: resources,
+  });
 
   logger.info('Executor ran for package');
   return {

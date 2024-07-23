@@ -91,6 +91,10 @@ The `package` executor is intended to be used with a standard Nx `build` executo
    - _Map of resource project names to their respective output path (relative to the workspace root)._
    - Type: `object`
    - Default: `{}`
+- <b id="#/properties/tsConfig">tsConfig</b>
+  - _The path for the TypeScript configuration file, relative to the current project._
+  - Type: `string`
+  - Default: _"tsconfig.app.json"_
 - <b id="#/properties/uiKit2Packaging">uiKit2Packaging</b> <Badge type="warning" text="Experimental" />
   - _Enables UI Kit 2 compatible packaging._
   - Type: `boolean`
