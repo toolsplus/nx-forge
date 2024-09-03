@@ -18,6 +18,11 @@
       "description": "Map of resource project names to their respective output path.",
       "default": {}
     },
+    "tsConfig": {
+      "type": "string",
+      "default": "tsconfig.app.json",
+      "description": "The path for the TypeScript configuration file, relative to the current project."
+    },
     "uiKit2Packaging": {
       "type": "boolean",
       "description": "Enables UI Kit 2 compatible packaging.",
