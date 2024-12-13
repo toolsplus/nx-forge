@@ -7,7 +7,7 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
-    "@forge/manifest": "^7.5.0",
+    "@forge/manifest": "^8.1.0",
     "@nx/devkit": "19.5.2",
     "@nx/eslint": "19.5.2",
     "@nx/jest": "19.5.2",
