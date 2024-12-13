@@ -18,7 +18,7 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-angular": "^16.2.3",
-    "@forge/cli": "^10.0.1",
+    "@forge/cli": "^10.13.0",
     "@nx/devkit": "19.5.2",
     "@nx/eslint": "19.5.2",
     "@nx/eslint-plugin": "19.5.2",
@@ -59,7 +59,7 @@
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/sensible": "~5.2.0",
-    "@forge/manifest": "^7.5.0",
+    "@forge/manifest": "^8.1.0",
     "@swc/helpers": "0.5.11",
     "axios": "1.6.7",
     "fastify": "~4.13.0",
