@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         name: Setup Node.js
         with:
-          node-version: 'lts/*'
+          node-version: 'lts/-1'
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env
