@@ -59,7 +59,7 @@
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/sensible": "~5.2.0",
-    "@forge/manifest": "^8.1.0",
+    "@forge/manifest": "^8.3.0",
     "@swc/helpers": "0.5.11",
     "axios": "1.6.7",
     "fastify": "~4.13.0",
