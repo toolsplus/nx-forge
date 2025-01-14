@@ -5,7 +5,15 @@
     { "name": "test-*", "prerelease": true}
   ],
   "plugins": [
-    "@semantic-release/commit-analyzer",
+    ["@semantic-release/commit-analyzer", {
+      "releaseRules": [
+        {
+          "type": "build",
+          "scope": "deps",
+          "release": "patch"
+        }
+      ]
+    }],
     "@semantic-release/release-notes-generator",
     ["@semantic-release/npm", {
       "pkgRoot": "dist/packages/nx-forge"
