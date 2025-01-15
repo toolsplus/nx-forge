@@ -9,6 +9,7 @@ import {
 import { logger } from '@nx/devkit';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 import { generateForgeApp } from './utils/generate-forge-app';
+import stripAnsi = require('strip-ansi');
 
 /**
  * Delete a file in the e2e directory.
@@ -40,29 +41,25 @@ describe('Forge build executor', () => {
   const buildSuccessMessage = 'Successfully ran target build for project';
 
   it('should build a Forge app', async () => {
-    const appName = await generateForgeApp();
+    const appName = await generateForgeApp({ directory: 'apps' });
     const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
-    expect(nxBuildResult.stdout).toEqual(
-      expect.stringContaining(buildSuccessMessage)
-    );
+    expect(stripAnsi(nxBuildResult.stdout)).toContain(buildSuccessMessage);
   });
 
   it('should build a Forge app in a sub-directory', async () => {
     const subdir = 'subdir';
-    const appName = await generateForgeApp(`--directory ${subdir}`);
+    const appName = await generateForgeApp({ directory: subdir });
 
-    const nxBuildResult = await runNxCommandAsync(`build ${subdir}-${appName}`);
-    expect(nxBuildResult.stdout).toEqual(
-      expect.stringContaining(buildSuccessMessage)
-    );
+    const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
+    expect(stripAnsi(nxBuildResult.stdout)).toContain(buildSuccessMessage);
   });
 
   it('should build a Forge app after changing to custom cache location', async () => {
-    const appName = await generateForgeApp();
+    const appName = await generateForgeApp({ directory: 'apps' });
 
     const resultBeforeCustomCache = await runNxCommandAsync(`build ${appName}`);
-    expect(resultBeforeCustomCache.stdout).toEqual(
-      expect.stringContaining(buildSuccessMessage)
+    expect(stripAnsi(resultBeforeCustomCache.stdout)).toContain(
+      buildSuccessMessage
     );
 
     // https://nx.dev/concepts/how-caching-works#customizing-the-cache-location
@@ -73,8 +70,8 @@ describe('Forge build executor', () => {
     });
 
     const resultAfterCustomCache = await runNxCommandAsync(`build ${appName}`);
-    expect(resultAfterCustomCache.stdout).toEqual(
-      expect.stringContaining(buildSuccessMessage)
+    expect(stripAnsi(resultAfterCustomCache.stdout)).toContain(
+      buildSuccessMessage
     );
   });
 });

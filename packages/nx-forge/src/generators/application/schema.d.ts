@@ -1,10 +1,8 @@
 import type { Linter } from '@nx/eslint';
-import { ProjectNameAndRootFormat } from '@nx/devkit/src/generators/project-name-and-root-utils';
 
 interface ApplicationGeneratorOptions {
-  name: string;
-  directory?: string;
-  projectNameAndRootFormat?: ProjectNameAndRootFormat;
+  directory: string;
+  name?: string;
   skipFormat?: boolean;
   skipPackageJson?: boolean;
   linter?: Linter;

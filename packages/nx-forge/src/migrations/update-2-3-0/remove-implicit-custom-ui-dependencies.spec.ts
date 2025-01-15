@@ -16,7 +16,7 @@ describe('update 2.2.0 migration: remove-implicit-custom-ui-dependencies.spec', 
   });
 
   it('should remove Custom UI dependencies if they exist', async () => {
-    await generator(tree, { name: 'myApp' });
+    await generator(tree, { name: 'my-app', directory: 'myApp' });
     const project = readProjectConfiguration(tree, 'my-app');
 
     const customUIProjectName = 'custom-ui-project-1';

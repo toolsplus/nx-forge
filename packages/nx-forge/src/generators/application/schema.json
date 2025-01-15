@@ -4,29 +4,27 @@
   "title": "Nx Application Options Schema",
   "type": "object",
   "properties": {
-    "name": {
+    "directory": {
       "type": "string",
-      "description": "Name of the application.",
+      "description": "Directory of the new application",
+      "alias": "dir",
       "$default": {
         "$source": "argv",
         "index": 0
       },
-      "x-prompt": "What name would you like to use?"
+      "x-prompt": "Which directory do you want to create the application in?"
     },
-    "directory": {
+    "name": {
       "type": "string",
-      "description": "Directory where the project is placed",
-      "alias": "d"
-    },
-    "projectNameAndRootFormat": {
-      "description": "Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`).",
-      "type": "string",
-      "enum": ["as-provided", "derived"]
+      "description": "Name of the application.",
+      "pattern": "^[a-zA-Z][^:]*$",
+      "x-priority": "important"
     },
     "skipFormat": {
       "description": "Skip formatting files.",
       "type": "boolean",
-      "default": false
+      "default": false,
+      "x-priority": "internal"
     },
     "skipPackageJson": {
       "type": "boolean",
@@ -38,13 +36,17 @@
       "description": "Tool to use for running lint checks.",
       "type": "string",
       "enum": ["eslint", "none"],
-      "default": "eslint"
+      "default": "eslint",
+      "x-prompt": "Which linter would you like to use?",
+      "x-priority": "important"
     },
     "unitTestRunner": {
       "description": "Test runner to use for unit tests.",
       "type": "string",
       "enum": ["jest", "none"],
-      "default": "jest"
+      "default": "jest",
+      "x-priority": "important",
+      "x-prompt": "Which unit test runner would you like to use?"
     },
     "bundler": {
       "description": "Bundler which is used to package the application",
@@ -88,5 +90,5 @@
     }
   },
   "additionalProperties": false,
-  "required": ["name"]
+  "required": ["directory"]
 }

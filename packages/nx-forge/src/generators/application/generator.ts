@@ -49,7 +49,6 @@ export async function applicationGenerator(
 ) {
   return await applicationGeneratorInternal(tree, {
     addPlugin: false,
-    projectNameAndRootFormat: 'derived',
     ...schema,
   });
 }
