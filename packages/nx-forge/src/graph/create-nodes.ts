@@ -1,11 +1,9 @@
 import { readdirSync } from 'fs';
 import { dirname, join } from 'path';
 import {
-  CreateNodes,
   CreateNodesContext,
   createNodesFromFiles,
   CreateNodesV2,
-  logger,
   ProjectConfiguration,
 } from '@nx/devkit';
 import { getRegisterConfig } from '../shared/targets/get-register-config';
@@ -47,20 +45,6 @@ export const createNodesV2: CreateNodesV2 = [
       options,
       context
     );
-  },
-];
-
-/**
- * @deprecated This is replaced with {@link createNodesV2}. Update your plugin to export its own `createNodesV2` function that wraps this one instead.
- * This function will change to the v2 function in Nx 20.
- */
-export const createNodes: CreateNodes = [
-  forgeManifestGlob,
-  (manifestFilePath, options, context) => {
-    logger.warn(
-      '`createNodes` is deprecated. Update your plugin to utilize createNodesV2 instead. In Nx 20, this will change to the createNodesV2 API.'
-    );
-    return createNodesInternal(manifestFilePath, options, context);
   },
 ];
 

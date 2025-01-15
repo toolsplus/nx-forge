@@ -19,9 +19,8 @@ describe('application generator (legacy)', () => {
 
   it('should not skip the build target', async () => {
     await applicationGenerator(tree, {
-      name: 'my-forge-app',
+      directory: 'my-forge-app',
       bundler: 'webpack',
-      projectNameAndRootFormat: 'as-provided',
       addPlugin: false,
     });
     const project = readProjectConfiguration(tree, 'my-forge-app');

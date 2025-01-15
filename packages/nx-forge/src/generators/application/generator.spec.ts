@@ -21,9 +21,8 @@ describe('application generator', () => {
   describe('not nested', () => {
     it('should update project config', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         bundler: 'webpack',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
@@ -43,9 +42,8 @@ describe('application generator', () => {
 
     it('should update project config with esbuild', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         bundler: 'esbuild',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
@@ -105,9 +103,8 @@ describe('application generator', () => {
 
     it('should add tags to project config', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         tags: 'one,two',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
@@ -121,9 +118,8 @@ describe('application generator', () => {
 
     it('should generate files', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         bundler: 'webpack',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
       expect(tree.exists('my-forge-app/webpack.config.js')).toBeTruthy();
@@ -206,8 +202,7 @@ describe('application generator', () => {
       tree.rename('tsconfig.base.json', 'tsconfig.json');
 
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
-        projectNameAndRootFormat: 'as-provided',
+        directory: 'my-forge-app',
         addPlugin: true,
       });
 
@@ -219,10 +214,8 @@ describe('application generator', () => {
   describe('nested', () => {
     it('should update project config', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
         bundler: 'webpack',
         directory: 'my-dir/my-forge-app',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
@@ -243,10 +236,8 @@ describe('application generator', () => {
 
     it('should update project config with esbuild', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
         bundler: 'esbuild',
         directory: 'my-dir/my-forge-app',
-        projectNameAndRootFormat: 'as-provided',
         addPlugin: true,
       });
 
@@ -315,7 +306,7 @@ describe('application generator', () => {
 
       const projects = Object.fromEntries(getProjects(tree));
       expect(projects).toMatchObject({
-        'my-dir-my-forge-app': {
+        'my-forge-app': {
           tags: ['one', 'two'],
         },
       });
@@ -324,7 +315,7 @@ describe('application generator', () => {
     it('should generate files', async () => {
       await applicationGenerator(tree, {
         name: 'my-forge-app',
-        directory: 'myDir',
+        directory: 'my-dir/my-forge-app/',
         addPlugin: true,
       });
 
@@ -373,7 +364,7 @@ describe('application generator', () => {
   describe('--unit-test-runner none', () => {
     it('should not generate test configuration', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         unitTestRunner: 'none',
         addPlugin: true,
       });
@@ -386,7 +377,7 @@ describe('application generator', () => {
   describe('--swcJest', () => {
     it('should use @swc/jest for jest', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         tags: 'one,two',
         swcJest: true,
         addPlugin: true,
@@ -394,8 +385,7 @@ describe('application generator', () => {
 
       expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
         .toMatchInlineSnapshot(`
-        "/* eslint-disable */
-        export default {
+        "export default {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
@@ -413,7 +403,7 @@ describe('application generator', () => {
   describe('--babelJest (deprecated)', () => {
     it('should use babel for jest', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         tags: 'one,two',
         babelJest: true,
         addPlugin: true,
@@ -421,8 +411,7 @@ describe('application generator', () => {
 
       expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
         .toMatchInlineSnapshot(`
-        "/* eslint-disable */
-        export default {
+        "export default {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
@@ -440,7 +429,7 @@ describe('application generator', () => {
   describe('--js flag', () => {
     it('should generate js files instead of ts files', async () => {
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         js: true,
         addPlugin: true,
       } as ApplicationGeneratorOptions);
@@ -460,6 +449,7 @@ describe('application generator', () => {
         'jest.config.ts',
         'src/**/*.spec.ts',
         'src/**/*.test.ts',
+        'jest.config.js',
         'src/**/*.spec.js',
         'src/**/*.test.js',
       ]);
@@ -468,7 +458,7 @@ describe('application generator', () => {
     it('should generate js files for nested libs as well', async () => {
       await applicationGenerator(tree, {
         name: 'my-forge-app',
-        directory: 'myDir',
+        directory: 'my-dir/my-forge-app/',
         js: true,
         addPlugin: true,
       } as ApplicationGeneratorOptions);
@@ -482,7 +472,7 @@ describe('application generator', () => {
       jest.spyOn(devkit, 'formatFiles');
 
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         addPlugin: true,
       });
 
@@ -493,7 +483,7 @@ describe('application generator', () => {
       jest.spyOn(devkit, 'formatFiles');
 
       await applicationGenerator(tree, {
-        name: 'my-forge-app',
+        directory: 'my-forge-app',
         skipFormat: true,
         addPlugin: true,
       });

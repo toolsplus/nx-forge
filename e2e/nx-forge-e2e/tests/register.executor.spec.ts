@@ -9,6 +9,7 @@ import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 import { generateForgeApp } from './utils/generate-forge-app';
 import { Credentials, getCredentials } from './utils/config';
 import { createClient, deleteApp } from './utils/atlassian-graphql-client';
+import stripAnsi = require('strip-ansi');
 
 describe('Forge register executor', () => {
   let developerCredentials: Credentials; // initialize before all tests
@@ -33,21 +34,21 @@ describe('Forge register executor', () => {
   });
 
   it('should register a Forge app', async () => {
-    const appName = await generateForgeApp();
+    const appName = await generateForgeApp({ directory: 'apps' });
     const nxBuildResult = await runNxCommandAsync(`build ${appName}`);
     expect(nxBuildResult.stderr).toEqual('');
-    expect(nxBuildResult.stdout).toEqual(
-      expect.stringContaining('Successfully ran target build for project')
+    expect(stripAnsi(nxBuildResult.stdout)).toContain(
+      'Successfully ran target build for project'
     );
 
     const nxPackageResult = await runNxCommandAsync(`package ${appName}`);
     expect(nxPackageResult.stderr).toEqual('');
-    expect(nxPackageResult.stdout).toEqual(
-      expect.stringContaining('Successfully ran target package for project')
+    expect(stripAnsi(nxPackageResult.stdout)).toContain(
+      'Successfully ran target package for project'
     );
 
     const unregisteredOutputManifestContent = readFile(
-      `dist/${appName}/manifest.yml`
+      `dist/apps/${appName}/manifest.yml`
     );
     expect(unregisteredOutputManifestContent).toContain(
       'ari:cloud:ecosystem::app/to-be-generated'
@@ -57,21 +58,23 @@ describe('Forge register executor', () => {
       silenceError: true,
     });
     expect(nxRegisterResult.stderr).toEqual('');
-    expect(nxRegisterResult.stdout).toContain('Forge app registered');
+    expect(stripAnsi(nxRegisterResult.stdout)).toContain(
+      'Forge app registered'
+    );
 
     // ari:cloud:ecosystem::app/<uuid>
     const registeredAppIdRegex =
       /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
     const registeredOutputManifestContent = readFile(
-      `dist/${appName}/manifest.yml`
+      `dist/apps/${appName}/manifest.yml`
     );
     const [appId] = registeredOutputManifestContent.match(registeredAppIdRegex);
     expect(appId).not.toBeNull();
     expect(appId).toBeDefined();
     expect(appId).not.toEqual('');
 
-    const projectManifestContent = readFile(`${appName}/manifest.yml`);
+    const projectManifestContent = readFile(`apps/${appName}/manifest.yml`);
     expect(projectManifestContent).toContain(appId);
 
     // Clean up the registered app
