@@ -6,7 +6,7 @@ import {
   Tree,
 } from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
-import { addBuildTargetDefaults } from '@nx/devkit/src/generators/add-build-target-defaults';
+import { addBuildTargetDefaults } from '@nx/devkit/src/generators/target-defaults-utils';
 import { hasWebpackPlugin } from '../../../utils/has-webpack-plugin';
 
 function getWebpackBuildConfig(

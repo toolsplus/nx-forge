@@ -18,40 +18,90 @@ npm i -D @nx/react
 
 ## Generating a React application
 
-With the React plugin installed, we can use the [React application generator](https://nx.dev/nx-api/react/generators/application) to scaffold a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
-
-::: tip
-If you are asked about the project name and where the project should be generated, select "as provided" (this will become the default in Nx 20).
-:::
+With the React plugin installed, we can use the [React application generator](https://nx.dev/nx-api/react/generators/application) to scaffold a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. The example below will generate the project under the `apps` folder in your workspace. If you prefer a different directory, you can change that as you like. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-nx g @nx/react:app <custom-ui-app-name> --directory apps/<custom-ui-app-name>
+nx g @nx/react:app apps/<custom-ui-app-name>
 ```
 
-To get the React application working as a Forge Custom UI we have to update the `apps/<custom-ui-app-name>/project.json` file. Open the file and replace the `baseHref` value in the build options with `.` instead of `/`. Refer to [the Forge documentation on accessing static assets for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets).
+To get the React app working as a Forge Custom UI, ensure that the configured bundler loads assets from relative paths. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets). The configuration varies based on the configured bundler, but there are typically one or two places to adjust:
 
-:::code-group
-```json[project.json]:line-numbers
-{
-  "root": "apps/<custom-ui-app-name>",
-  "sourceRoot": "apps/<custom-ui-app-name>/src",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "compiler": "babel",
-        "outputPath": "dist/apps/<custom-ui-app-name>",
-        "index": "apps/<custom-ui-app-name>/src/index.html",
-        "baseHref": ".", // [!code highlight]
-        ...
-      }
+1. base path in the bundler's configuration file
+1. base tag in the `index.html`
+
+Make sure both of these are relative. For Webpack, it should be enough to update `baseHref` to `.` in `webpack.config.js`. For Vite, apart from setting `base` in `vite.config.js`, you may also need to update the base tag in `index.html` from `<base href="/" />` to `<base href="./" />`.
+
+::: code-group
+```json[webpack.config.js]:line-numbers{23}
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
+const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
+const { join } = require('path');
+
+module.exports = {
+  output: {
+    path: join(__dirname, '../../dist/apps/<custom-ui-app-name>'),
+  },
+  devServer: {
+    port: 4200,
+    historyApiFallback: {
+      index: '/index.html',
+      disableDotRule: true,
+      htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
     },
-    ...
-  }
-}
+  },
+  plugins: [
+    new NxAppWebpackPlugin({
+      tsConfig: './tsconfig.app.json',
+      compiler: 'babel',
+      main: './src/main.tsx',
+      index: './src/index.html',
+      baseHref: '.',
+      assets: ['./src/favicon.ico', './src/assets'],
+      styles: [],
+      outputHashing: process.env['NODE_ENV'] === 'production' ? 'all' : 'none',
+      optimization: process.env['NODE_ENV'] === 'production',
+    }),
+    new NxReactWebpackPlugin({
+      // Uncomment this line if you don't want to use SVGR
+      // See: https://react-svgr.com/
+      // svgr: false
+    }),
+  ],
+};
+```
+```json[vite.config.js]:line-numbers{9}
+/// <reference types='vitest' />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+
+export default defineConfig({
+  root: __dirname,
+  base: './',
+  cacheDir: '../../node_modules/.vite/apps/<custom-ui-app-name>',
+  server: {
+    port: 4200,
+    host: 'localhost',
+  },
+  preview: {
+    port: 4300,
+    host: 'localhost',
+  },
+  plugins: [react(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  // Uncomment this if you are using workers.
+  // worker: {
+  //  plugins: [ nxViteTsPaths() ],
+  // },
+  build: {
+    outDir: '../../dist/apps/<custom-ui-app-name>',
+    emptyOutDir: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
+});
 ```
 :::
 
@@ -88,7 +138,7 @@ app:
 ```
 :::
 
-The wiring of the Custom UI to the Forge application happens in the `path` property of the `project-page` resource. The `path` property must reference the Custom UI project name from the previous step. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
+The wiring of the Custom UI to the Forge application happens in the `path` property of the `project-page` resource. The `path` property must reference the Custom UI project name from the previous step. If you are unsure about the project name, you can always look it up via the `name` property in the `project.json` file. The plugin will replace the project name path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
 
 With the default Nx workspace configuration, [the task pipeline](https://nx.dev/features/run-tasks#defining-a-task-pipeline) is preconfigured such that before running the `build` target, it needs to run the `build` target on all the projects the current project depends on. This means if we run:
 

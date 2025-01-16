@@ -40,10 +40,13 @@ const installationListSchema = z.array(
 export const getInstallationIds = async (
   projectName: string
 ): Promise<z.infer<typeof installationListSchema>> => {
+  // If this call errors with Error: spawn /bin/sh ENOENT check
+  // if the value provided to cwd exists:
+  // https://ethanmick.com/debugging-nodes-spawn-enoent/
   const listInstallationResult = await runForgeCommandAsync(
     'install list --json',
     {
-      cwd: joinPathFragments(tmpProjPath(), 'dist', projectName),
+      cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', projectName),
       silenceError: true,
     }
   );

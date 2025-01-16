@@ -18,6 +18,7 @@ import { createClient, deleteApp } from './utils/atlassian-graphql-client';
 import { runForgeCommandAsync } from './utils/async-commands';
 import { getInstallationIds } from './utils/installation-ids';
 import { joinPathFragments } from '@nx/devkit';
+import stripAnsi = require('strip-ansi');
 
 describe('Forge install executor', () => {
   // initialize before all tests
@@ -45,18 +46,18 @@ describe('Forge install executor', () => {
   });
 
   it('should install a Forge app', async () => {
-    const appName = await generateForgeApp();
+    const appName = await generateForgeApp({ directory: 'apps' });
     const nxBuildResult = await runNxCommandAsync(`build ${appName}`, {
       silenceError: true,
     });
     expect(nxBuildResult.stderr).toEqual('');
-    expect(nxBuildResult.stdout).toContain(
+    expect(stripAnsi(nxBuildResult.stdout)).toContain(
       'Successfully ran target build for project'
     );
 
     const nxPackageResult = await runNxCommandAsync(`package ${appName}`);
     expect(nxPackageResult.stderr).toEqual('');
-    expect(nxPackageResult.stdout).toEqual(
+    expect(stripAnsi(nxPackageResult.stdout)).toEqual(
       expect.stringContaining('Successfully ran target package for project')
     );
 
@@ -64,7 +65,9 @@ describe('Forge install executor', () => {
       silenceError: true,
     });
     expect(nxRegisterResult.stderr).toEqual('');
-    expect(nxRegisterResult.stdout).toContain('Forge app registered');
+    expect(stripAnsi(nxRegisterResult.stdout)).toContain(
+      'Forge app registered'
+    );
 
     // Run with `--no-verfiy` because the generated blank app template causes linting errors
     const nxDeployResult = await runNxCommandAsync(
@@ -74,7 +77,7 @@ describe('Forge install executor', () => {
       }
     );
     expect(nxDeployResult.stderr).toEqual('');
-    expect(nxDeployResult.stdout).toContain('Forge app deployed');
+    expect(stripAnsi(nxDeployResult.stdout)).toContain('Forge app deployed');
 
     const nxInstallResult = await runNxCommandAsync(
       `install ${appName} --product=${productContext.product} --site=${productContext.siteUrl} --no-interactive`,
@@ -83,21 +86,21 @@ describe('Forge install executor', () => {
       }
     );
     expect(nxInstallResult.stderr).toEqual('');
-    expect(nxInstallResult.stdout).toContain('Forge app installed');
+    expect(stripAnsi(nxInstallResult.stdout)).toContain('Forge app installed');
 
     // Clean up
     const installationIds = await getInstallationIds(appName);
     const uninstallResults = await Promise.all(
       installationIds.map(({ id }) =>
         runForgeCommandAsync(`uninstall ${id}`, {
-          cwd: joinPathFragments(tmpProjPath(), 'dist', appName),
+          cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', appName),
           silenceError: true,
         })
       )
     );
     uninstallResults.forEach((result) => {
       expect(result.stderr).toEqual('');
-      expect(result.stdout).toContain('Uninstalled');
+      expect(stripAnsi(result.stdout)).toContain('Uninstalled');
     });
 
     // ari:cloud:ecosystem::app/<uuid>
@@ -105,7 +108,7 @@ describe('Forge install executor', () => {
       /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
     const registeredOutputManifestContent = readFile(
-      `dist/${appName}/manifest.yml`
+      `dist/apps/${appName}/manifest.yml`
     );
     const appIdMatch =
       registeredOutputManifestContent.match(registeredAppIdRegex);
