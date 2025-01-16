@@ -3,7 +3,7 @@ sidebar_position: 10
 ---
 
 <script setup>
-const nxVersion = 19
+const nxVersion = 20
 </script>
 
 # Getting started
@@ -28,7 +28,7 @@ The following steps assume that nx is installed globally. If you have not, you c
 
 ### Installing Nx Console
 
-Nx Console is the Nx IDE plugin for VSCode and JetBrains IDEs. This step is optional, however, if you are new to Nx or generally prefer a user interface over a terminal, we highly recommend installing Nx Console: https://nx.dev/getting-started/editor-setup
+Nx Console is the Nx IDE plugin for VSCode and JetBrains IDEs. This step is optional, however, if you are new to Nx or generally prefer a user interface over a terminal, installing Nx Console is highly recommend: https://nx.dev/getting-started/editor-setup
 
 With Nx Console, you can run generator and executor commands from your IDE user interface instead of using the terminal. It also helps with task discovery, since [plugin targets are inferred](https://nx.dev/concepts/inferred-tasks) from configuration instead of explicitly defined (where possible).
 
@@ -51,14 +51,8 @@ The plugin is compatible with Nx version {{nxVersion}}. If you use an older Nx v
 Once installed, run the Forge app generator to generate a Forge app. Replace `<nx-forge-app-name>` with the name of the app you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-nx g @toolsplus/nx-forge:app <nx-forge-app-name> --directory apps/<nx-forge-app-name> --projectNameAndRootFormat as-provided
+nx g @toolsplus/nx-forge:app apps/<nx-forge-app-name>
 ```
-
-:::info
-
-Starting with Nx 20 the flag `--projectNameAndRootFormat as-provided` will become the default and will no longer be required. 
-
-:::
 
 ### Adding a Custom UI module
 
@@ -71,34 +65,88 @@ nx add @nx/react@{{nxVersion}}
 This plugin allows us to generate a React application for our Custom UI. Replace `<custom-ui-app-name>` with the name of the Custom UI project you want to create. You can add the `--dry-run` flag to preview what will be generated.
 
 ```shell
-nx g @nx/react:app <custom-ui-app-name>
+nx g @nx/react:app apps/<custom-ui-app-name>
 ```
 
 
-To get the React app working as a Forge Custom UI, update the `apps/<custom-ui-app-name>/project.json` file by replacing the `baseHref` value in the build options with `.` instead of `/`. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets):
+To get the React app working as a Forge Custom UI, ensure that the configured bundler loads assets from relative paths. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets). The configuration varies based on the configured bundler, but there are typically one or two places to adjust: 
+
+1. base path in the bundler's configuration file
+1. base tag in the `index.html`
+
+Make sure both of these are relative. For Webpack, it should be enough to set `baseHref` to `.` in `webpack.config.js`. For Vite, apart from setting `base` to `./` in `vite.config.js`, you may also need to update the base tag in `index.html` from `<base href="/" />` to `<base href="./" />`.
 
 ::: code-group
-```json[project.json]:line-numbers
-{
-  "root": "apps/<custom-ui-app-name>",
-  "sourceRoot": "apps/<custom-ui-app-name>/src",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "compiler": "babel",
-        "outputPath": "dist/apps/<custom-ui-app-name>",
-        "index": "apps/<custom-ui-app-name>/src/index.html",
-        "baseHref": ".", // [!code highlight]
-        ...
-      }
+```json[webpack.config.js]:line-numbers{23}
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
+const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
+const { join } = require('path');
+
+module.exports = {
+  output: {
+    path: join(__dirname, '../../dist/apps/<custom-ui-app-name>'),
+  },
+  devServer: {
+    port: 4200,
+    historyApiFallback: {
+      index: '/index.html',
+      disableDotRule: true,
+      htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
     },
-    ...
-  }
-}
+  },
+  plugins: [
+    new NxAppWebpackPlugin({
+      tsConfig: './tsconfig.app.json',
+      compiler: 'babel',
+      main: './src/main.tsx',
+      index: './src/index.html',
+      baseHref: '.',
+      assets: ['./src/favicon.ico', './src/assets'],
+      styles: [],
+      outputHashing: process.env['NODE_ENV'] === 'production' ? 'all' : 'none',
+      optimization: process.env['NODE_ENV'] === 'production',
+    }),
+    new NxReactWebpackPlugin({
+      // Uncomment this line if you don't want to use SVGR
+      // See: https://react-svgr.com/
+      // svgr: false
+    }),
+  ],
+};
+```
+```json[vite.config.js]:line-numbers{9}
+/// <reference types='vitest' />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+
+export default defineConfig({
+  root: __dirname,
+  base: './',
+  cacheDir: '../../node_modules/.vite/apps/<custom-ui-app-name>',
+  server: {
+    port: 4200,
+    host: 'localhost',
+  },
+  preview: {
+    port: 4300,
+    host: 'localhost',
+  },
+  plugins: [react(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  // Uncomment this if you are using workers.
+  // worker: {
+  //  plugins: [ nxViteTsPaths() ],
+  // },
+  build: {
+    outDir: '../../dist/apps/<custom-ui-app-name>',
+    emptyOutDir: true,
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
+});
 ```
 :::
 
@@ -133,11 +181,11 @@ app:
 ```
 :::
 
-The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. The plugin will replace this path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
+The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. If you are unsure about the project name, you can always look it up via the `name` property in the `project.json` file. The plugin will replace the project name path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
 
 ### Configuring target defaults
 
-Technically, we already have everything in place to build, package, and deploy our Forge app. However, to make our lives even easier, it is helpful to configure a few target defaults. Open the `nx.json` file in your workspace root and update or add the `targetDefaults` as follows:
+Technically, we have everything in place to build, package, and deploy our Forge app. However, to make our lives even easier, it is helpful to configure a few target defaults. Open the `nx.json` file in your workspace root and update or add the `targetDefaults` as follows:
 
 ::: code-group
 ```json{4-8}[nx.json]:line-numbers

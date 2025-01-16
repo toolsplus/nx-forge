@@ -9,19 +9,20 @@ Append `--help` or `-h` for any of the plugin generators to explore all availabl
 ## Application
 
 ```shell
-nx generate @toolsplus/nx-forge:app <nx-forge-app-name>
+nx generate @toolsplus/nx-forge:app apps/<nx-forge-app-name>
 ```
 
 Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all cases, you probably want to run [the Forge app registration task](executors#register) immediately after this generator to register the app with the Forge platform.
 
 **_Properties_**
 
-- <b id="#NxForgeApplicationGenerator/properties/name">name</b> `required`
+- <b id="#NxForgeApplicationGenerator/properties/directory">directory</b> `required`
+  - _Directory of the new application_
+  - Type: `string`
+- <b id="#NxForgeApplicationGenerator/properties/name">name</b>
   - _Name of the application._
   - Type: `string`
-- <b id="#NxForgeApplicationGenerator/properties/directory">directory</b>
-  - _Directory where the project is placed_
-  - Type: `string`
+  - The value must match this pattern: `^[a-zA-Z][^:]*$`
 - <b id="#NxForgeApplicationGenerator/properties/bundler">bundler</b>
   - _Bundler which is used to package the application_
   - Type: `string`
@@ -29,12 +30,6 @@ Generates a blank Forge app project named `<nx-forge-app-name>`. In almost all c
     1. _"esbuild"_
     2. _"webpack"_
   - Default: _"webpack"_
-- <b id="#NxForgeApplicationGenerator/properties/projectNameAndRootFormat">projectNameAndRootFormat</b>
-  - _Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`)._
-  - Type: `string`
-  - The value is restricted to the following:
-    1. _"as-provided"_
-    2. _"derived"_
 - <b id="#NxForgeApplicationGenerator/properties/skipFormat">skipFormat</b>
   - _Skip formatting files._
   - Type: `boolean`
