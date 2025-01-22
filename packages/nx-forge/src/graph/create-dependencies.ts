@@ -7,25 +7,26 @@ import {
   RawProjectGraphDependency,
 } from '@nx/devkit';
 import {
-  extractCustomUIProjectNames,
+  extractUIResourceProjectNames,
   readManifestYml,
 } from '../utils/forge/manifest-yml';
 
-const getCustomUIDependencies = async (
+const getUIResourceDependencies = async (
   [projectName, manifestFile]: [string, FileData],
   context: CreateDependenciesContext
 ): Promise<RawProjectGraphDependency[]> => {
   const manifestSchema = await readManifestYml(manifestFile.file);
-  const customUIProjectNames = extractCustomUIProjectNames(manifestSchema);
+  const uiResourceProjectNames = extractUIResourceProjectNames(manifestSchema);
 
-  const getCustomUIStaticDependency = (
-    customUIProjectName: string
+  const getUIResourceStaticDependency = (
+    uiResourceProjectName: string
   ): RawProjectGraphDependency => {
-    const customUIProjectConfiguration = context.projects[customUIProjectName];
+    const uiResourceProjectConfiguration =
+      context.projects[uiResourceProjectName];
 
-    if (!customUIProjectConfiguration) {
+    if (!uiResourceProjectConfiguration) {
       throw new Error(
-        `Failed to find Custom UI project in Nx workspace: The Custom UI dependency to project ${customUIProjectName} declared in the Forge manifest.yml of project ${projectName} cannot be found. Make sure the Custom UI resource path references a project in your Nx workspace.`
+        `Failed to find UI resource project in Nx workspace: The UI resource dependency to project ${uiResourceProjectName} declared in the Forge manifest.yml of project ${projectName} cannot be found. Make sure the path property of the resource definition references a project in the Nx workspace.`
       );
     }
 
@@ -40,20 +41,20 @@ const getCustomUIDependencies = async (
     return {
       sourceFile: manifestFile.file,
       source: projectName,
-      target: customUIProjectName,
+      target: uiResourceProjectName,
       type: DependencyType.static,
     };
   };
 
-  return customUIProjectNames.reduce((acc, customUIProjectName) => {
+  return uiResourceProjectNames.reduce((acc, uiResourceProjectName) => {
     return (manifestFile.deps || []).find(
       ([source, target, type]) =>
         type === 'static' &&
-        target === customUIProjectName &&
+        target === uiResourceProjectName &&
         source === projectName
     )
       ? acc // Dependency already exists, skip adding it again.
-      : [...acc, getCustomUIStaticDependency(customUIProjectName)];
+      : [...acc, getUIResourceStaticDependency(uiResourceProjectName)];
   }, []);
 };
 
@@ -69,11 +70,11 @@ export const createDependencies: CreateDependencies = async (
       f.file.endsWith('manifest.yml')
     )) {
       logger.info(`[nx-forge] Processing ${projectName}:${manifestFile.file}`);
-      const customUIDependencies = await getCustomUIDependencies(
+      const uiResourceDependencies = await getUIResourceDependencies(
         [projectName, manifestFile],
         context
       );
-      dependencies = dependencies.concat(customUIDependencies);
+      dependencies = dependencies.concat(uiResourceDependencies);
     }
   }
 

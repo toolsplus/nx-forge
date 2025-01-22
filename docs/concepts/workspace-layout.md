@@ -24,7 +24,7 @@ my-nx-workspace/
 │   │   |── package.json
 │   │   |── project.json
 │   ├── custom-ui-a
-│   ├── ui-kit-2-ui-b
+│   ├── ui-kit-ui-b
 ├── libs
 |   ├── shared-api-code
 |   ├── shared-ui-code

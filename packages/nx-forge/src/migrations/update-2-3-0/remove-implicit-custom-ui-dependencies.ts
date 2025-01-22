@@ -6,13 +6,13 @@ import {
   Tree,
   updateProjectConfiguration,
 } from '@nx/devkit';
-import { extractCustomUIProjectNames } from '../../utils/forge/manifest-yml';
+import { extractUIResourceProjectNames } from '../../utils/forge/manifest-yml';
 import { readManifestYml } from './utils/manifest';
 
 export default async function update(host: Tree) {
   const projects = getProjects(host);
 
-  const isForgeProjectProject = (config: ProjectConfiguration): boolean => {
+  const isForgeProject = (config: ProjectConfiguration): boolean => {
     return (
       config.projectType === 'application' &&
       host.exists(joinPathFragments(config.root, 'manifest.yml'))
@@ -20,13 +20,13 @@ export default async function update(host: Tree) {
   };
 
   for (const [name, config] of projects.entries()) {
-    if (config && isForgeProjectProject(config)) {
+    if (config && isForgeProject(config)) {
       if (config.implicitDependencies?.length > 0) {
         const manifest = await readManifestYml(
           host,
           joinPathFragments(config.root, 'manifest.yml')
         );
-        const customUIProjectNames = extractCustomUIProjectNames(manifest);
+        const customUIProjectNames = extractUIResourceProjectNames(manifest);
         config.implicitDependencies = config.implicitDependencies.filter(
           (d) => !customUIProjectNames.includes(d)
         );

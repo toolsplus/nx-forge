@@ -19,6 +19,11 @@ module.exports = {
       assets: <%- JSON.stringify(webpackPluginOptions.assets) %>,
       optimization: false,
       outputHashing: 'none',
+      // Do not delete all the files in the output path. This is required to maintain the
+      // manifest.yml in the output path when running the tunnel executor. By default,
+      // Webpack still cleans the src folder in the output directory (dist/apps/<my-app>/src)
+      // but not the project root (refer to Webpack option `output.clean`).
+      deleteOutputPath: false,
     })
   ],
 };

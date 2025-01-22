@@ -7,7 +7,7 @@ import {
   ProjectConfiguration,
 } from '@nx/devkit';
 import { getRegisterConfig } from '../shared/targets/get-register-config';
-import { getServeConfig } from '../shared/targets/get-serve-config';
+import { getTunnelConfig } from '../shared/targets/get-tunnel-config';
 import { getDeployConfig } from '../shared/targets/get-deploy-config';
 import { getInstallConfig } from '../shared/targets/get-install-config';
 import { getForgeCliConfig } from '../shared/targets/get-forge-cli-config';
@@ -25,7 +25,7 @@ const buildForgeProjectTargets = (projectRoot: string): ForgeProjectTargets => {
 
   targets.register = getRegisterConfig({ outputPath });
   targets.package = getPackageConfig({ outputPath });
-  targets.serve = getServeConfig({ outputPath });
+  targets.tunnel = getTunnelConfig({ outputPath });
   targets.deploy = getDeployConfig({ outputPath });
   targets.install = getInstallConfig({ outputPath });
   targets.forge = getForgeCliConfig({ outputPath });
