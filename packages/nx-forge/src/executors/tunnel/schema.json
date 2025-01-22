@@ -22,6 +22,12 @@
       "description": "Run Forge tunnel in verbose mode.",
       "alias": "v",
       "default": false
+    },
+    "preTunnelTimeout": {
+      "type": "number",
+      "description": "Max milliseconds to wait for tunnel preparation tasks.",
+      "default": 5000,
+      "visible": false
     }
   },
   "required": ["outputPath"]

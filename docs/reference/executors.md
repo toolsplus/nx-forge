@@ -219,10 +219,10 @@ _Mirrors the [install command](https://developer.atlassian.com/platform/forge/cl
 ## Tunnel <Badge type="warning" text="Experimental" />
 
 ```shell
-nx serve <nx-forge-app-name>
+nx tunnel <nx-forge-app-name>
 ```
 
-Starts the `serve` target for all Custom UI projects defined in the `manifest.yml` of the Forge app project named `<nx-forge-app-name>` on their specified tunnel port. After that, starts a build process in watch mode for the Forge app itself, before ultimately, starting the `nx-forge tunnel` process for the Forge app.
+Starts the `tunnel` target for all Custom UI projects defined in the `manifest.yml` of the Forge app project named `<nx-forge-app-name>` on their specified tunnel port. After that, starts a build process in watch mode for the Forge app itself, before ultimately, starting the Forge `tunnel` process for the Forge app.
 
 _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli-reference/tunnel/) of the Forge CLI._
 
@@ -239,3 +239,7 @@ _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli
   - _Run Forge tunnel in verbose mode._
   - Type: `boolean`
   - Default: _false_
+- <b id="#/properties/preTunnelTimeout">preTunnelTimeout</b>
+  - _Max milliseconds to wait for tunnel preparation tasks._
+  - Type: `number`
+  - Default: `5000`

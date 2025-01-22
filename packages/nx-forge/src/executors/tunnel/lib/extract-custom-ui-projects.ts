@@ -14,7 +14,7 @@ type ResourceWithTunnelPort = Required<HostedResourcesSchema>;
 export async function getCustomUiProjects(
   context: ExecutorContext
 ): Promise<{ projectName: string; port: number }[]> {
-  const projects = await extractVerifiedCustomUiProjects(context);
+  const projects = await extractVerifiedCustomUIProjects(context);
   return projects.map((p) => ({
     projectName: p.path,
     port: p.tunnel.port,
@@ -28,13 +28,12 @@ export async function getCustomUiProjects(
  *
  *   - the Nx workspace has a project configured for each Custom UI project
  *   - each Custom UI project has a 'serve' target
- *   - each Custom UI project is listed as an implicit dependency of the Forge app
  *   - each Custom UI resource has a configured tunnel port in the Forge app's manifest.yml
  *
  * @param context Executor context for this call
  * @returns All configured and verified Custom UI resources
  */
-async function extractVerifiedCustomUiProjects(
+async function extractVerifiedCustomUIProjects(
   context: ExecutorContext
 ): Promise<ResourceWithTunnelPort[]> {
   const manifestPath = joinPathFragments(
