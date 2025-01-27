@@ -2,6 +2,7 @@ import { ExecutorContext, joinPathFragments } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
+import { isResourceType } from '../../../shared/manifest/util-manifest';
 
 type ResourceWithTunnelPort = Required<HostedResourcesSchema>;
 
@@ -14,7 +15,7 @@ type ResourceWithTunnelPort = Required<HostedResourcesSchema>;
 export async function getCustomUiProjects(
   context: ExecutorContext
 ): Promise<{ projectName: string; port: number }[]> {
-  const projects = await extractVerifiedCustomUiProjects(context);
+  const projects = await extractVerifiedCustomUIProjects(context);
   return projects.map((p) => ({
     projectName: p.path,
     port: p.tunnel.port,
@@ -28,13 +29,12 @@ export async function getCustomUiProjects(
  *
  *   - the Nx workspace has a project configured for each Custom UI project
  *   - each Custom UI project has a 'serve' target
- *   - each Custom UI project is listed as an implicit dependency of the Forge app
  *   - each Custom UI resource has a configured tunnel port in the Forge app's manifest.yml
  *
  * @param context Executor context for this call
  * @returns All configured and verified Custom UI resources
  */
-async function extractVerifiedCustomUiProjects(
+async function extractVerifiedCustomUIProjects(
   context: ExecutorContext
 ): Promise<ResourceWithTunnelPort[]> {
   const manifestPath = joinPathFragments(
@@ -44,7 +44,9 @@ async function extractVerifiedCustomUiProjects(
   );
   const manifestSchema = await readManifestYml(manifestPath);
   const resources: Resources = manifestSchema.resources ?? [];
-  return resources.map(verifyCustomUIDependency(context));
+  return resources
+    .filter(isResourceType(manifestSchema, ['custom-ui']))
+    .map(verifyCustomUIDependency(context));
 }
 
 const verifyCustomUIDependency =
@@ -63,7 +65,7 @@ const verifyCustomUIDependency =
 
     if (!customUIProjectConfiguration.targets['serve']) {
       throw new Error(
-        `Custom UI project '${customUIProjectName}' targets is missing a 'serve' executor. Make sure the 'targets' property in the project's 'project.json' has a 'serve' executor configured.`
+        `Custom UI project '${customUIProjectName}' targets is missing a 'serve' executor. Make sure the the project has a 'serve' target inferred, or the 'targets' property in the project's 'project.json' has a 'serve' executor configured.`
       );
     }
 

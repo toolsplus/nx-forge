@@ -1,6 +1,6 @@
 import { join, resolve } from 'path';
 import { joinPathFragments, logger } from '@nx/devkit';
-import { ManifestSchema, Modules, Resources } from '@forge/manifest';
+import { ManifestSchema, Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import {
@@ -8,6 +8,12 @@ import {
   writeManifestYml,
 } from '../../../utils/forge/manifest-yml';
 import { existsSync } from 'fs';
+import {
+  getResourceTypeIndex,
+  isResourceType,
+  ResourceType,
+  ResourceTypeIndex,
+} from '../../../shared/manifest/util-manifest';
 
 type Options = Pick<
   NormalizedOptions,
@@ -16,31 +22,13 @@ type Options = Pick<
   resourcePath: string;
 };
 
-interface CustomUiResourceContext {
-  type: 'custom-ui';
-  modules: Entries<Modules>;
-}
-
-// https://stackoverflow.com/a/60142095/5115898
-type Entries<T> = {
-  [K in keyof T]: [K, T[K]];
-}[keyof T][];
-
-interface UiKit2ResourceContext {
-  type: 'ui-kit-2';
-  modules: Entries<Modules>;
-}
-
-type ResourceContext = CustomUiResourceContext | UiKit2ResourceContext;
-type ResourceType = ResourceContext['type'];
-type ResourceKey = string;
-type ResourceTypeIndex = Record<ResourceKey, ResourceContext>;
-
 /**
- * Patches the output manifest.yml file to replace resource path parameters to point to the actual resource build
- * artifacts instead of the Nx project reference.
+ * Patches the output manifest.yml file to replace resource path parameters to
+ * point to the actual resource build artifacts instead of the Nx project
+ * reference.
  *
- * This assumes that resource artifacts have already been copied to the output directory in a previous step.
+ * This assumes that resource artifacts have already been copied to the output
+ * directory in a previous step.
  *
  * @param options Executor options
  */
@@ -69,123 +57,68 @@ function patchManifestInternal(
   options: Options
 ): ManifestSchema {
   const resources: Resources = manifestSchema.resources || [];
+  const uiResources = resources.filter(
+    isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
+  );
+  const genericResources = resources.filter(
+    isResourceType(manifestSchema, ['generic'])
+  );
+
+  // Integrity check: We want to be sure that we are not losing any resource
+  // definitions when separating them into UI and generic resources.
+  const resourceKeySet = new Set(resources.map((r) => r.key));
+  const uiResourcesKeySet = new Set(uiResources.map((r) => r.key));
+  const genericResourcesKeySet = new Set(genericResources.map((r) => r.key));
+  const missingResourceKeys = [...resourceKeySet].filter(
+    (k) => !uiResourcesKeySet.has(k) && !genericResourcesKeySet.has(k)
+  );
+  if (missingResourceKeys.length > 0) {
+    logger.warn(
+      `Failed to determine resource type for resource definitions with keys ${missingResourceKeys}.
+
+      This is most likely a plugin error and should be fixed. Please include the manifest.yml in the issue report.`
+    );
+  }
+
   if (!options.uiKit2Packaging) {
     return {
       ...manifestSchema,
-      resources: resources.map((resource) => ({
-        ...resource,
-        path: `${options.resourcePath}/${resource.path}`,
-      })),
+      resources: [
+        ...uiResources.map((resource) => ({
+          ...resource,
+          path: `${options.resourcePath}/${resource.path}`,
+        })),
+        ...genericResources,
+      ],
     };
   } else {
-    const resourceTypeIndex: ResourceTypeIndex = getResourceTypeIndex(
-      manifestSchema.modules ?? {},
-      resources
-    );
+    const resourceTypeIndex: ResourceTypeIndex =
+      getResourceTypeIndex(manifestSchema);
     return {
       ...manifestSchema,
-      resources: resources.map((r) =>
-        patchResource(
-          options.resourcePath,
-          r,
-          absoluteOutputPath,
-          resourceTypeIndex[r.key]
-        )
-      ),
+      resources: [
+        ...uiResources.map((r) =>
+          patchResource(
+            options.resourcePath,
+            r,
+            absoluteOutputPath,
+            resourceTypeIndex[r.key]
+          )
+        ),
+        ...genericResources,
+      ],
     };
-  }
-}
-
-/**
- * Computes an index from resource key to resource type which is either UI Kit 2 or Custom UI. The resource type
- * is inferred from the module declaration. If a module has both the `resource` property and `render: native` declared,
- * it means its resource has to be of type UI Kit 2. If a module, on the other hand, only declares the `resource`
- * property, it means the resource must be a Custom UI.
- *
- * @param modules Modules declared in the manifest
- * @param resources Resources declared in the manifest
- */
-function getResourceTypeIndex(
-  modules: Modules,
-  resources: HostedResourcesSchema[]
-): ResourceTypeIndex {
-  const modulesEntries = Object.entries(modules);
-  const resourceKeys = resources.map((r) => r.key);
-
-  const indexModuleDefinition = (
-    acc: ResourceTypeIndex,
-    moduleType: string,
-    moduleDefinition: unknown
-  ): ResourceTypeIndex => {
-    const moduleResourceKey = moduleDefinition['resource'];
-    if (resourceKeys.includes(moduleResourceKey)) {
-      const type =
-        moduleDefinition['render'] === 'native' ? 'ui-kit-2' : 'custom-ui';
-      const existingIndexEntry = acc[moduleResourceKey];
-
-      if (existingIndexEntry && existingIndexEntry.type !== type) {
-        logger.warn(
-          `Inconsistent resource mapping in manifest.yml: Module ${moduleType} (${
-            moduleDefinition['key']
-          }) declares its resource to be of type ${type} but other modules with keys [${existingIndexEntry.modules
-            .map(([, m]) => m['key'])
-            .join(
-              ', '
-            )}] pointing to the same resource appear to be of a different type`
-        );
-      }
-
-      const existingModules = existingIndexEntry?.modules ?? [];
-      return {
-        ...acc,
-        [moduleResourceKey]: {
-          type,
-          modules: [...existingModules, [moduleType, moduleDefinition]],
-        },
-      };
-    } else {
-      return acc;
-    }
-  };
-
-  const resourceTypeIndex: ResourceTypeIndex = modulesEntries.reduce(
-    (acc, [moduleType, moduleDefinitions]) => {
-      return (moduleDefinitions as unknown[]).reduce<ResourceTypeIndex>(
-        (innerAcc, moduleDefinition) =>
-          indexModuleDefinition(innerAcc, moduleType, moduleDefinition),
-        acc
-      );
-    },
-    {} as ResourceTypeIndex
-  );
-
-  const resourceTypeIndexKeySet = new Set(Object.keys(resourceTypeIndex));
-  const resourceKeySet = new Set(resourceKeys);
-
-  if (
-    resourceTypeIndexKeySet.size === resourceKeySet.size &&
-    [...resourceTypeIndexKeySet].every((k) => resourceKeySet.has(k))
-  ) {
-    return resourceTypeIndex;
-  } else {
-    const missingResourceKeys = [...resourceKeySet].filter(
-      (k) => !resourceTypeIndexKeySet.has(k)
-    );
-    logger.warn(
-      `Failed to find module definition for resources with keys ${missingResourceKeys}`
-    );
-    return resourceTypeIndex;
   }
 }
 
 /**
  * Returns the final resource path based on the given resource type.
  *
- * Verifies that the path/file exists in the computed directory. UI Kit 2 builds are expected to produce an accepted
+ * Verifies that the path/file exists in the computed directory. UI Kit builds are expected to produce an accepted
  * bundle filename.
  *
  * @param resourcePath Path where all resource build artifacts are placed, relative to the app root directory
- * @param resourceType Type of the given resource, `ui-kit-2` or `custom-ui`
+ * @param resourceType Type of the given resource, `ui-kit` or `custom-ui`
  * @param resource Resource to process
  * @param absoluteOutputPath Absolute project output path
  */
@@ -210,16 +143,16 @@ function getVerifiedResourcePath(
     return relativeResourcePath;
   }
 
-  logger.info(`Detected resource '${resource.key}' as UI Kit 2 dependency`);
+  logger.info(`Detected resource '${resource.key}' as UI Kit dependency`);
 
-  const acceptedUiKit2EntryPoints = [
+  const acceptedUiKitEntryPoints = [
     'index.js',
     'index.jsx',
     'main.js',
     'main.jsx',
   ];
 
-  const entryPointFile = acceptedUiKit2EntryPoints.find((entryPointFile) =>
+  const entryPointFile = acceptedUiKitEntryPoints.find((entryPointFile) =>
     existsSync(join(absoluteResourcePath, entryPointFile))
   );
 
@@ -229,7 +162,7 @@ function getVerifiedResourcePath(
     throw new Error(
       `Failed to patch resource with key '${
         resource.key
-      }': Could not find entry point file in ${absoluteResourcePath}. Make sure the UI Kit 2 build produces a files with one of these names: [${acceptedUiKit2EntryPoints.join(
+      }': Could not find entry point file in ${absoluteResourcePath}. Make sure the UI Kit build produces a files with one of these names: [${acceptedUiKitEntryPoints.join(
         ','
       )}]`
     );
@@ -240,11 +173,11 @@ function patchResource(
   resourcePath: string,
   resource: HostedResourcesSchema,
   absoluteOutputPath: string,
-  resourceContext?: ResourceContext
+  resourceType?: ResourceType
 ): HostedResourcesSchema {
   logger.info(`Patching resource with key '${resource.key}'...`);
 
-  if (!resourceContext) {
+  if (!resourceType) {
     logger.warn(
       `Resource with key '${resource.key}' appears not to be used by any module. Skip patching.`
     );
@@ -253,7 +186,7 @@ function patchResource(
 
   const verifiedResourcePath = getVerifiedResourcePath(
     resourcePath,
-    resourceContext.type,
+    resourceType,
     resource,
     absoluteOutputPath
   );

@@ -1,10 +1,10 @@
 import { TargetConfiguration } from '@nx/devkit';
 
-interface GetServeConfigOptions {
+interface GetTunnelConfigOptions {
   outputPath: string;
 }
-export function getServeConfig(
-  options: GetServeConfigOptions
+export function getTunnelConfig(
+  options: GetTunnelConfigOptions
 ): TargetConfiguration {
   return {
     executor: '@toolsplus/nx-forge:tunnel',

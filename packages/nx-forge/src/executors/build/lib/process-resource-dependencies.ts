@@ -11,6 +11,7 @@ import { Resources } from '@forge/manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
+import { isResourceType } from '../../../shared/manifest/util-manifest';
 
 type Options = Pick<
   NormalizedOptions,
@@ -20,9 +21,11 @@ type Options = Pick<
 };
 
 /**
- * Verifies that resource projects are correctly linked to the Nx Forge app and copies build artifacts into the app's
- * output directory. In particular, this will make sure that each resource listed in the manifest.yml has its path
- * configured to point to a Nx project in this workspace.
+ * Verifies that UI resource projects are correctly linked to the Nx Forge app
+ * and copies build artifacts into the app's output directory. In particular,
+ * this will make sure that each Custom UI or UI Kit resource listed in the
+ * manifest.yml has its path configured to point to a Nx project in this
+ * workspace.
  *
  * @param options Executor options
  * @param context Executor context
@@ -38,12 +41,15 @@ export async function processResourceDependencies(
   );
   const manifestSchema = await readManifestYml(manifestPath);
   const resources = manifestSchema.resources ?? [];
+  const uiResources = resources.filter(
+    isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
+  );
 
-  resources.forEach((r) =>
+  uiResources.forEach((r) =>
     verifyAndCopyResourceDependency(r, context, options)
   );
 
-  return resources;
+  return uiResources;
 }
 
 const getResourceOutputPath = (
