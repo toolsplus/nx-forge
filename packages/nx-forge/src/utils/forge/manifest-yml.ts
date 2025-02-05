@@ -9,6 +9,7 @@ import * as FULL_SCHEMA from '@forge/manifest/out/schema/manifest-schema.json';
 import { dump } from 'js-yaml';
 import { writeFileSync } from 'fs';
 import { ManifestValidationResult } from '@forge/manifest/out/types';
+import { isResourceType } from '../../shared/manifest/util-manifest';
 
 class ManifestYmlValidator extends AbstractValidationProcessor<ManifestSchema> {
   constructor() {
@@ -44,11 +45,7 @@ const validateManifestSchema =
       errors,
     } = await validator(input);
 
-    if (
-      !isManifestParseSuccess ||
-      !manifestObject ||
-      !manifestObject.typedContent
-    ) {
+    if (!isManifestParseSuccess || !manifestObject?.typedContent) {
       throw new Error(
         `Failed to validate manifest input: ${(errors || [])
           .map((e) => e.message)
@@ -82,13 +79,15 @@ export const writeManifestYml = (path: string, value: ManifestSchema): void => {
 };
 
 /**
- * Extracts the Custom UI project names from the given manifest.
+ * Extracts the UI resource project names from the given manifest.
  *
- * @param manifest Forge manifest to scan for Custom UI projects.
- * @returns List of project names representing Custom UI projects.
+ * @param manifest Forge manifest to scan for UI resource projects.
+ * @returns List of project names representing UI resource projects.
  */
-export const extractCustomUIProjectNames = (
+export const extractUIResourceProjectNames = (
   manifest: ManifestSchema
 ): string[] => {
-  return (manifest.resources || []).map((r) => r.path);
+  return (manifest.resources || [])
+    .filter(isResourceType(manifest, ['ui-kit', 'custom-ui']))
+    .map((r) => r.path);
 };

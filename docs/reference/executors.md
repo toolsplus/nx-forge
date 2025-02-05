@@ -63,7 +63,7 @@ The `build` executor is deprecated in favor of a native Nx build (webpack or esb
   - _Path to a function which takes a webpack config, some context and returns the resulting webpack config. See https://nx.dev/guides/customize-webpack_
   - Type: `string`
 - <b id="#/properties/uiKit2Packaging">uiKit2Packaging</b> <Badge type="warning" text="Experimental" />
-  - _Enables UI Kit 2 compatible packaging._
+  - _Enables UI Kit compatible packaging._
   - Type: `boolean`
   - Default: _false_
 
@@ -96,11 +96,11 @@ The `package` executor is intended to be used with a standard Nx `build` executo
   - Type: `string`
   - Default: _"tsconfig.app.json"_
 - <b id="#/properties/uiKit2Packaging">uiKit2Packaging</b> <Badge type="warning" text="Experimental" />
-  - _Enables UI Kit 2 compatible packaging._
+  - _Enables UI Kit compatible packaging._
   - Type: `boolean`
   - Default: _false_
 
-This executor will copy the output of dependent resource project builds to the `resourcePath` directory. To do this, the executor tries to infer the output path of dependent resources (Custom UI, UI Kit 2) from the dependent project's `build` target configuration as follows:
+This executor will copy the output of dependent resource project builds to the `resourcePath` directory. To do this, the executor tries to infer the output path of dependent resources (Custom UI, UI Kit) from the dependent project's `build` target configuration as follows:
 
   1. if a mapping is defined using `resourceOutputPathMap` use the mapping
   2. else if the `build` target definition has `options.outputPath` define use that
@@ -219,10 +219,10 @@ _Mirrors the [install command](https://developer.atlassian.com/platform/forge/cl
 ## Tunnel <Badge type="warning" text="Experimental" />
 
 ```shell
-nx serve <nx-forge-app-name>
+nx tunnel <nx-forge-app-name>
 ```
 
-Starts the `serve` target for all Custom UI projects defined in the `manifest.yml` of the Forge app project named `<nx-forge-app-name>` on their specified tunnel port. After that, starts a build process in watch mode for the Forge app itself, before ultimately, starting the `nx-forge tunnel` process for the Forge app.
+Starts the `tunnel` target for all Custom UI projects defined in the `manifest.yml` of the Forge app project named `<nx-forge-app-name>` on their specified tunnel port. After that, starts a build process in watch mode for the Forge app itself, before ultimately, starting the Forge `tunnel` process for the Forge app.
 
 _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli-reference/tunnel/) of the Forge CLI._
 
@@ -239,3 +239,7 @@ _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli
   - _Run Forge tunnel in verbose mode._
   - Type: `boolean`
   - Default: _false_
+- <b id="#/properties/preTunnelTimeout">preTunnelTimeout</b>
+  - _Max milliseconds to wait for tunnel preparation tasks._
+  - Type: `number`
+  - Default: `5000`

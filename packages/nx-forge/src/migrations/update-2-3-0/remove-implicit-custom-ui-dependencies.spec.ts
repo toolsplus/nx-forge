@@ -8,6 +8,7 @@ import {
 import update from './remove-implicit-custom-ui-dependencies';
 import generator from '../../generators/application/generator';
 import { readManifestYml, writeManifestYml } from './utils/manifest';
+import { ManifestSchema } from '@forge/manifest';
 describe('update 2.2.0 migration: remove-implicit-custom-ui-dependencies.spec', () => {
   let tree: Tree;
 
@@ -25,6 +26,19 @@ describe('update 2.2.0 migration: remove-implicit-custom-ui-dependencies.spec', 
     const manifest = await readManifestYml(tree, manifestPath);
     const patchedManifest = {
       ...manifest,
+      modules: {
+        ...manifest.modules,
+        'jira:globalPage': [
+          {
+            key: 'global-page',
+            title: 'global page',
+            resource: 'custom-ui-resource-key',
+            resolver: {
+              function: 'resolver',
+            },
+          },
+        ],
+      },
       resources: [
         ...(manifest.resources || []),
         {
@@ -33,7 +47,7 @@ describe('update 2.2.0 migration: remove-implicit-custom-ui-dependencies.spec', 
         },
       ],
     };
-    writeManifestYml(tree, manifestPath, patchedManifest);
+    writeManifestYml(tree, manifestPath, patchedManifest as ManifestSchema);
 
     const nonCustomUIImplicitDependencies = ['dep-1', 'dep-2'];
     updateProjectConfiguration(tree, project.name, {

@@ -4,13 +4,13 @@ Atlassian Forge is a platform that simplifies Atlassian app development and host
 
 ## Forge application layout
 
-Atlassian's Forge platform requires Forge applications to be fully self-contained when they are deployed to the platform. This means the Forge application must contain all static artifacts, such as Custom UI or UI Kit 2, within the Forge app root directory at deployment time, as illustrated by the directory structure below:
+Atlassian's Forge platform requires Forge applications to be fully self-contained when they are deployed to the platform. This means the Forge application must contain all static artifacts, such as Custom UI or UI Kit, within the Forge app root directory at deployment time, as illustrated by the directory structure below:
 
 ```
 my-forge-app/
 ├── resources
 │   ├── custom-ui-1
-│   ├── ui-kit-2-ui-1
+│   ├── ui-kit-ui-1
 │   │     
 ├── src
 ├── manifest.yml
@@ -29,7 +29,7 @@ Where would you place that shared code, and how would you configure the frontend
 
 ### Compiled artifacts
 
-Let's say you want to write your Forge app entirely in Typescript, or you want pre-compile your Javascript code with Babel. This will introduce a compile step for the Forge app and each Custom UI and UI Kit 2 resource<sup>*</sup>. Remember that the compiled output has to conform to the application layout shown on top to deploy it to the Forge platform.
+Let's say you want to write your Forge app entirely in Typescript, or you want pre-compile your Javascript code with Babel. This will introduce a compile step for the Forge app and each Custom UI and UI Kit resource<sup>*</sup>. Remember that the compiled output has to conform to the application layout shown on top to deploy it to the Forge platform.
 
 How would you structure your Forge app to achieve this?
 
