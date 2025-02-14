@@ -38,7 +38,9 @@ export async function patchManifestYml(options: Options) {
 
   logger.info(`Patching ${manifestPath}...`);
 
-  const manifestSchema = await readManifestYml(manifestPath);
+  const manifestSchema = await readManifestYml(manifestPath, {
+    interpolate: false,
+  });
 
   const patchedManifest = patchManifestInternal(
     absoluteOutputPath,
@@ -60,17 +62,17 @@ function patchManifestInternal(
   const uiResources = resources.filter(
     isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
   );
-  const genericResources = resources.filter(
-    isResourceType(manifestSchema, ['generic'])
+  const staticResources = resources.filter(
+    isResourceType(manifestSchema, ['static'])
   );
 
   // Integrity check: We want to be sure that we are not losing any resource
-  // definitions when separating them into UI and generic resources.
+  // definitions when separating them into UI and static resources.
   const resourceKeySet = new Set(resources.map((r) => r.key));
   const uiResourcesKeySet = new Set(uiResources.map((r) => r.key));
-  const genericResourcesKeySet = new Set(genericResources.map((r) => r.key));
+  const staticResourcesKeySet = new Set(staticResources.map((r) => r.key));
   const missingResourceKeys = [...resourceKeySet].filter(
-    (k) => !uiResourcesKeySet.has(k) && !genericResourcesKeySet.has(k)
+    (k) => !uiResourcesKeySet.has(k) && !staticResourcesKeySet.has(k)
   );
   if (missingResourceKeys.length > 0) {
     logger.warn(
@@ -88,7 +90,7 @@ function patchManifestInternal(
           ...resource,
           path: `${options.resourcePath}/${resource.path}`,
         })),
-        ...genericResources,
+        ...staticResources,
       ],
     };
   } else {
@@ -105,7 +107,7 @@ function patchManifestInternal(
             resourceTypeIndex[r.key]
           )
         ),
-        ...genericResources,
+        ...staticResources,
       ],
     };
   }
