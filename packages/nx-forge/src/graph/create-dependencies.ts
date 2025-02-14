@@ -15,7 +15,9 @@ const getUIResourceDependencies = async (
   [projectName, manifestFile]: [string, FileData],
   context: CreateDependenciesContext
 ): Promise<RawProjectGraphDependency[]> => {
-  const manifestSchema = await readManifestYml(manifestFile.file);
+  const manifestSchema = await readManifestYml(manifestFile.file, {
+    interpolate: false,
+  });
   const uiResourceProjectNames = extractUIResourceProjectNames(manifestSchema);
 
   const getUIResourceStaticDependency = (
