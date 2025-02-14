@@ -6,7 +6,7 @@ import { logger } from '@nx/devkit';
 const isObject = (v: unknown): v is object =>
   typeof v === 'object' && v !== null;
 
-export type ResourceType = 'ui-kit' | 'custom-ui' | 'generic';
+export type ResourceType = 'ui-kit' | 'custom-ui' | 'static';
 
 /**
  * Determines the resource type based on the module definition.
@@ -16,7 +16,7 @@ export type ResourceType = 'ui-kit' | 'custom-ui' | 'generic';
  *              `native`
  * - Custom UI: module has the `resource` property and the `render` property is
  *              not `native` or missing
- * - Generic:   none of the above, consider it a generic resource
+ * - Static:    none of the above, consider it a static resource
  *
  * @param moduleDefinition Module definition to analyze
  */
@@ -27,61 +27,63 @@ const resourceTypeByModuleDefinition = (
     return 'ui-kit';
   if (!!moduleDefinition['resource'] && moduleDefinition['render'] !== 'native')
     return 'custom-ui';
-  return 'generic';
+  return 'static';
 };
 
 export type ResourceTypeIndex = { [resourceKey: string]: ResourceType };
 /**
  * Computes an index from resource key to resource type which is either `ui-kit`,
- * `custom-ui` or `generic`. The resource type is inferred from the module
- * declaration. If a module has both the `resource` property and `render: native`
- * declared, its resource must be of type UI Kit. If a module, only declares the
- * `resource` property and its `render` property (if exists) is not `native`,
- * its resource must be a Custom UI. In all other cases, the resource type is
- * Generic.
+ * `custom-ui` or `static`.
+ *
+ * Refer to the docs on {@link resourceTypeByResourceDefinition} for details
+ * on how the resource type is inferred.
  *
  * @param manifestSchema Complete manifest definition to analyze
  */
 export const getResourceTypeIndex = (
   manifestSchema: ManifestSchema
 ): ResourceTypeIndex =>
-  getAllModules(manifestSchema.modules ?? {}).reduce<ResourceTypeIndex>(
-    (acc, moduleDefinition) => {
-      if (
-        isObject(moduleDefinition) &&
-        Object.hasOwn(moduleDefinition, 'resource') &&
-        typeof moduleDefinition['resource'] === 'string'
-      ) {
-        const resourceKey = moduleDefinition['resource'];
-        const resourceType = resourceTypeByModuleDefinition(moduleDefinition);
-        const existingIndexEntry = acc[resourceKey];
+  (manifestSchema.resources || []).reduce((acc, resource) => {
+    const resourceKey = resource.key;
+    const resourceType =
+      resourceTypeByResourceDefinition(manifestSchema)(resource);
+    const existingIndexEntry = acc[resourceKey];
 
-        if (existingIndexEntry && existingIndexEntry !== resourceType) {
-          logger.warn(
-            `Inconsistent resource mapping in manifest.yml: Module with key ${moduleDefinition['key']} declares its resource to be of type ${resourceType} but other modules pointing to the same resource appear to be of a different type`
-          );
-        }
+    if (existingIndexEntry && existingIndexEntry !== resourceType) {
+      logger.warn(
+        `Inconsistent resource type inference: Resource with key ${resource.key} has been inferred as type '${resourceType}' but has already been inferred as type '${existingIndexEntry}'`
+      );
+    }
 
-        return {
-          ...acc,
-          [resourceKey]: resourceType,
-        };
-      }
-      return acc;
-    },
-    {} as ResourceTypeIndex
-  );
+    return {
+      ...acc,
+      [resourceKey]: resourceType,
+    };
+  }, {} as ResourceTypeIndex);
 
 /**
- * Determines if type of the given resource. If the resource is not referenced
- * by any module it is considered a generic resource.
+ * Determines if type of the given resource.
+ *
+ * The resource type is determined by the following reduction:
+ *
+ * - If the resource is referenced by a module as a 'resource', infer a Custom
+ *   UI or UI Kit resource.
+ * - If the resource key is referenced via resource string interpolation
+ *   (resource:<resource-key>;) anywhere in the manifest, infer a static resource.
+ * - Else infer Custom UI. These kind of resources are typically used as Modal
+ *   dialogs in Custom UIs. They are not referenced in the manifest and instead,
+ *   opened via @forge/bridge in Custom UI code.
+ *
+ * @see https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/modal/
  *
  * @param manifestSchema Complete manifest definition
  * @param resource Resource to resolve against the manifest definition
  */
-export const resourceTypeByResourceDefinition =
-  (manifestSchema: ManifestSchema) =>
-  (resource: HostedResourcesSchema): ResourceType => {
+export const resourceTypeByResourceDefinition = (
+  manifestSchema: ManifestSchema
+) => {
+  const manifestSchemaString = JSON.stringify(manifestSchema);
+  return (resource: HostedResourcesSchema): ResourceType => {
     for (const moduleDefinition of getAllModules(
       manifestSchema.modules ?? {}
     )) {
@@ -94,8 +96,20 @@ export const resourceTypeByResourceDefinition =
         return resourceTypeByModuleDefinition(moduleDefinition);
       }
     }
-    return 'generic';
+
+    // If the resource key is referenced in the manifest via a resource
+    // string interpolation, assume it is a static resource
+    if (manifestSchemaString.includes(`resource:${resource.key};`)) {
+      return 'static';
+    }
+
+    // Assume that the resource is a Custom UI. There may be resources which are
+    // not directly referenced in the manifest. For example, UI Kit modal dialogs
+    // can be referenced in other Custom UI projects and loaded via @forge/bridge.
+    // https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/modal/
+    return 'custom-ui';
   };
+};
 
 /**
  * Determines if the given resource definition is of a specific type. The

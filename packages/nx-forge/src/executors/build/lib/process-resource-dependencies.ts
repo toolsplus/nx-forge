@@ -39,7 +39,9 @@ export async function processResourceDependencies(
     context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'
   );
-  const manifestSchema = await readManifestYml(manifestPath);
+  const manifestSchema = await readManifestYml(manifestPath, {
+    interpolate: false,
+  });
   const resources = manifestSchema.resources ?? [];
   const uiResources = resources.filter(
     isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
