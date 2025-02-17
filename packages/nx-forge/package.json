@@ -7,7 +7,7 @@
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
-    "@forge/manifest": "^8.3.0",
+    "@forge/manifest": "^8.6.0",
     "@nx/devkit": "20.3.1",
     "@nx/eslint": "20.3.1",
     "@nx/jest": "20.3.1",
@@ -15,6 +15,7 @@
     "@nx/webpack": "20.3.1",
     "fs-extra": "^10.0.1",
     "js-yaml": "^4.1.0",
+    "yaml": "*",
     "jsonata": "^2.0.5",
     "tslib": "^2.3.0"
   },

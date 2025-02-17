@@ -39,10 +39,18 @@ export async function processResourceDependencies(
     context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'
   );
-  const manifestSchema = await readManifestYml(manifestPath);
+  const manifestSchema = await readManifestYml(manifestPath, {
+    interpolate: false,
+  });
   const resources = manifestSchema.resources ?? [];
   const uiResources = resources.filter(
     isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
+  );
+
+  logger.info(
+    `Detected the following UI resources in the manifest.yml:\n${uiResources
+      .map((r) => `  - ${r.key}`)
+      .join('\n')}`
   );
 
   uiResources.forEach((r) =>
@@ -139,7 +147,9 @@ const verifyAndCopyResourceDependency = (
     );
   }
 
-  logger.info(`Copying ${resourceProjectName} resource build artifacts...`);
+  logger.info(
+    `Copying ${resource.key} (${resourceProjectName}) resource build artifacts...`
+  );
   copySync(
     absoluteResourceBuildTargetOutputPath,
     joinPathFragments(
@@ -150,5 +160,7 @@ const verifyAndCopyResourceDependency = (
     ),
     { recursive: true }
   );
-  logger.info(`Done copying ${resourceProjectName} resource build artifacts.`);
+  logger.info(
+    `Done copying ${resource.key} (${resourceProjectName}) resource build artifacts.`
+  );
 };

@@ -3,19 +3,19 @@ import {
   FileValidator,
   ManifestSchema,
   SchemaValidator,
-  YamlValidator,
 } from '@forge/manifest';
 import * as FULL_SCHEMA from '@forge/manifest/out/schema/manifest-schema.json';
 import { dump } from 'js-yaml';
 import { writeFileSync } from 'fs';
 import { ManifestValidationResult } from '@forge/manifest/out/types';
 import { isResourceType } from '../../shared/manifest/util-manifest';
+import YamlValidator from './yaml-validator';
 
 class ManifestYmlValidator extends AbstractValidationProcessor<ManifestSchema> {
-  constructor() {
+  constructor(options: { interpolate: boolean }) {
     super([
       new FileValidator(),
-      new YamlValidator(),
+      new YamlValidator(options),
       new SchemaValidator(FULL_SCHEMA),
     ]);
   }
@@ -25,9 +25,10 @@ type ManifestSchemaValidator<T> = (
   input: T
 ) => Promise<ManifestValidationResult<ManifestSchema>>;
 
-const schemaAndFileValidator: ManifestSchemaValidator<string> = (
-  manifestFilePath: string
-) => new ManifestYmlValidator().process(manifestFilePath);
+const schemaAndFileValidator =
+  (options: { interpolate: boolean }): ManifestSchemaValidator<string> =>
+  (manifestFilePath: string) =>
+    new ManifestYmlValidator(options).process(manifestFilePath);
 
 const schemaContentValidator: ManifestSchemaValidator<ManifestSchema> = (
   manifestContent: ManifestSchema
@@ -65,8 +66,11 @@ const validateManifestSchema =
 export const validateManifestContent = (manifestContent: ManifestSchema) =>
   validateManifestSchema(schemaContentValidator)(manifestContent);
 
-export const readManifestYml = (path: string): Promise<ManifestSchema> =>
-  validateManifestSchema(schemaAndFileValidator)(path);
+export const readManifestYml = (
+  path: string,
+  options: { interpolate: boolean } = { interpolate: true }
+): Promise<ManifestSchema> =>
+  validateManifestSchema(schemaAndFileValidator(options))(path);
 
 /**
  * Writes the given manifest file to the specified file path.
