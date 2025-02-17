@@ -16,7 +16,9 @@ export async function patchManifestYml(options: NormalizedOptions) {
     options.outputPath,
     'manifest.yml'
   );
-  const outputManifestSchema = await readManifestYml(outputManifestPath);
+  const outputManifestSchema = await readManifestYml(outputManifestPath, {
+    interpolate: false,
+  });
 
   const appId: string = outputManifestSchema.app.id;
 
@@ -24,7 +26,9 @@ export async function patchManifestYml(options: NormalizedOptions) {
     options.projectRoot,
     'manifest.yml'
   );
-  const projectManifestSchema = await readManifestYml(projectManifestPath);
+  const projectManifestSchema = await readManifestYml(projectManifestPath, {
+    interpolate: false,
+  });
 
   logger.info(
     `Patching project manifest ${projectManifestPath} with app id ${appId}...`

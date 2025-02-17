@@ -33,7 +33,7 @@ export const transformManifestYml = async (
     'manifest.yml'
   );
 
-  const manifest = await readManifestYml(manifestPath);
+  const manifest = await readManifestYml(manifestPath, { interpolate: false });
 
   expression.registerFunction(
     'env',
