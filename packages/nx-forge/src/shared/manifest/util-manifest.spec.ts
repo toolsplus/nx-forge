@@ -6,19 +6,32 @@ import {
 } from './util-manifest';
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 
+/**
+ * The following tests define a manifest with four UI resource definitions and
+ * one resource definition that is unrelated to UI.
+ *
+ * - Resource 0: Custom UI resource associated with a Jira UI module
+ * - Resource 1: Custom UI resource associated with a Jira UI module
+ * - Resource 2: UI Kit resource associated with a Jira UI module
+ * - Resource 3: Custom UI resource defined in the manifest but not directly
+ *               referenced by a UI module (Use case: Custom UI modal dialogs
+ *               https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/modal/)
+ * - Resource 4: Static resource referencing a folder, as used in Rovo agents
+ *               to reference file directories.
+ */
 describe('util-manifest', () => {
-  const makeCustomUIResources = (n: number): HostedResourcesSchema[] =>
+  const makeUIResources = (n: number): HostedResourcesSchema[] =>
     [...Array<HostedResourcesSchema>(n)].map((_, i) => ({
-      key: `custom-ui-${i}`,
-      path: `custom-ui-${i}-proj-ref`,
+      key: `ui-resource-${i}`,
+      path: `ui-resource-${i}-proj-ref`,
       tunnel: {
         port: 4200 + i,
       },
     }));
 
-  const resources = makeCustomUIResources(3);
-  const anotherResource: HostedResourcesSchema = {
-    key: 'another-resource',
+  const resources = makeUIResources(4);
+  const staticResource: HostedResourcesSchema = {
+    key: 'static-resource',
     path: 'not/a/project/ref',
   };
   const fakeApp: App = {
@@ -51,8 +64,15 @@ describe('util-manifest', () => {
           resolver: { function: 'resolver' },
         },
       ],
+      'rovo:agent': [
+        {
+          key: 'fake-agent',
+          name: 'Fake Agent',
+          prompt: 'resource:static-resource;prompts/fake-agent-prompt.txt',
+        },
+      ],
     },
-    resources: [...resources, anotherResource],
+    resources: [...resources, staticResource],
     app: fakeApp,
   };
 
@@ -68,8 +88,11 @@ describe('util-manifest', () => {
         resourceTypeByResourceDefinition(manifest)(resources[2])
       ).toStrictEqual('ui-kit');
       expect(
-        resourceTypeByResourceDefinition(manifest)(anotherResource)
-      ).toStrictEqual('generic');
+        resourceTypeByResourceDefinition(manifest)(resources[3])
+      ).toStrictEqual('custom-ui');
+      expect(
+        resourceTypeByResourceDefinition(manifest)(staticResource)
+      ).toStrictEqual('static');
     });
   });
 
@@ -86,7 +109,10 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[2])
       ).toStrictEqual(true);
       expect(
-        isResourceType(manifest, acceptedResourceTypes)(anotherResource)
+        isResourceType(manifest, acceptedResourceTypes)(resources[3])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
     it('should recognize only Custom UI resources', () => {
@@ -101,7 +127,10 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[2])
       ).toStrictEqual(false);
       expect(
-        isResourceType(manifest, acceptedResourceTypes)(anotherResource)
+        isResourceType(manifest, acceptedResourceTypes)(resources[3])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
     it('should recognize only UI Kit resources', () => {
@@ -116,19 +145,22 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[2])
       ).toStrictEqual(true);
       expect(
-        isResourceType(manifest, acceptedResourceTypes)(anotherResource)
+        isResourceType(manifest, acceptedResourceTypes)(resources[3])
+      ).toStrictEqual(false);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
     it('should filter UI resources', () => {
-      expect(manifest.resources).toHaveLength(4);
+      expect(manifest.resources).toHaveLength(5);
       expect(
         manifest.resources.filter(
           isResourceType(manifest, ['custom-ui', 'ui-kit'])
         )
-      ).toHaveLength(3);
+      ).toHaveLength(4);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['custom-ui']))
-      ).toHaveLength(2);
+      ).toHaveLength(3);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['ui-kit']))
       ).toHaveLength(1);
