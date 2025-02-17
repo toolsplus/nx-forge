@@ -2,8 +2,8 @@
   "version": 2,
   "outputCapture": "direct-nodejs",
   "$schema": "http://json-schema.org/schema",
-  "title": "Forge application serve target",
-  "description": "Forge application serve target",
+  "title": "Forge application tunnel target",
+  "description": "Forge application tunnel target",
   "type": "object",
   "properties": {
     "outputPath": {
@@ -11,11 +11,26 @@
       "description": "The output path of the Forge app files.",
       "visible": false
     },
+    "environment": {
+      "type": "string",
+      "description": "Specify the environment (see your default environment by running 'forge settings list')",
+      "alias": "e"
+    },
     "debug": {
       "type": "boolean",
       "description": "Run Forge tunnel in debug mode.",
       "alias": "d",
       "default": false
+    },
+    "debugFunctionHandlers": {
+      "type": "string",
+      "description": "List of function handlers declared on manifest to debug, separated by space. This option must be specified if debug mode is enabled. It is only used for Node runtime debugger.",
+      "alias": "f"
+    },
+    "debugStartingPort": {
+      "type": "number",
+      "description": "Starting port to use for debugging, multiple handlers will get subsequent ports. It is only used for Node runtime debugger (default: 9229)",
+      "alias": "p"
     },
     "verbose": {
       "type": "boolean",

@@ -231,10 +231,19 @@ _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli
 - <b id="#/properties/outputPath">outputPath</b> `required`
   - _The output path of the Forge app files._
   - Type: `string`
+- <b id="#/properties/environment">environment</b>
+  - _Specify the environment (see your default environment by running 'forge settings list')_
+  - Type: `string`
 - <b id="#/properties/debug">debug</b>
   - _Run Forge tunnel in debug mode._
   - Type: `boolean`
   - Default: _false_
+- <b id="#/properties/debugFunctionHandlers">debugFunctionHandlers</b>
+  - _List of function handlers declared on manifest to debug, separated by space. This option must be specified if debug mode is enabled. It is only used for Node runtime debugger._
+  - Type: `string`
+- <b id="#/properties/debugStartingPort">debugStartingPort</b>
+  - _Starting port to use for debugging, multiple handlers will get subsequent ports. It is only used for Node runtime debugger_
+  - Type: `number`
 - <b id="#/properties/verbose">verbose</b>
   - _Run Forge tunnel in verbose mode._
   - Type: `boolean`

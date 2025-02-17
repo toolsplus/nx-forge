@@ -110,7 +110,14 @@ export default async function runTunnel(
   const args = [
     'tunnel',
     ...(options.verbose === true ? ['--verbose'] : []),
+    ...(options.environment ? [`--environment ${options.environment}`] : []),
     ...(options.debug === true ? ['--debug'] : []),
+    ...(options.debugFunctionHandlers
+      ? [`--debugFunctionHandlers ${options.debugFunctionHandlers}`]
+      : []),
+    ...(options.debugStartingPort
+      ? [`--debugStartingPort ${options.debugStartingPort}`]
+      : []),
   ];
 
   const command = `forge ${args.join(' ')}`;
