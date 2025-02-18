@@ -5,6 +5,7 @@ export interface InstallExecutorOptions {
   environment: string;
   upgrade: boolean;
   confirmScopes: boolean;
+  license?: 'active' | 'inactive' | 'trial';
   interactive: boolean;
   verbose: boolean;
 }

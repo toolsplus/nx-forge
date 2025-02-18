@@ -11,6 +11,7 @@ export default async function runExecutor(options: InstallExecutorOptions) {
     `--environment=${options.environment}`,
     ...(options.upgrade === true ? ['--upgrade'] : []),
     ...(options.confirmScopes === true ? ['--confirm-scopes'] : []),
+    ...(options.license ? [`--license ${options.license}`] : []),
     ...(options.interactive === false ? ['--non-interactive'] : []),
     ...(options.verbose === true ? ['--verbose'] : []),
   ];
