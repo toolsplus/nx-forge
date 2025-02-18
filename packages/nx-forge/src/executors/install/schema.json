@@ -13,13 +13,36 @@
     "site": {
       "type": "string",
       "description": "Atlassian site URL (example.atlassian.net)",
-      "alias": "s"
+      "alias": "s",
+      "x-prompt": "Enter the site URL where you would like to install the app (???.atlassian.net)."
     },
     "product": {
       "type": "string",
       "description": "Atlassian product: jira, confluence, compass, bitbucket",
       "enum": ["jira", "confluence", "compass", "bitbucket"],
-      "alias": "p"
+      "alias": "p",
+      "x-prompt": {
+        "message": "For which Atlassian product would like to install the app?",
+        "type": "list",
+        "items": [
+          {
+            "value": "jira",
+            "label": "Jira"
+          },
+          {
+            "value": "confluence",
+            "label": "Confluence"
+          },
+          {
+            "value": "compass",
+            "label": "Compass"
+          },
+          {
+            "value": "bitbucket",
+            "label": "Bitbucket"
+          }
+        ]
+      }
     },
     "environment": {
       "type": "string",
@@ -36,6 +59,12 @@
       "type": "boolean",
       "description": "Skip confirmation of scopes for the app before installing or upgrading the app.",
       "default": false
+    },
+    "license": {
+      "type": "string",
+      "description": "Specify the license value for the app",
+      "enum": ["active", "inactive", "trial"],
+      "alias": "l"
     },
     "interactive": {
       "type": "boolean",
