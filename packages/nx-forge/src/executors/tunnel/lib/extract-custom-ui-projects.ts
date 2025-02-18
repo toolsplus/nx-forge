@@ -42,7 +42,9 @@ async function extractVerifiedCustomUIProjects(
     context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'
   );
-  const manifestSchema = await readManifestYml(manifestPath);
+  const manifestSchema = await readManifestYml(manifestPath, {
+    interpolate: false,
+  });
   const resources: Resources = manifestSchema.resources ?? [];
   return resources
     .filter(isResourceType(manifestSchema, ['custom-ui']))
