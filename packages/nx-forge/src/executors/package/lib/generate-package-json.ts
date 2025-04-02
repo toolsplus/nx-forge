@@ -42,7 +42,7 @@ export function generatePackageJson(options: Options) {
   if (shouldAddHelperDependency) {
     helperDependencies.push({
       type: 'static',
-      source: this.options.projectName,
+      source: options.projectName,
       target: HelperDependency.tsc,
     });
   }
