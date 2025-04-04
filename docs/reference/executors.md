@@ -85,7 +85,7 @@ The `package` executor is intended to be used with a standard Nx `build` executo
 	 - _Output path of the generated files._
 	 - Type: `string`
  - <b id="#/properties/resourcePath">resourcePath</b>
-	 - _Path where resource files such as Custom UI output is placed relative to the outputPath._
+	 - _Path where resource files such as Custom UI and UI Kit output is placed relative to the outputPath._
 	 - Type: `string`
  - <b id="#/properties/resourceOutputPathMap">resourceOutputPathMap</b>
    - _Map of resource project names to their respective output path (relative to the workspace root)._
@@ -103,7 +103,7 @@ The `package` executor is intended to be used with a standard Nx `build` executo
 This executor will copy the output of dependent resource project builds to the `resourcePath` directory. To do this, the executor tries to infer the output path of dependent resources (Custom UI, UI Kit) from the dependent project's `build` target configuration as follows:
 
   1. if a mapping is defined using `resourceOutputPathMap` use the mapping
-  2. else if the `build` target definition has `options.outputPath` define use that
+  2. else if the `build` target definition has `options.outputPath` defined use that
   3. else use the `build` target's `outputs` definition, if there is only one entry
 
 In cases where the output path cannot be inferred or is inferred incorrectly, the output path should be defined explicitly using the `resourceOutputPathMap` option.

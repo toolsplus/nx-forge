@@ -61,13 +61,13 @@ const verifyCustomUIDependency =
 
     if (!customUIProjectConfiguration) {
       throw new Error(
-        `Nx workspace is missing project for Custom UI path ${customUIProjectName}. Make sure the Custom UI resource path references a project in your Nx workspace.`
+        `Nx workspace is missing project for Custom UI resource path ${customUIProjectName}. Make sure the Custom UI resource path references a project in your Nx workspace.`
       );
     }
 
     if (!customUIProjectConfiguration.targets['serve']) {
       throw new Error(
-        `Custom UI project '${customUIProjectName}' targets is missing a 'serve' executor. Make sure the the project has a 'serve' target inferred, or the 'targets' property in the project's 'project.json' has a 'serve' executor configured.`
+        `Custom UI project '${customUIProjectName}' targets are missing a 'serve' target. Make sure the the project has a 'serve' target inferred, or the 'targets' property in the project's 'project.json' has a 'serve' target configured.`
       );
     }
 
