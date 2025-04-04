@@ -4,6 +4,8 @@ import { TunnelExecutorOptions } from './schema';
 import runTunnel, { isTunnelPreparationComplete } from './lib/run-tunnel';
 import { getCustomUiProjects } from './lib/extract-custom-ui-projects';
 import { startCustomUIs } from './lib/start-custom-uis';
+import { startUIKitProjectBuilds } from './lib/start-ui-kit-project-builds';
+import { getUIKitProjects } from './lib/extract-ui-kit-projects';
 
 /**
  * Forge tunnel executor that serves dependent Custom UI projects on the tunnel
@@ -50,8 +52,20 @@ export default async function runTunnelExecutor(
     runTunnel({ ...options, customUIProjectConfigs }, context)
   );
 
+  const uiKitProjects = await getUIKitProjects(context);
+  const uiKitIters = await startUIKitProjectBuilds(
+    options.outputPath,
+    uiKitProjects,
+    context
+  );
+
   const combined: AsyncGenerator<{ success: boolean; id?: string }> =
-    combineAsyncIterables(forgeAppBuildIter, ...customUIIters, forgeTunnelIter);
+    combineAsyncIterables(
+      forgeAppBuildIter,
+      ...customUIIters,
+      forgeTunnelIter,
+      ...uiKitIters
+    );
 
   try {
     for await (const output of combined) {
@@ -65,7 +79,14 @@ export default async function runTunnelExecutor(
       }
     }
   } catch (err) {
-    logger.error(`Failed to tunnel Forge app: ${err}`);
+    if (err instanceof AggregateError) {
+      logger.error(
+        `Failed to tunnel Forge app: ${JSON.stringify(err)}:
+        [\n${err.errors.map((e) => `  ${e.message}: ${e.stack}`).join('\n')}\n]`
+      );
+    } else {
+      logger.error(`Failed to tunnel Forge app: ${err}`);
+    }
     return await combined.return({ success: false });
   }
 }

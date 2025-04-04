@@ -11,7 +11,7 @@
     },
     "resourcePath": {
       "type": "string",
-      "description": "Path where resource files such as Custom UI output is placed relative to the outputPath."
+      "description": "Path where resource files such as Custom UI and UI Kit output is placed relative to the outputPath."
     },
     "resourceOutputPathMap": {
       "type": "object",
