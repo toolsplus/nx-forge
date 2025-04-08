@@ -1,5 +1,5 @@
 import { copySync } from 'fs-extra';
-import { existsSync, readdirSync } from 'fs';
+import { existsSync, rmSync, readdirSync } from 'fs';
 import {
   ExecutorContext,
   getOutputsForTargetAndConfiguration,
@@ -12,6 +12,7 @@ import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
 import { isResourceType } from '../../../shared/manifest/util-manifest';
+import { directoryExists } from '../../../utils/util-fs';
 
 type Options = Pick<
   NormalizedOptions,
@@ -47,11 +48,15 @@ export async function processResourceDependencies(
     isResourceType(manifestSchema, ['ui-kit', 'custom-ui'])
   );
 
-  logger.info(
-    `Detected the following UI resources in the manifest.yml:\n${uiResources
-      .map((r) => `  - ${r.key}`)
-      .join('\n')}`
-  );
+  if (uiResources.length > 0) {
+    logger.info(
+      `Detected the following UI resources in the manifest.yml:\n${uiResources
+        .map((r) => `  - ${r.key}`)
+        .join('\n')}`
+    );
+  } else {
+    logger.info(`Plugin did not detected any UI resources in the manifest.yml`);
+  }
 
   uiResources.forEach((r) =>
     verifyAndCopyResourceDependency(r, context, options)
@@ -150,16 +155,22 @@ const verifyAndCopyResourceDependency = (
   logger.info(
     `Copying ${resource.key} (${resourceProjectName}) resource build artifacts...`
   );
-  copySync(
-    absoluteResourceBuildTargetOutputPath,
-    joinPathFragments(
-      options.root,
-      options.outputPath,
-      options.resourcePath,
-      resourceProjectName
-    ),
-    { recursive: true }
+
+  const absoluteResourceOutputPath = joinPathFragments(
+    options.root,
+    options.outputPath,
+    options.resourcePath,
+    resourceProjectName
   );
+
+  if (!directoryExists(absoluteResourceOutputPath)) {
+    rmSync(absoluteResourceOutputPath, { recursive: true });
+  }
+
+  copySync(absoluteResourceBuildTargetOutputPath, absoluteResourceOutputPath, {
+    recursive: true,
+  });
+
   logger.info(
     `Done copying ${resource.key} (${resourceProjectName}) resource build artifacts.`
   );
