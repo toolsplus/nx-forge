@@ -163,7 +163,7 @@ const verifyAndCopyResourceDependency = (
     resourceProjectName
   );
 
-  if (!directoryExists(absoluteResourceOutputPath)) {
+  if (directoryExists(absoluteResourceOutputPath)) {
     rmSync(absoluteResourceOutputPath, { recursive: true });
   }
 
