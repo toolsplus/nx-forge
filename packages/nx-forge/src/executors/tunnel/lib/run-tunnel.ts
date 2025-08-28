@@ -117,7 +117,7 @@ export default async function runTunnel(
   logger.info(`Running: > ${command}`);
 
   // https://2ality.com/2018/05/child-process-streams.html#running-commands-in-child-processes
-  const tunnelProcess = spawn('forge', args, {
+  const tunnelProcess = spawn(command, {
     cwd: options.outputPath,
     env: {
       ...process.env,
