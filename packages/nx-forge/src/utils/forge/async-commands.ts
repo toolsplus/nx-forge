@@ -12,7 +12,8 @@ export const runForgeCommandAsync = (
   opts: { env?: NodeJS.ProcessEnv; cwd?: string } = {}
 ): Promise<void> => {
   const pmc = getPackageManagerCommand();
-  const cliProcess = spawn(pmc.exec, ['forge', ...args], {
+  const forgeCmd = ['forge', ...args].join(' ');
+  const cliProcess = spawn(`${pmc.exec} ${forgeCmd}`, {
     cwd: opts.cwd,
     env: { ...process.env, ...opts.env },
     stdio: [process.stdin, process.stdout, process.stderr],
