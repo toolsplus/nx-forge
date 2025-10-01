@@ -7,7 +7,16 @@ export default defineConfig({
   base,
   title: 'Nx Forge',
   description: 'Efficient and scalable Forge app development',
-  head: [['link', { rel: 'icon', href: `${base}favicon.ico` }]],
+  head: [
+    ['link', { rel: 'icon', href: `${base}favicon.ico` }],
+    [
+      'meta',
+      {
+        name: 'google-site-verification',
+        content: 'R6sbKUbsbNXhiSuKd7EDahmJXbiShaEG4swZyuQ1WrM',
+      },
+    ],
+  ],
   cleanUrls: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
