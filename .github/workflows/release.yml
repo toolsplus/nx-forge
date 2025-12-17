@@ -32,6 +32,7 @@ jobs:
           echo FORGE_API_TOKEN=${{ secrets.FORGE_API_TOKEN }} >> e2e/nx-forge-e2e/.env
           echo ATLASSIAN_PRODUCT=${{ vars.ATLASSIAN_PRODUCT }} >> e2e/nx-forge-e2e/.env
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
+          echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
       - name: Install dependencies
         run: npm ci
       - name: Build and test
@@ -39,7 +40,10 @@ jobs:
           rm -rf dist
           npx nx run nx-forge:build
           npx nx run nx-forge:test
+      - run:
           npx nx run nx-forge-e2e:e2e
+        env:
+          NODE_OPTIONS: '--no-deprecation'
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

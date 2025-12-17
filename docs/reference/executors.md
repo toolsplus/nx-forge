@@ -163,6 +163,13 @@ _Mirrors the [register command](https://developer.atlassian.com/platform/forge/c
 - <b id="#/properties/appName">appName</b> `required`
   - _Name of the app on the Forge platform. The app name can include dashes, spaces, and underscores. Defaults to the project name_
   - Type: `string`
+- <b id="#/properties/developerSpaceId">developerSpaceId</b>
+  - _ID of the Forge developer space this app should be part of._
+  - Type: `string`
+- <b id="#/properties/acceptTerms">acceptTerms</b>
+  - _Automatically accept terms and conditions in non-interactive mode._
+  - Type: `boolean`
+  - Default: _false_
 - <b id="#/properties/verbose">verbose</b>
   - _Run registration in verbose mode._
   - Type: `boolean`

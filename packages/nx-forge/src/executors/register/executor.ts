@@ -24,6 +24,10 @@ export default async function runExecutor(
   // https://developer.atlassian.com/platform/forge/cli-reference/register/
   const args = [
     'register',
+    ...(options.developerSpaceId
+      ? [`--developer-space-id ${options.developerSpaceId}`]
+      : []),
+    ...(options.acceptTerms === true ? ['--accept-terms'] : []),
     ...(options.verbose === true ? ['--verbose'] : []),
     options.appName,
   ];

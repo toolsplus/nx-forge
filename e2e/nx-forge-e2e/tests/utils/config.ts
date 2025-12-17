@@ -1,4 +1,4 @@
-import * as process from 'process';
+import * as process from 'node:process';
 import { z } from 'zod';
 
 const getEnvironmentVariable = <A>(
@@ -27,10 +27,7 @@ export interface Credentials {
  */
 export const getCredentials = () => {
   const email = getEnvironmentVariable('FORGE_EMAIL', z.string().email());
-  const token = getEnvironmentVariable(
-    'FORGE_API_TOKEN',
-    z.string().nonempty()
-  );
+  const token = getEnvironmentVariable('FORGE_API_TOKEN', z.string().min(1));
 
   return {
     email,
@@ -38,12 +35,13 @@ export const getCredentials = () => {
   };
 };
 
-export interface AtlassianProductContext {
+export interface ForgeInstallationContext {
   siteUrl: string;
   product: 'jira' | 'confluence' | 'compass';
+  environment?: 'development' | 'production';
 }
 
-export const getAtlassianProductContext = (): AtlassianProductContext => {
+export const getForgeInstallationContext = (): ForgeInstallationContext => {
   const siteUrl = getEnvironmentVariable(
     'ATLASSIAN_SITE_URL',
     z.string().regex(/^.*\.atlassian.net$/)
@@ -56,5 +54,10 @@ export const getAtlassianProductContext = (): AtlassianProductContext => {
   return {
     siteUrl,
     product,
+    environment: 'development',
   };
+};
+
+export const getDeveloperSpaceId = () => {
+  return getEnvironmentVariable('DEVELOPER_SPACE_ID', z.string().min(1));
 };

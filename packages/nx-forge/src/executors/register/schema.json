@@ -17,6 +17,16 @@
         "$source": "projectName"
       }
     },
+    "developerSpaceId": {
+      "type": "string",
+      "description": "ID of the Forge developer space this app should be part of",
+      "alias": "s"
+    },
+    "acceptTerms": {
+      "type": "boolean",
+      "description": "Automatically accept terms and conditions in non-interactive mode",
+      "alias": "y"
+    },
     "verbose": {
       "type": "boolean",
       "description": "Run registration in verbose mode.",
