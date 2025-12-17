@@ -8,6 +8,11 @@ on:
     paths-ignore:
       - 'docs/**'
   workflow_dispatch:
+
+permissions:
+  id-token: write # to enable use of OIDC for trusted publishing and npm provenance
+  contents: read # to be able to publish a GitHub release
+
 jobs:
   release:
     name: Release
@@ -38,5 +43,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
