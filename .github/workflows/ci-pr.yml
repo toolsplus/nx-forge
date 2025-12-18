@@ -24,6 +24,7 @@ jobs:
           echo FORGE_API_TOKEN=${{ secrets.FORGE_API_TOKEN }} >> e2e/nx-forge-e2e/.env
           echo ATLASSIAN_PRODUCT=${{ vars.ATLASSIAN_PRODUCT }} >> e2e/nx-forge-e2e/.env
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
+          echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
       - run: npm ci
       - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
       - run: npx nx affected --target=format:check --parallel=2
@@ -31,3 +32,5 @@ jobs:
       - run: npx nx affected --target=build --parallel=3
       - run: npx nx affected --target=test --parallel=2
       - run: npx nx affected --target=e2e --parallel=2 --no-silent
+        env:
+          NODE_OPTIONS: '--no-deprecation'

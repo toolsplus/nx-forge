@@ -9,10 +9,11 @@ import { GraphQLClient } from 'graphql-request';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 import { generateForgeApp } from './utils/generate-forge-app';
 import {
-  AtlassianProductContext,
+  ForgeInstallationContext,
   Credentials,
-  getAtlassianProductContext,
+  getForgeInstallationContext,
   getCredentials,
+  getDeveloperSpaceId,
 } from './utils/config';
 import { createClient, deleteApp } from './utils/atlassian-graphql-client';
 import { runForgeCommandAsync } from './utils/async-commands';
@@ -24,14 +25,16 @@ describe('Forge install executor', () => {
   // initialize before all tests
   let developerCredentials: Credentials;
   let apiClient: GraphQLClient;
-  let productContext: AtlassianProductContext;
+  let installationContext: ForgeInstallationContext;
+  let developerSpaceId: string;
 
   beforeAll(async () => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/nx-forge');
     ensureCorrectWorkspaceRoot();
     developerCredentials = getCredentials();
     apiClient = createClient(developerCredentials);
-    productContext = getAtlassianProductContext();
+    installationContext = getForgeInstallationContext();
+    developerSpaceId = getDeveloperSpaceId();
 
     // Initialize the Forge CLI, otherwise commands may fail due to expected interactive input
     await runCommandAsync(`npx forge settings set usage-analytics false`, {
@@ -61,9 +64,12 @@ describe('Forge install executor', () => {
       expect.stringContaining('Successfully ran target package for project')
     );
 
-    const nxRegisterResult = await runNxCommandAsync(`register ${appName}`, {
-      silenceError: true,
-    });
+    const nxRegisterResult = await runNxCommandAsync(
+      `register ${appName} -y -s ${developerSpaceId}`,
+      {
+        silenceError: true,
+      }
+    );
     expect(nxRegisterResult.stderr).toEqual('');
     expect(stripAnsi(nxRegisterResult.stdout)).toContain(
       'Forge app registered'
@@ -80,7 +86,7 @@ describe('Forge install executor', () => {
     expect(stripAnsi(nxDeployResult.stdout)).toContain('Forge app deployed');
 
     const nxInstallResult = await runNxCommandAsync(
-      `install ${appName} --product=${productContext.product} --site=${productContext.siteUrl} --no-interactive`,
+      `install ${appName} --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --no-interactive`,
       {
         silenceError: true,
       }
@@ -92,10 +98,13 @@ describe('Forge install executor', () => {
     const installationIds = await getInstallationIds(appName);
     const uninstallResults = await Promise.all(
       installationIds.map(({ id }) =>
-        runForgeCommandAsync(`uninstall ${id}`, {
-          cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', appName),
-          silenceError: true,
-        })
+        runForgeCommandAsync(
+          `uninstall --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment}`,
+          {
+            cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', appName),
+            silenceError: true,
+          }
+        )
       )
     );
     uninstallResults.forEach((result) => {

@@ -7,19 +7,25 @@ import {
 import { GraphQLClient } from 'graphql-request';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 import { generateForgeApp } from './utils/generate-forge-app';
-import { Credentials, getCredentials } from './utils/config';
+import {
+  Credentials,
+  getCredentials,
+  getDeveloperSpaceId,
+} from './utils/config';
 import { createClient, deleteApp } from './utils/atlassian-graphql-client';
 import stripAnsi = require('strip-ansi');
 
 describe('Forge deploy executor', () => {
   let developerCredentials: Credentials; // initialize before all tests
   let apiClient: GraphQLClient;
+  let developerSpaceId: string;
 
   beforeAll(async () => {
     ensureNxProject('@toolsplus/nx-forge', 'dist/packages/nx-forge');
     ensureCorrectWorkspaceRoot();
     developerCredentials = getCredentials();
     apiClient = createClient(developerCredentials);
+    developerSpaceId = getDeveloperSpaceId();
 
     // Initialize the Forge CLI, otherwise commands may fail due to expected interactive input
     await runCommandAsync(`npx forge settings set usage-analytics false`, {
@@ -49,9 +55,12 @@ describe('Forge deploy executor', () => {
       'Successfully ran target package for project'
     );
 
-    const nxRegisterResult = await runNxCommandAsync(`register ${appName}`, {
-      silenceError: true,
-    });
+    const nxRegisterResult = await runNxCommandAsync(
+      `register ${appName} --accept-terms --developer-space-id ${developerSpaceId}`,
+      {
+        silenceError: true,
+      }
+    );
     expect(nxRegisterResult.stderr).toEqual('');
     expect(stripAnsi(nxRegisterResult.stdout)).toContain(
       'Forge app registered'
