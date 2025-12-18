@@ -2,6 +2,10 @@
   "name": "@toolsplus/nx-forge",
   "version": "0.0.0-e2e",
   "description": "Atlassian Forge plugin for Nx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toolsplus/nx-forge"
+  },
   "main": "./src/index.js",
   "typings": "./src/index.d.ts",
   "generators": "./generators.json",
