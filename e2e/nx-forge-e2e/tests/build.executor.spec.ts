@@ -1,30 +1,11 @@
-import { unlinkSync } from 'node:fs';
 import {
   ensureNxProject,
-  fileExists,
   runNxCommandAsync,
-  tmpProjPath,
   updateFile,
 } from '@nx/plugin/testing';
-import { logger } from '@nx/devkit';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
 import { generateForgeApp } from './utils/generate-forge-app';
 import stripAnsi = require('strip-ansi');
-
-/**
- * Delete a file in the e2e directory.
- *
- * @param file Path of the file in the e2e directory
- */
-function deleteFile(file: string): void {
-  if (fileExists(tmpProjPath(file))) {
-    unlinkSync(tmpProjPath(file));
-  } else {
-    logger.warn(
-      `File requested to delete does not exist at ${tmpProjPath(file)}`
-    );
-  }
-}
 
 describe('Forge build executor', () => {
   beforeAll(() => {
