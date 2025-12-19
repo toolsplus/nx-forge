@@ -9,6 +9,6 @@
     "jsx": "react",
     "jsxFactory": "ForgeUI.createElement"
   },
-  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exclude": ["jest.config.cts", "src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": ["src/**/*.ts"]
 }

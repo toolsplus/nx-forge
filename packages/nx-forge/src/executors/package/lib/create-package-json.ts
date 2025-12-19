@@ -1,15 +1,16 @@
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 import {
+  getDependencyVersionFromPackageJson,
   output,
   ProjectFileMap,
   ProjectGraph,
   ProjectGraphProjectNode,
   readJsonFile,
-  readNxJson,
   workspaceRoot,
 } from '@nx/devkit';
 import { PackageJson } from 'nx/src/utils/package-json';
+import { readNxJson } from 'nx/src/config/nx-json';
 import { sortObjectByKeys } from 'nx/src/utils/object-sort';
 import { readFileMapCache } from 'nx/src/project-graph/nx-deps-cache';
 import {
@@ -54,10 +55,9 @@ export function createPackageJson(
 ): PackageJson {
   const projectNode = graph.nodes[projectName];
   const isLibrary = projectNode.type === 'lib';
+  const root = options.root ?? workspaceRoot;
 
-  const rootPackageJson: PackageJson = readJsonFile(
-    join(options.root ?? workspaceRoot, 'package.json')
-  );
+  const rootPackageJson: PackageJson = readJsonFile(join(root, 'package.json'));
 
   const npmDeps = findProjectsNpmDependencies(
     projectNode,
@@ -78,7 +78,7 @@ export function createPackageJson(
     version: '0.0.1',
   };
   const projectPackageJsonPath = join(
-    options.root ?? workspaceRoot,
+    root,
     projectNode.data.root,
     'package.json'
   );
@@ -111,11 +111,31 @@ export function createPackageJson(
     version: string,
     section: 'devDependencies' | 'dependencies'
   ) => {
-    return (
-      packageJson[section][packageName] ||
-      (isLibrary && rootPackageJson[section]?.[packageName]) ||
-      version
+    // Try project package.json first (single section)
+    const projectVersion = getDependencyVersionFromPackageJson(
+      packageName,
+      root,
+      packageJson,
+      [section]
     );
+    if (projectVersion) {
+      return projectVersion;
+    }
+
+    // For libraries, fall back to root package.json (single section)
+    if (isLibrary) {
+      const rootVersion = getDependencyVersionFromPackageJson(
+        packageName,
+        root,
+        rootPackageJson,
+        [section]
+      );
+      if (rootVersion) {
+        return rootVersion;
+      }
+    }
+
+    return version;
   };
 
   Object.entries(npmDeps.dependencies).forEach(([packageName, version]) => {
