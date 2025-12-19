@@ -1,16 +1,15 @@
-import { Linter } from '@nx/eslint';
 import { readNxJson, Tree } from '@nx/devkit';
 import type { ApplicationGeneratorOptions, NormalizedOptions } from '../schema';
 import {
   determineProjectNameAndRootOptions,
-  ensureProjectName,
+  ensureRootProjectName,
 } from '@nx/devkit/src/generators/project-name-and-root-utils';
 
 export async function normalizeOptions(
   tree: Tree,
   options: ApplicationGeneratorOptions
 ): Promise<NormalizedOptions> {
-  await ensureProjectName(tree, options, 'application');
+  await ensureRootProjectName(options, 'application');
   const { projectName: appProjectName, projectRoot: appProjectRoot } =
     await determineProjectNameAndRootOptions(tree, {
       name: options.name,
@@ -37,7 +36,7 @@ export async function normalizeOptions(
     name: appProjectName,
     appProjectRoot,
     parsedTags,
-    linter: options.linter ?? Linter.EsLint,
+    linter: options.linter ?? 'eslint',
     unitTestRunner: options.unitTestRunner ?? 'jest',
     rootProject: options.rootProject ?? false,
   };
