@@ -9,12 +9,12 @@ import {
   updateJson,
   updateTsConfigsToJs,
 } from '@nx/devkit';
-import { Linter, lintProjectGenerator } from '@nx/eslint';
+import { lintProjectGenerator } from '@nx/eslint';
 import { configurationGenerator } from '@nx/jest';
 import { initGenerator as jsInitGenerator, tsConfigBaseOptions } from '@nx/js';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
-import { addProject, addAppFiles, normalizeOptions } from './lib';
+import { addAppFiles, addProject, normalizeOptions } from './lib';
 import { addProjectDependencies } from './lib/add-project-dependencies';
 import { logShowProjectCommand } from '@nx/devkit/src/utils/log-show-project-command';
 
@@ -95,7 +95,7 @@ export async function applicationGeneratorInternal(
 
   updateTsConfigOptions(tree, options);
 
-  if (options.linter === Linter.EsLint) {
+  if (options.linter === 'eslint') {
     const lintTask = await lintProjectGenerator(tree, {
       linter: options.linter,
       project: options.name,

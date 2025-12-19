@@ -3,7 +3,7 @@ sidebar_position: 10
 ---
 
 <script setup>
-const nxVersion = 20
+const nxVersion = 22
 </script>
 
 # Getting started

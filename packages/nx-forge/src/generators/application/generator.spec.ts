@@ -123,7 +123,7 @@ describe('application generator', () => {
         addPlugin: true,
       });
       expect(tree.exists('my-forge-app/webpack.config.js')).toBeTruthy();
-      expect(tree.exists('my-forge-app/jest.config.ts')).toBeTruthy();
+      expect(tree.exists('my-forge-app/jest.config.cts')).toBeTruthy();
       expect(tree.exists('my-forge-app/manifest.yml')).toBeTruthy();
       expect(tree.exists('my-forge-app/src/index.ts')).toBeTruthy();
 
@@ -154,11 +154,14 @@ describe('application generator', () => {
         'ForgeUI.createElement'
       );
       expect(tsconfigApp.extends).toEqual('./tsconfig.json');
-      expect(tsconfigApp.exclude).toEqual([
-        'jest.config.ts',
-        'src/**/*.spec.ts',
-        'src/**/*.test.ts',
-      ]);
+      expect(tsconfigApp.exclude).toEqual(
+        expect.arrayContaining([
+          'jest.config.ts',
+          'jest.config.cts',
+          'src/**/*.spec.ts',
+          'src/**/*.test.ts',
+        ])
+      );
 
       const eslintrc = readJson(tree, 'my-forge-app/.eslintrc.json');
       expect(eslintrc).toMatchInlineSnapshot(`
@@ -329,7 +332,11 @@ describe('application generator', () => {
 
       const hasJsonValue = ({ path, expectedValue, lookupFn }) => {
         const config = readJson(tree, path);
-        expect(lookupFn(config)).toEqual(expectedValue);
+        expect(lookupFn(config)).toEqual(
+          Array.isArray(expectedValue)
+            ? expect.arrayContaining(expectedValue)
+            : expectedValue
+        );
       };
 
       [
@@ -348,6 +355,7 @@ describe('application generator', () => {
           lookupFn: (json) => json.exclude,
           expectedValue: [
             'jest.config.ts',
+            'jest.config.cts',
             'src/**/*.spec.ts',
             'src/**/*.test.ts',
           ],
@@ -368,9 +376,9 @@ describe('application generator', () => {
         unitTestRunner: 'none',
         addPlugin: true,
       });
-      expect(tree.exists('jest.config.ts')).toBeFalsy();
+      expect(tree.exists('jest.config.cts')).toBeFalsy();
       expect(tree.exists('my-forge-app/tsconfig.spec.json')).toBeFalsy();
-      expect(tree.exists('my-forge-app/jest.config.ts')).toBeFalsy();
+      expect(tree.exists('my-forge-app/jest.config.cts')).toBeFalsy();
     });
   });
 
@@ -383,9 +391,9 @@ describe('application generator', () => {
         addPlugin: true,
       } as ApplicationGeneratorOptions);
 
-      expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
+      expect(tree.read(`my-forge-app/jest.config.cts`, 'utf-8'))
         .toMatchInlineSnapshot(`
-        "export default {
+        "module.exports = {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
@@ -409,9 +417,9 @@ describe('application generator', () => {
         addPlugin: true,
       } as ApplicationGeneratorOptions);
 
-      expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
+      expect(tree.read(`my-forge-app/jest.config.cts`, 'utf-8'))
         .toMatchInlineSnapshot(`
-        "export default {
+        "module.exports = {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
