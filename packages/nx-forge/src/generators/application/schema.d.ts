@@ -1,4 +1,4 @@
-import type { Linter } from '@nx/eslint';
+import type { LinterType } from '@nx/eslint';
 
 interface ApplicationGeneratorOptions {
   directory: string;
@@ -22,7 +22,7 @@ interface ApplicationGeneratorOptions {
 interface NormalizedOptions extends ApplicationGeneratorOptions {
   addPlugin: boolean;
   appProjectRoot: string;
-  linter: Linter;
+  linter: LinterType;
   unitTestRunner: 'jest' | 'none';
   parsedTags: string[];
 }
