@@ -12,7 +12,7 @@ export default async function (tree: Tree) {
     options: BuildExecutorOptions,
     projectName: string,
     targetName: string,
-    configurationName: string
+    configurationName?: string
   ) => {
     // There should not be any configurations, if there are skip the update - only handle the default config
     if (configurationName) return;
@@ -35,7 +35,8 @@ export default async function (tree: Tree) {
         `
       );
 
-      projectConfiguration.targets[targetName].options = options;
+      const targets = (projectConfiguration.targets ??= {});
+      targets[targetName] = { ...targets[targetName], options };
       updateProjectConfiguration(tree, projectName, projectConfiguration);
     }
   };

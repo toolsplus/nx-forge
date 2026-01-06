@@ -35,6 +35,11 @@ export async function processResourceDependencies(
   options: Options,
   context: ExecutorContext
 ): Promise<Resources> {
+  if (!context.projectName) {
+    throw new Error(
+      `Failed to process resource dependencies: No project name found in executor context.`
+    );
+  }
   const manifestPath = joinPathFragments(
     context.root,
     context.projectsConfigurations.projects[context.projectName].root,
@@ -71,18 +76,17 @@ const getResourceOutputPath = (
   configurationName?: string
 ) => {
   const resourceProjectName = resourceProjectGraphNode.data.name;
+  if (!resourceProjectName) {
+    throw new Error('Resource project name is missing.');
+  }
   const maybeResourceOutputPath =
     options.resourceOutputPathMap[resourceProjectName];
-  if (
-    maybeResourceOutputPath &&
-    typeof maybeResourceOutputPath === 'string' &&
-    maybeResourceOutputPath !== ''
-  ) {
+  if (maybeResourceOutputPath && maybeResourceOutputPath !== '') {
     return maybeResourceOutputPath;
   }
 
   const maybeBuildTargetOutputPathOption =
-    resourceProjectGraphNode.data.targets['build']?.options?.outputPath;
+    resourceProjectGraphNode.data.targets?.['build']?.options?.outputPath;
   if (maybeBuildTargetOutputPathOption) {
     return maybeBuildTargetOutputPathOption;
   }
@@ -112,7 +116,7 @@ const getResourceOutputPath = (
   }
 
   throw new Error(
-    `Failed to infer output path for resource project '${resourceProjectName}': Try to define an explicit output path mapping using the 'resourceOutputPathMap' option of this executor. Add an entry to the mapping object as follows: {'${resourceProjectName}': '<replace-with-project-output-path>'}.`
+    `Failed to infer the output path for resource project '${resourceProjectName}': Try to define an explicit output path mapping using the 'resourceOutputPathMap' option of this executor. Add an entry to the mapping object as follows: {'${resourceProjectName}': '<replace-with-project-output-path>'}.`
   );
 };
 
@@ -122,6 +126,11 @@ const verifyAndCopyResourceDependency = (
   options: Options
 ): void => {
   const resourceProjectName = resource.path;
+  if (!resourceProjectName) {
+    throw new Error(
+      `Resource ${resource.key} is missing a path. Make sure the resource path references a project in your Nx workspace.`
+    );
+  }
   const resourceProjectGraphNode =
     context.projectGraph.nodes[resourceProjectName];
   const resourceProjectConfiguration = resourceProjectGraphNode?.data;

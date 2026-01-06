@@ -35,6 +35,10 @@ export default async function runExecutor(
     Use a default Nx 'webpack' or 'esbuild' executor to build, and the 'package' executor to assemble the Forge app.`
   );
 
+  if (context.projectName === undefined) {
+    throw new Error('No project name provided in executor context.');
+  }
+
   const { root, sourceRoot } =
     context.projectsConfigurations.projects[context.projectName];
 

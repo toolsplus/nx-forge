@@ -21,6 +21,10 @@ export default async function runTunnelExecutor(
   options: TunnelExecutorOptions,
   context: ExecutorContext
 ) {
+  if (context.projectName === undefined) {
+    throw new Error('No project name provided in executor context.');
+  }
+
   const customUIProjectConfigs = await getCustomUiProjects(context);
 
   const customUIIters = await startCustomUIs(customUIProjectConfigs, context);
@@ -41,7 +45,7 @@ export default async function runTunnelExecutor(
     const preTunnelTimeout = options.preTunnelTimeout ?? 5000;
     await isTunnelPreparationComplete(options.outputPath, preTunnelTimeout);
   } catch (err) {
-    logger.error(err.message);
+    logger.error(err instanceof Error ? err.message : String(err));
     return { success: false };
   }
 

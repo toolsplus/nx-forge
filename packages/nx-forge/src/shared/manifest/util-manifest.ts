@@ -21,11 +21,11 @@ export type ResourceType = 'ui-kit' | 'custom-ui' | 'static';
  * @param moduleDefinition Module definition to analyze
  */
 const resourceTypeByModuleDefinition = (
-  moduleDefinition: object
+  moduleDefinition: any
 ): ResourceType => {
-  if (!!moduleDefinition['resource'] && moduleDefinition['render'] === 'native')
+  if (moduleDefinition.resource && moduleDefinition.render === 'native')
     return 'ui-kit';
-  if (!!moduleDefinition['resource'] && moduleDefinition['render'] !== 'native')
+  if (moduleDefinition.resource && moduleDefinition.render !== 'native')
     return 'custom-ui';
   return 'static';
 };
@@ -90,8 +90,8 @@ export const resourceTypeByResourceDefinition = (
       if (
         isObject(moduleDefinition) &&
         Object.hasOwn(moduleDefinition, 'resource') &&
-        typeof moduleDefinition['resource'] === 'string' &&
-        moduleDefinition['resource'] === resource.key
+        typeof (moduleDefinition as any).resource === 'string' &&
+        (moduleDefinition as any).resource === resource.key
       ) {
         return resourceTypeByModuleDefinition(moduleDefinition);
       }

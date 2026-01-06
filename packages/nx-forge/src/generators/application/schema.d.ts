@@ -1,11 +1,11 @@
-import type { Linter } from '@nx/eslint';
+import type { LinterType } from '@nx/eslint';
 
 interface ApplicationGeneratorOptions {
   directory: string;
   name?: string;
   skipFormat?: boolean;
   skipPackageJson?: boolean;
-  linter?: Linter;
+  linter?: LinterType;
   standaloneConfig?: boolean;
   tags?: string;
   bundler?: 'esbuild' | 'webpack';
@@ -20,9 +20,10 @@ interface ApplicationGeneratorOptions {
 }
 
 interface NormalizedOptions extends ApplicationGeneratorOptions {
+  name: string;
   addPlugin: boolean;
   appProjectRoot: string;
-  linter: Linter;
+  linter: LinterType;
   unitTestRunner: 'jest' | 'none';
   parsedTags: string[];
 }

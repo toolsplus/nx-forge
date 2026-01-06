@@ -44,9 +44,20 @@ export async function addProjectDependencies(
     '@forge/resolver'
   );
 
+  if (!latestForgeApiVersion) {
+    logger.warn(
+      `Failed to fetch latest version of @forge/api. Using 'latest' tag as version`
+    );
+  }
+
+  if (!latestForgeResolverVersion) {
+    logger.warn(
+      `Failed to fetch latest version of @forge/resolver. Using 'latest' tag as version`
+    );
+  }
   const forgeDependencies = {
-    '@forge/api': latestForgeApiVersion,
-    '@forge/resolver': latestForgeResolverVersion,
+    '@forge/api': latestForgeApiVersion ?? 'latest',
+    '@forge/resolver': latestForgeResolverVersion ?? 'latest',
   };
 
   return addDependenciesToPackageJson(
@@ -56,7 +67,7 @@ export async function addProjectDependencies(
       tslib: tsLibVersion,
     },
     {
-      ...bundlers[options.bundler],
+      ...bundlers[options.bundler ?? 'webpack'],
       '@types/node': typesNodeVersion,
     }
   );

@@ -21,7 +21,10 @@ export default async function update(host: Tree) {
 
   for (const [name, config] of projects.entries()) {
     if (config && isForgeProject(config)) {
-      if (config.implicitDependencies?.length > 0) {
+      if (
+        config.implicitDependencies &&
+        config.implicitDependencies.length > 0
+      ) {
         const manifest = await readManifestYml(
           host,
           joinPathFragments(config.root, 'manifest.yml')

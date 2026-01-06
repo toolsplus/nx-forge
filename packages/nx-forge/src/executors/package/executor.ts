@@ -25,6 +25,10 @@ export default async function runExecutor(
   rawOptions: PackageExecutorSchema,
   context: ExecutorContext
 ) {
+  if (context.projectName === undefined) {
+    throw new Error('No project name provided in executor context.');
+  }
+
   const { root, sourceRoot } =
     context.projectsConfigurations.projects[context.projectName];
 

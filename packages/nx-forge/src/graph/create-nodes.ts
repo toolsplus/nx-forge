@@ -1,7 +1,7 @@
 import { readdirSync } from 'fs';
 import { dirname, join } from 'path';
 import {
-  CreateNodesContext,
+  CreateNodesContextV2,
   createNodesFromFiles,
   CreateNodesV2,
   ProjectConfiguration,
@@ -51,7 +51,7 @@ export const createNodesV2: CreateNodesV2 = [
 function createNodesInternal(
   manifestFilePath: string,
   options: unknown,
-  context: CreateNodesContext
+  context: CreateNodesContextV2
 ) {
   const projectRoot = dirname(manifestFilePath);
 

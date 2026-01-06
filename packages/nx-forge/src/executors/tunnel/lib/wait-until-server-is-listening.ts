@@ -29,17 +29,17 @@ export function waitUntilServerIsListening(
         cleanup();
         resolve();
       });
-      client.on('error', (err) => {
+      client.on('error', (err: NodeJS.ErrnoException) => {
         if (
           attempts > maxAttempts ||
-          !allowedErrorCodes.includes(err['code'])
+          !allowedErrorCodes.includes(err.code ?? '')
         ) {
           if (context.isVerbose) {
             logger.error(
               `Could not wait for server to start on port ${port}: ${
                 attempts > maxAttempts
                   ? `Max attempts (${maxAttempts}) exceeded`
-                  : `Server returned unexpected error code ${err['code']}`
+                  : `Server returned unexpected error code ${err.code}`
               }`
             );
           }

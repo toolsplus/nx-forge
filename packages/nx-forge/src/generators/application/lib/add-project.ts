@@ -22,16 +22,16 @@ function getWebpackBuildConfig(
       compiler: 'tsc',
       outputPath: joinPathFragments(
         'dist',
-        options.rootProject ? options.name : options.appProjectRoot,
+        (options.rootProject ? options.name : options.appProjectRoot) ?? '',
         'src'
       ),
       main: joinPathFragments(
-        project.sourceRoot,
+        project.sourceRoot ?? '',
         'index' + (options.js ? '.js' : '.ts')
       ),
       outputFileName: 'index.js',
       tsConfig: joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
-      assets: [joinPathFragments(project.sourceRoot, 'assets')],
+      assets: [joinPathFragments(project.sourceRoot ?? '', 'assets')],
       webpackConfig: joinPathFragments(
         options.appProjectRoot,
         'webpack.config.js'
@@ -56,19 +56,19 @@ function getEsBuildConfig(
       platform: 'node',
       outputPath: joinPathFragments(
         'dist',
-        options.rootProject ? options.name : options.appProjectRoot,
+        (options.rootProject ? options.name : options.appProjectRoot) ?? '',
         'src'
       ),
       // Use CJS for Node apps for widest compatibility.
       format: ['cjs'],
       bundle: true,
       main: joinPathFragments(
-        project.sourceRoot,
+        project.sourceRoot ?? '',
         'index' + (options.js ? '.js' : '.ts')
       ),
       outputFileName: 'index.js',
       tsConfig: joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
-      assets: [joinPathFragments(project.sourceRoot, 'assets')],
+      assets: [joinPathFragments(project.sourceRoot ?? '', 'assets')],
       generatePackageJson: false,
       esbuildOptions: {
         sourcemap: true,
@@ -104,17 +104,19 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
 
   if (options.bundler === 'esbuild') {
     addBuildTargetDefaults(tree, '@nx/esbuild:esbuild');
+    project.targets ??= {};
     project.targets.build = getEsBuildConfig(project, options);
   } else if (options.bundler === 'webpack') {
     if (!hasWebpackPlugin(tree)) {
       addBuildTargetDefaults(tree, `@nx/webpack:webpack`);
+      project.targets ??= {};
       project.targets.build = getWebpackBuildConfig(project, options);
     }
   }
 
   addProjectConfiguration(
     tree,
-    options.name,
+    options.name || '',
     project,
     options.standaloneConfig
   );
