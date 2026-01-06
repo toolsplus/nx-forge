@@ -27,7 +27,8 @@ export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
         ? {
             outputPath: joinPathFragments(
               'dist',
-              options.rootProject ? options.name : options.appProjectRoot,
+              (options.rootProject ? options.name : options.appProjectRoot) ??
+                '',
               'src'
             ),
             main: './src/index' + (options.js ? '.js' : '.ts'),

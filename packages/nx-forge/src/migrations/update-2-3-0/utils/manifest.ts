@@ -7,12 +7,15 @@ const manifestSchemaValidator = new SchemaValidator<ManifestSchema>(
   FULL_SCHEMA
 );
 
-export const readManifestYml = async (tree: Tree, path: string) => {
+export const readManifestYml = async (
+  tree: Tree,
+  path: string
+): Promise<ManifestSchema> => {
   const result = await manifestSchemaValidator.validate({
     yamlContent: readYaml(tree, path),
   });
 
-  if (result.success) {
+  if (result.success && result.manifestObject?.typedContent) {
     return result.manifestObject.typedContent;
   }
 

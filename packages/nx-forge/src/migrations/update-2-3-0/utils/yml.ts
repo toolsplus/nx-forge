@@ -18,9 +18,11 @@ export const readYaml = (
     throw new Error(`Cannot find ${path}`);
   }
   try {
-    return load(tree.read(path, 'utf-8'), options) as ManifestSchema;
+    return load(tree.read(path, 'utf-8') ?? '', options) as ManifestSchema;
   } catch (e) {
-    throw new Error(`Cannot parse ${path}: ${e.message}`);
+    throw new Error(
+      `Cannot parse ${path}: ${e instanceof Error ? e.message : String(e)}`
+    );
   }
 };
 

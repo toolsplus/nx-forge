@@ -6,10 +6,10 @@ import {
   ProjectGraph,
   ProjectGraphProjectNode,
   readJsonFile,
-  readNxJson,
   workspaceRoot,
 } from '@nx/devkit';
 import { PackageJson } from 'nx/src/utils/package-json';
+import { readNxJson } from 'nx/src/config/nx-json';
 import { sortObjectByKeys } from 'nx/src/utils/object-sort';
 import { readFileMapCache } from 'nx/src/project-graph/nx-deps-cache';
 import {
@@ -50,7 +50,7 @@ export function createPackageJson(
     isProduction?: boolean;
     helperDependencies?: string[];
   } = {},
-  fileMap: ProjectFileMap = null
+  fileMap: ProjectFileMap | undefined = undefined
 ): PackageJson {
   const projectNode = graph.nodes[projectName];
   const isLibrary = projectNode.type === 'lib';
@@ -62,13 +62,13 @@ export function createPackageJson(
   const npmDeps = findProjectsNpmDependencies(
     projectNode,
     graph,
-    options.target,
     rootPackageJson,
     {
       helperDependencies: options.helperDependencies,
       isProduction: options.isProduction,
     },
     manifestResources,
+    options.target,
     fileMap
   );
 
@@ -112,7 +112,7 @@ export function createPackageJson(
     section: 'devDependencies' | 'dependencies'
   ) => {
     return (
-      packageJson[section][packageName] ||
+      packageJson?.[section]?.[packageName] ||
       (isLibrary && rootPackageJson[section]?.[packageName]) ||
       version
     );
@@ -217,7 +217,6 @@ export function createPackageJson(
 export function findProjectsNpmDependencies(
   projectNode: ProjectGraphProjectNode,
   graph: ProjectGraph,
-  target: string,
   rootPackageJson: PackageJson,
   options: {
     helperDependencies?: string[];
@@ -225,10 +224,11 @@ export function findProjectsNpmDependencies(
     isProduction?: boolean;
   },
   manifestResources: Resources,
+  target?: string,
   fileMap?: ProjectFileMap
 ): NpmDeps {
-  if (fileMap == null) {
-    fileMap = readFileMapCache()?.fileMap?.projectFileMap || {};
+  if (fileMap === undefined) {
+    fileMap = readFileMapCache()?.fileMap?.projectFileMap ?? {};
   }
 
   const { selfInputs, dependencyInputs } = target
@@ -245,9 +245,12 @@ export function findProjectsNpmDependencies(
 
   options.helperDependencies?.forEach((dep) => {
     seen.add(dep);
-    npmDeps.dependencies[graph.externalNodes[dep].data.packageName] =
-      graph.externalNodes[dep].data.version;
-    recursivelyCollectPeerDependencies(dep, graph, npmDeps, seen);
+    const graphDependencyNode = graph.externalNodes?.[dep];
+    if (graphDependencyNode) {
+      npmDeps.dependencies[graphDependencyNode.data.packageName] =
+        graphDependencyNode.data.version;
+      recursivelyCollectPeerDependencies(dep, graph, npmDeps, seen);
+    }
   });
 
   // if it's production, we want to ignore all found devDependencies
@@ -309,7 +312,7 @@ function findAllNpmDeps(
   );
 
   for (const dep of projectDependencies) {
-    const node = graph.externalNodes[dep];
+    const node = graph.externalNodes?.[dep];
 
     if (seen.has(dep)) {
       // if it's in peerDependencies, move it to regular dependencies
@@ -353,7 +356,7 @@ function recursivelyCollectPeerDependencies(
   npmDeps: NpmDeps,
   seen: Set<string>
 ) {
-  const npmPackage = graph.externalNodes[projectName];
+  const npmPackage = graph.externalNodes?.[projectName];
   if (!npmPackage) {
     return npmDeps;
   }
@@ -368,8 +371,8 @@ function recursivelyCollectPeerDependencies(
 
     Object.keys(packageJson.peerDependencies)
       .map((dependencyName) => `npm:${dependencyName}`)
-      .map((dependency) => graph.externalNodes[dependency])
-      .filter(Boolean)
+      .map((dependency) => graph.externalNodes?.[dependency])
+      .filter((node): node is NonNullable<typeof node> => !!node)
       .forEach((node) => {
         if (!seen.has(node.name)) {
           seen.add(node.name);

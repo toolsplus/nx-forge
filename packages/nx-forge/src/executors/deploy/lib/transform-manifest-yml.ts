@@ -7,10 +7,9 @@ import {
 } from '../../../utils/forge/manifest-yml';
 import { ExecutorContext, joinPathFragments } from '@nx/devkit';
 
-type Options = Pick<
-  DeployExecutorOptions,
-  'outputPath' | 'manifestTransform' | 'verify'
->;
+type Options = Pick<DeployExecutorOptions, 'outputPath' | 'verify'> & {
+  manifestTransform: string;
+};
 
 export const transformManifestYml = async (
   options: Options,
@@ -22,7 +21,7 @@ export const transformManifestYml = async (
   } catch (error) {
     throw new Error(
       `Failed to parse expression '${options.manifestTransform}': ${
-        error.message ?? JSON.stringify(error)
+        error instanceof Error ? error.message : JSON.stringify(error)
       }`
     );
   }

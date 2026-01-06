@@ -54,12 +54,11 @@ function createPackageJson(
     projectRoot?: string;
     root?: string;
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   const customUIProjectNames = customUIResources.map((r) => r.path);
   const npmDeps = findAllNpmDeps(projectName, graph, customUIProjectNames);
   // default package.json if one does not exist
-  let packageJson = {
+  let packageJson: any = {
     name: projectName,
     version: '0.0.1',
     dependencies: {},
@@ -108,7 +107,7 @@ function findAllNpmDeps(
 
   seen.add(projectName);
 
-  const node = graph.externalNodes[projectName];
+  const node = graph.externalNodes?.[projectName];
 
   if (node) {
     list[node.data.packageName] = node.data.version;
@@ -132,7 +131,7 @@ function recursivelyCollectPeerDependencies(
   list: { [packageName: string]: string } = {},
   seen = new Set<string>()
 ) {
-  const npmPackage = graph.externalNodes[projectName];
+  const npmPackage = graph.externalNodes?.[projectName];
   if (!npmPackage || seen.has(projectName)) {
     return list;
   }
@@ -148,8 +147,8 @@ function recursivelyCollectPeerDependencies(
 
     Object.keys(packageJson.peerDependencies)
       .map((dependencyName) => `npm:${dependencyName}`)
-      .map((dependency) => graph.externalNodes[dependency])
-      .filter(Boolean)
+      .map((dependency) => graph.externalNodes?.[dependency])
+      .filter((node): node is NonNullable<typeof node> => !!node)
       .forEach((node) => {
         if (
           !packageJson.peerDependenciesMeta?.[node.data.packageName]?.optional

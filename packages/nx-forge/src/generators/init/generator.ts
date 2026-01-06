@@ -50,7 +50,7 @@ export default async function (
     );
     const addDependenciesTask = await addDependencies(
       tree,
-      options.keepExistingVersions
+      options.keepExistingVersions ?? false
     );
     tasks.push(addDependenciesTask);
   }

@@ -66,7 +66,9 @@ class YamlValidator<T>
         success: false,
         errors: [
           {
-            message: errors.invalidManifest(e.message),
+            message: errors.invalidManifest(
+              e instanceof Error ? e.message : String(e)
+            ),
             reference: References.InvalidManifest,
             level: 'error',
             line: 0,

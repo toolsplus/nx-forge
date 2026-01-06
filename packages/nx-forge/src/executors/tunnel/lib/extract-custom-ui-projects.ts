@@ -37,6 +37,10 @@ export async function getCustomUiProjects(
 async function extractVerifiedCustomUIProjects(
   context: ExecutorContext
 ): Promise<ResourceWithTunnelPort[]> {
+  if (context.projectName === undefined) {
+    throw new Error('No project name provided in executor context.');
+  }
+
   const manifestPath = joinPathFragments(
     context.root,
     context.projectsConfigurations.projects[context.projectName].root,
@@ -65,7 +69,7 @@ const verifyCustomUIDependency =
       );
     }
 
-    if (!customUIProjectConfiguration.targets['serve']) {
+    if (!customUIProjectConfiguration.targets?.['serve']) {
       throw new Error(
         `Custom UI project '${customUIProjectName}' targets is missing a 'serve' executor. Make sure the the project has a 'serve' target inferred, or the 'targets' property in the project's 'project.json' has a 'serve' executor configured.`
       );

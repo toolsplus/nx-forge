@@ -8,9 +8,9 @@ const normalizeOptions = (
   context: ExecutorContext
 ): DeployExecutorOptions => {
   const isEnvironmentName = (
-    c: string
+    c?: string
   ): c is DeployExecutorOptions['environment'] =>
-    ['development', 'staging', 'production'].includes(c);
+    ['development', 'staging', 'production'].includes(c ?? '');
 
   if (isEnvironmentName(context.configurationName)) {
     return {
@@ -34,7 +34,10 @@ export default async function runExecutor(
         context.configurationName ? `(${context.configurationName})` : ''
       }: ${options.manifestTransform}`
     );
-    await transformManifestYml(options, context);
+    await transformManifestYml(
+      { ...options, manifestTransform: options.manifestTransform },
+      context
+    );
   }
 
   const args = [

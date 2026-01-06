@@ -48,16 +48,19 @@ const getUIResourceDependencies = async (
     };
   };
 
-  return uiResourceProjectNames.reduce((acc, uiResourceProjectName) => {
-    return (manifestFile.deps || []).find(
-      ([source, target, type]) =>
-        type === 'static' &&
-        target === uiResourceProjectName &&
-        source === projectName
-    )
-      ? acc // Dependency already exists, skip adding it again.
-      : [...acc, getUIResourceStaticDependency(uiResourceProjectName)];
-  }, []);
+  return uiResourceProjectNames.reduce<RawProjectGraphDependency[]>(
+    (acc, uiResourceProjectName) => {
+      return (manifestFile.deps ?? []).some(
+        ([source, target, type]) =>
+          type === 'static' &&
+          target === uiResourceProjectName &&
+          source === projectName
+      )
+        ? acc // Dependency already exists, skip adding it again.
+        : [...acc, getUIResourceStaticDependency(uiResourceProjectName)];
+    },
+    []
+  );
 };
 
 export const createDependencies: CreateDependencies = async (
@@ -68,7 +71,7 @@ export const createDependencies: CreateDependencies = async (
 
   for (const projectName in context.filesToProcess.projectFileMap) {
     const changed = context.filesToProcess.projectFileMap[projectName];
-    for await (const manifestFile of changed.filter((f) =>
+    for (const manifestFile of changed.filter((f) =>
       f.file.endsWith('manifest.yml')
     )) {
       logger.info(`[nx-forge] Processing ${projectName}:${manifestFile.file}`);
