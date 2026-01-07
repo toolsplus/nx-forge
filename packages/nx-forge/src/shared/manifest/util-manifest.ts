@@ -104,6 +104,9 @@ const extractionStrategies: Record<string, ExtractionStrategy> = {
       (def as Record<string, unknown>)?.edit,
     ];
   },
+  action: (def) => {
+    return [(def as Record<string, unknown>)?.config];
+  },
 };
 
 /**
