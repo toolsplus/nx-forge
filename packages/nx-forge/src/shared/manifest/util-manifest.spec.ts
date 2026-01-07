@@ -7,8 +7,8 @@ import {
 import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 
 /**
- * The following tests define a manifest with four UI resource definitions and
- * one resource definition that is unrelated to UI.
+ * The following test defines a manifest with resource definitions and verifies
+ * that resources types are inferred correctly.
  *
  * - Resource 0: Custom UI resource associated with a Jira UI module
  * - Resource 1: Custom UI resource associated with a Jira UI module
@@ -16,7 +16,9 @@ import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
  * - Resource 3: Custom UI resource defined in the manifest but not directly
  *               referenced by a UI module (Use case: Custom UI modal dialogs
  *               https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/modal/)
- * - Resource 4: Static resource referencing a folder, as used in Rovo agents
+ * - Resource 4: Custom UI resource associated with a Jira custom field module
+ * - Resource 5: UI Kit resource associated with a Jira custom field module
+ * - Resource static: Static resource referencing a folder, as used in Rovo agents
  *               to reference file directories.
  */
 describe('util-manifest', () => {
@@ -29,7 +31,7 @@ describe('util-manifest', () => {
       },
     }));
 
-  const resources = makeUIResources(4);
+  const resources = makeUIResources(6);
   const staticResource: HostedResourcesSchema = {
     key: 'static-resource',
     path: 'not/a/project/ref',
@@ -64,6 +66,24 @@ describe('util-manifest', () => {
           resolver: { function: 'resolver' },
         },
       ],
+      'jira:customField': [
+        {
+          key: 'custom-field-0',
+          name: 'custom field 0',
+          description: 'custom field 0 description',
+          type: 'string',
+          view: { resource: resources[4].key },
+          edit: { resource: resources[4].key },
+        },
+        {
+          key: 'custom-field-1',
+          name: 'custom field 1',
+          description: 'custom field 1 description',
+          type: 'number',
+          view: { resource: resources[5].key, render: 'native' },
+          edit: { resource: resources[5].key, render: 'native' },
+        },
+      ],
       'rovo:agent': [
         {
           key: 'fake-agent',
@@ -91,6 +111,12 @@ describe('util-manifest', () => {
         resourceTypeByResourceDefinition(manifest)(resources[3])
       ).toStrictEqual('custom-ui');
       expect(
+        resourceTypeByResourceDefinition(manifest)(resources[4])
+      ).toStrictEqual('custom-ui');
+      expect(
+        resourceTypeByResourceDefinition(manifest)(resources[5])
+      ).toStrictEqual('ui-kit');
+      expect(
         resourceTypeByResourceDefinition(manifest)(staticResource)
       ).toStrictEqual('static');
     });
@@ -112,6 +138,12 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[3])
       ).toStrictEqual(true);
       expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[4])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[5])
+      ).toStrictEqual(true);
+      expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
@@ -129,6 +161,12 @@ describe('util-manifest', () => {
       expect(
         isResourceType(manifest, acceptedResourceTypes)(resources[3])
       ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[4])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[5])
+      ).toStrictEqual(false);
       expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
@@ -148,22 +186,28 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[3])
       ).toStrictEqual(false);
       expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[4])
+      ).toStrictEqual(false);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[5])
+      ).toStrictEqual(true);
+      expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
     it('should filter UI resources', () => {
-      expect(manifest.resources).toHaveLength(5);
+      expect(manifest.resources).toHaveLength(7);
       expect(
         manifest.resources.filter(
           isResourceType(manifest, ['custom-ui', 'ui-kit'])
         )
-      ).toHaveLength(4);
+      ).toHaveLength(6);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['custom-ui']))
-      ).toHaveLength(3);
+      ).toHaveLength(4);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['ui-kit']))
-      ).toHaveLength(1);
+      ).toHaveLength(2);
     });
   });
 });
