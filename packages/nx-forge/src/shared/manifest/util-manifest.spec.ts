@@ -18,6 +18,8 @@ import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
  *               https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/modal/)
  * - Resource 4: Custom UI resource associated with a Jira custom field module
  * - Resource 5: UI Kit resource associated with a Jira custom field module
+ * - Resource 6: UI Kit resource associated with an automation action module
+ * - Resource 7: Custom UI resource associated with an automation action module
  * - Resource static: Static resource referencing a folder, as used in Rovo agents
  *               to reference file directories.
  */
@@ -31,7 +33,7 @@ describe('util-manifest', () => {
       },
     }));
 
-  const resources = makeUIResources(6);
+  const resources = makeUIResources(8);
   const staticResource: HostedResourcesSchema = {
     key: 'static-resource',
     path: 'not/a/project/ref',
@@ -84,6 +86,45 @@ describe('util-manifest', () => {
           edit: { resource: resources[5].key, render: 'native' },
         },
       ],
+      action: [
+        {
+          key: 'action-1',
+          function: 'dummy-function',
+          name: 'action 1',
+          actionVerb: 'CREATE',
+          description: 'action 1 description',
+          config: {
+            render: 'native',
+            resource: resources[6].key,
+          },
+          inputs: {
+            input1: {
+              title: 'input 1',
+              type: 'string',
+              required: true,
+              description: 'input 1 description',
+            },
+          },
+        },
+        {
+          key: 'action-2',
+          function: 'dummy-function',
+          name: 'action 2',
+          actionVerb: 'CREATE',
+          description: 'action 2 description',
+          config: {
+            resource: resources[7].key,
+          },
+          inputs: {
+            input1: {
+              title: 'input 1',
+              type: 'string',
+              required: true,
+              description: 'input 1 description',
+            },
+          },
+        },
+      ],
       'rovo:agent': [
         {
           key: 'fake-agent',
@@ -117,6 +158,12 @@ describe('util-manifest', () => {
         resourceTypeByResourceDefinition(manifest)(resources[5])
       ).toStrictEqual('ui-kit');
       expect(
+        resourceTypeByResourceDefinition(manifest)(resources[6])
+      ).toStrictEqual('ui-kit');
+      expect(
+        resourceTypeByResourceDefinition(manifest)(resources[7])
+      ).toStrictEqual('custom-ui');
+      expect(
         resourceTypeByResourceDefinition(manifest)(staticResource)
       ).toStrictEqual('static');
     });
@@ -144,6 +191,12 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[5])
       ).toStrictEqual(true);
       expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[6])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[7])
+      ).toStrictEqual(true);
+      expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
@@ -167,6 +220,12 @@ describe('util-manifest', () => {
       expect(
         isResourceType(manifest, acceptedResourceTypes)(resources[5])
       ).toStrictEqual(false);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[6])
+      ).toStrictEqual(false);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[7])
+      ).toStrictEqual(true);
       expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
@@ -192,22 +251,28 @@ describe('util-manifest', () => {
         isResourceType(manifest, acceptedResourceTypes)(resources[5])
       ).toStrictEqual(true);
       expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[6])
+      ).toStrictEqual(true);
+      expect(
+        isResourceType(manifest, acceptedResourceTypes)(resources[7])
+      ).toStrictEqual(false);
+      expect(
         isResourceType(manifest, acceptedResourceTypes)(staticResource)
       ).toStrictEqual(false);
     });
     it('should filter UI resources', () => {
-      expect(manifest.resources).toHaveLength(7);
+      expect(manifest.resources).toHaveLength(9);
       expect(
         manifest.resources.filter(
           isResourceType(manifest, ['custom-ui', 'ui-kit'])
         )
-      ).toHaveLength(6);
+      ).toHaveLength(8);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['custom-ui']))
-      ).toHaveLength(4);
+      ).toHaveLength(5);
       expect(
         manifest.resources.filter(isResourceType(manifest, ['ui-kit']))
-      ).toHaveLength(2);
+      ).toHaveLength(3);
     });
   });
 });
