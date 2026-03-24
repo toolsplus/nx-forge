@@ -44,7 +44,7 @@
     },
     "uiKit2Packaging": {
       "type": "boolean",
-      "description": "Enables UI Kit compatible packaging.",
+      "description": "Enables UI Kit compatible packaging (experimental).",
       "default": false
     }
   },

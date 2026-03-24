@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@toolsplus/nx-forge": ["packages/nx-forge/src/index.ts"]
+      "@toolsplus/nx-forge": ["packages/nx-forge/src/index.ts"],
+      "docs-tools": ["tools/docs/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
