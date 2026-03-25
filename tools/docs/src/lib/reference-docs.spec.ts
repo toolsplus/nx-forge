@@ -77,31 +77,31 @@ describe('reference docs utilities', () => {
 
   it('renders executor options and excludes hidden options', () => {
     const items = loadReferenceItems(workspaceRoot);
-    const buildItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'build'
+    const packageItem = items.find(
+      (item) => item.kind === 'executor' && item.name === 'package'
     );
-    const installItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'install'
+    const registerItem = items.find(
+      (item) => item.kind === 'executor' && item.name === 'register'
     );
     const tunnelItem = items.find(
       (item) => item.kind === 'executor' && item.name === 'tunnel'
     );
 
-    expect(buildItem).toBeDefined();
-    expect(installItem).toBeDefined();
+    expect(packageItem).toBeDefined();
+    expect(registerItem).toBeDefined();
     expect(tunnelItem).toBeDefined();
 
-    const buildMarkdown = renderOptionsMarkdown(buildItem!);
-    const installMarkdown = renderOptionsMarkdown(installItem!);
+    const packageMarkdown = renderOptionsMarkdown(packageItem!);
+    const registerMarkdown = renderOptionsMarkdown(registerItem!);
     const tunnelMarkdown = renderOptionsMarkdown(tunnelItem!);
 
-    expect(buildMarkdown).toContain('| `boolean \\| string` |');
-    expect(buildMarkdown).toContain(
+    expect(packageMarkdown).toContain('| `boolean` |');
+    expect(packageMarkdown).toContain(
       'Enables UI Kit compatible packaging (experimental).'
     );
-    expect(installMarkdown).toContain('`--license`');
-    expect(installMarkdown).toContain('`-l`');
-    expect(installMarkdown).not.toContain('outputPath');
+    expect(registerMarkdown).toContain('`--developerSpaceId`');
+    expect(registerMarkdown).toContain('`-s`');
+    expect(registerMarkdown).not.toContain('outputPath');
     expect(tunnelMarkdown).not.toContain('preTunnelTimeout');
   });
 
@@ -126,7 +126,7 @@ describe('reference docs utilities', () => {
     expect(injectedGenerators).toContain(
       'Pattern: `^[a-zA-Z][^:]*$`'
     );
-    expect(injectedExecutors).toContain('`--license`');
+    expect(injectedExecutors).toContain('`--developerSpaceId`');
     expect(injectedExecutors).toContain(
       'Enables UI Kit compatible packaging (experimental).'
     );

@@ -1,9 +1,9 @@
 import { ExecutorContext, logger } from '@nx/devkit';
 import { NormalizedOptions, PackageExecutorSchema } from './schema';
-import { processResourceDependencies } from '../build/lib/process-resource-dependencies';
-import { patchManifestYml } from '../build/lib/patch-manifest-yml';
+import { processResourceDependencies } from './lib/process-resource-dependencies';
+import { patchManifestYml } from './lib/patch-manifest-yml';
 import { generatePackageJson } from './lib/generate-package-json';
-import { copyForgeAppAssets } from '../build/lib/copy-forge-app-assets';
+import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
 
 export function normalizeOptions(
   options: PackageExecutorSchema,

@@ -17,7 +17,8 @@ If you are [injecting environment variables in your expression](#using-environme
         'CONNECT_REMOTE_BASE_URL': 'https://connect-base-url.com'
     }, ?);
     
-    $ ~> |app.connect|{'key': $env('CONNECT_APP_KEY')}| ~> |remotes[key='connect']|{'baseUrl': $env('CONNECT_REMOTE_BASE_URL')}|
+    $ ~> |app.connect|{'key': $env('CONNECT_APP_KEY')}| 
+      ~> |remotes[key='connect']|{'baseUrl': $env('CONNECT_REMOTE_BASE_URL')}|
 )
 ```
 

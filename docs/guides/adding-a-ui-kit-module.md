@@ -8,7 +8,7 @@ UI Kit support is experimental. Please try it out and let us know if you face an
 
 ## Enabling UI Kit packaging
 
-Unfortunately, UI Kit and Custom UI packaging do not work the same way. To avoid breaking any existing builds, the default packaging mechanism is currently only compatible with Custom UI. However, you can enable UI Kit compatible packaging by setting the `uiKit2Packaging` option on the [`build`](../reference/executors.md#build) or [`package`](../reference/executors.md#package) executor.
+Unfortunately, UI Kit and Custom UI packaging do not work the same way. To avoid breaking any existing builds, the default packaging mechanism is currently only compatible with Custom UI. However, you can enable UI Kit-compatible packaging by setting the `uiKit2Packaging` option on the [`package`](../reference/executors.md#package) target.
 
 ## Installing UI Kit dependencies
 

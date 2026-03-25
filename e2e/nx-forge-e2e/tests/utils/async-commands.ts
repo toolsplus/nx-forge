@@ -1,6 +1,82 @@
 import { exec } from 'child_process';
-import { getPackageManagerCommand } from '@nx/devkit';
+import {
+  detectPackageManager,
+  getPackageManagerCommand,
+} from '@nx/devkit';
 import { tmpProjPath } from '@nx/plugin/testing';
+
+const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
+  const commandEnv = { ...process.env, ...env };
+
+  // The parent test process in this environment provides NO_COLOR=1.
+  // Nx then forces FORCE_COLOR for forked tasks, which produces noisy
+  // warnings on stderr unless NO_COLOR is removed for the child command.
+  delete commandEnv.NO_COLOR;
+
+  return commandEnv;
+};
+
+/**
+ * Runs the given command asynchronously inside the e2e directory (if cwd is not provided).
+ *
+ * This is a local re-implementation of the helper from `@nx/plugin/testing`
+ * so the e2e suite can control the child process environment.
+ *
+ * The upstream helper forwards `process.env` as-is, but in this execution
+ * environment the parent test process provides `NO_COLOR=1`. Nx then forces
+ * `FORCE_COLOR` for forked tasks, which adds warnings to stderr and makes
+ * output assertions flaky. Removing `NO_COLOR` here keeps the child command
+ * output stable while preserving the original helper behavior otherwise.
+ *
+ * @see https://github.com/nrwl/nx/blob/e8c31d7ac72a6eeb98d07b61f6ae945a2612d8ac/packages/plugin/src/utils/testing-utils/async-commands.ts#L15
+ */
+export const runCommandAsync = (
+  command: string,
+  opts: { silenceError?: boolean; env?: NodeJS.ProcessEnv; cwd?: string } = {
+    silenceError: false,
+  }
+): Promise<{ stdout: string; stderr: string }> => {
+  return new Promise((resolve, reject) => {
+    exec(
+      command,
+      {
+        cwd: opts.cwd ?? tmpProjPath(),
+        env: getCommandEnv(opts.env),
+        windowsHide: true,
+      },
+      (err, stdout, stderr) => {
+        if (!opts.silenceError && err) {
+          reject(err);
+        }
+        resolve({ stdout, stderr });
+      }
+    );
+  });
+};
+
+/**
+ * Runs an Nx command asynchronously inside the e2e directory.
+ *
+ * This mirrors `runNxCommandAsync` from `@nx/plugin/testing`, but delegates to
+ * the local `runCommandAsync` above so the same NO_COLOR cleanup is applied to
+ * Nx child processes used by this e2e suite.
+ *
+ * @see https://github.com/nrwl/nx/blob/e8c31d7ac72a6eeb98d07b61f6ae945a2612d8ac/packages/plugin/src/utils/testing-utils/async-commands.ts#L36
+ */
+export const runNxCommandAsync = (
+  command: string,
+  opts: { silenceError?: boolean; env?: NodeJS.ProcessEnv; cwd?: string } = {
+    silenceError: false,
+  }
+): Promise<{ stdout: string; stderr: string }> => {
+  const cwd = opts.cwd ?? tmpProjPath();
+  const pmc = getPackageManagerCommand(detectPackageManager(cwd));
+
+  return runCommandAsync(`${pmc.exec} nx ${command}`, {
+    ...opts,
+    cwd,
+  });
+};
 
 /**
  * Runs the given Forge CLI command asynchronously inside the e2e directory (if cwd is not provided).
@@ -27,7 +103,7 @@ export const runForgeCommandAsync = (
       `${pmc.exec} forge ${command}`,
       {
         cwd: opts.cwd ?? tmpProjPath(),
-        env: { ...process.env, ...opts.env },
+        env: getCommandEnv(opts.env),
       },
       (err, stdout, stderr) => {
         if (!opts.silenceError && err) {
