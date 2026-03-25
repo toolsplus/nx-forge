@@ -1,6 +1,25 @@
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { defineConfig } from 'vitepress';
+import {
+  injectReferenceOptions,
+  validateReferenceDocs,
+} from '../../tools/docs/src/lib/reference-docs';
 
 const base = '/nx-forge/';
+const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
+
+function normalizeViteId(id: string): string {
+  return id.replace(/\\/g, '/').split('?', 1)[0];
+}
+
+function isReferenceMarkdownFile(id: string): boolean {
+  const normalizedId = normalizeViteId(id);
+
+  return (
+    normalizedId.includes('/docs/reference/') && normalizedId.endsWith('.md')
+  );
+}
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -18,6 +37,36 @@ export default defineConfig({
     ],
   ],
   cleanUrls: true,
+  vite: {
+    plugins: [
+      {
+        name: 'nx-forge-reference-docs',
+        enforce: 'pre',
+        buildStart() {
+          validateReferenceDocs(workspaceRoot);
+        },
+        load(id) {
+          if (!isReferenceMarkdownFile(id)) {
+            return null;
+          }
+
+          const filePath = normalizeViteId(id);
+          const markdown = readFileSync(filePath, 'utf8');
+
+          return injectReferenceOptions(markdown, filePath, workspaceRoot);
+        },
+        transform(code, id) {
+          if (!isReferenceMarkdownFile(id)) {
+            return null;
+          }
+
+          const filePath = normalizeViteId(id);
+
+          return injectReferenceOptions(code, filePath, workspaceRoot);
+        },
+      },
+    ],
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     search: {
