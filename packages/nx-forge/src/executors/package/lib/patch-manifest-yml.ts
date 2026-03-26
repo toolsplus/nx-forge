@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import { join, resolve } from 'path';
 import { joinPathFragments, logger } from '@nx/devkit';
 import { ManifestSchema, Resources } from '@forge/manifest';
@@ -7,7 +8,6 @@ import {
   readManifestYml,
   writeManifestYml,
 } from '../../../utils/forge/manifest-yml';
-import { existsSync } from 'fs';
 import {
   getResourceTypeIndex,
   isResourceType,
@@ -22,16 +22,6 @@ type Options = Pick<
   resourcePath: string;
 };
 
-/**
- * Patches the output manifest.yml file to replace resource path parameters to
- * point to the actual resource build artifacts instead of the Nx project
- * reference.
- *
- * This assumes that resource artifacts have already been copied to the output
- * directory in a previous step.
- *
- * @param options Executor options
- */
 export async function patchManifestYml(options: Options) {
   const absoluteOutputPath = resolve(options.root, options.outputPath);
   const manifestPath = joinPathFragments(absoluteOutputPath, 'manifest.yml');
@@ -66,8 +56,6 @@ function patchManifestInternal(
     isResourceType(manifestSchema, ['static'])
   );
 
-  // Integrity check: We want to be sure that we are not losing any resource
-  // definitions when separating them into UI and static resources.
   const resourceKeySet = new Set(resources.map((r) => r.key));
   const uiResourcesKeySet = new Set(uiResources.map((r) => r.key));
   const staticResourcesKeySet = new Set(staticResources.map((r) => r.key));
@@ -93,37 +81,26 @@ function patchManifestInternal(
         ...staticResources,
       ],
     };
-  } else {
-    const resourceTypeIndex: ResourceTypeIndex =
-      getResourceTypeIndex(manifestSchema);
-    return {
-      ...manifestSchema,
-      resources: [
-        ...uiResources.map((r) =>
-          patchResource(
-            options.resourcePath,
-            r,
-            absoluteOutputPath,
-            resourceTypeIndex[r.key]
-          )
-        ),
-        ...staticResources,
-      ],
-    };
   }
+
+  const resourceTypeIndex: ResourceTypeIndex =
+    getResourceTypeIndex(manifestSchema);
+  return {
+    ...manifestSchema,
+    resources: [
+      ...uiResources.map((r) =>
+        patchResource(
+          options.resourcePath,
+          r,
+          absoluteOutputPath,
+          resourceTypeIndex[r.key]
+        )
+      ),
+      ...staticResources,
+    ],
+  };
 }
 
-/**
- * Returns the final resource path based on the given resource type.
- *
- * Verifies that the path/file exists in the computed directory. UI Kit builds are expected to produce an accepted
- * bundle filename.
- *
- * @param resourcePath Path where all resource build artifacts are placed, relative to the app root directory
- * @param resourceType Type of the given resource, `ui-kit` or `custom-ui`
- * @param resource Resource to process
- * @param absoluteOutputPath Absolute project output path
- */
 function getVerifiedResourcePath(
   resourcePath: string,
   resourceType: ResourceType,
@@ -160,15 +137,15 @@ function getVerifiedResourcePath(
 
   if (entryPointFile) {
     return `${relativeResourcePath}/${entryPointFile}`;
-  } else {
-    throw new Error(
-      `Failed to patch resource with key '${
-        resource.key
-      }': Could not find entry point file in ${absoluteResourcePath}. Make sure the UI Kit build produces a files with one of these names: [${acceptedUiKitEntryPoints.join(
-        ','
-      )}]`
-    );
   }
+
+  throw new Error(
+    `Failed to patch resource with key '${
+      resource.key
+    }': Could not find entry point file in ${absoluteResourcePath}. Make sure the UI Kit build produces a files with one of these names: [${acceptedUiKitEntryPoints.join(
+      ','
+    )}]`
+  );
 }
 
 function patchResource(

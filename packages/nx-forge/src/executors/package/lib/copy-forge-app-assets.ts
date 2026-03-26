@@ -15,8 +15,6 @@ export function copyForgeAppAssets(options: Options) {
     mkdirSync(absoluteOutputPath, { recursive: true });
   }
 
-  // Copies the Forge app manifest file from the project root directory into the
-  // build output directory.
   copyFileSync(
     join(options.root, options.projectRoot, 'manifest.yml'),
     join(absoluteOutputPath, 'manifest.yml')

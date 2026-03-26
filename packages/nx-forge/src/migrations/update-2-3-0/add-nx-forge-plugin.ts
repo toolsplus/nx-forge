@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NxJsonConfiguration, readJson, Tree, writeJson } from '@nx/devkit';
 
 export default function update(host: Tree) {

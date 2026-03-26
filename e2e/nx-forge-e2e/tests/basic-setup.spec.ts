@@ -1,8 +1,6 @@
 import {
   ensureNxProject,
   readFile,
-  runCommandAsync,
-  runNxCommandAsync,
   tmpProjPath,
 } from '@nx/plugin/testing';
 import { GraphQLClient } from 'graphql-request';
@@ -16,7 +14,11 @@ import {
   getForgeInstallationContext,
 } from './utils/config';
 import { createClient, deleteApp } from './utils/atlassian-graphql-client';
-import { runForgeCommandAsync } from './utils/async-commands';
+import {
+  runCommandAsync,
+  runForgeCommandAsync,
+  runNxCommandAsync,
+} from './utils/async-commands';
 import { joinPathFragments } from '@nx/devkit';
 import stripAnsi = require('strip-ansi');
 
@@ -52,7 +54,7 @@ describe('basic setup', () => {
 
     // Build
 
-    const nxBuildResult = await runNxCommandAsync(`build ${appName}`, {
+    const nxBuildResult = await runNxCommandAsync(`run ${appName}:build`, {
       silenceError: true,
     });
     expect(nxBuildResult.stderr).toEqual('');
@@ -62,7 +64,7 @@ describe('basic setup', () => {
 
     // Package
 
-    const nxPackageResult = await runNxCommandAsync(`package ${appName}`);
+    const nxPackageResult = await runNxCommandAsync(`run ${appName}:package`);
     expect(nxPackageResult.stderr).toEqual('');
     expect(stripAnsi(nxPackageResult.stdout)).toEqual(
       expect.stringContaining('Successfully ran target package for project')
@@ -78,7 +80,7 @@ describe('basic setup', () => {
     );
 
     const nxRegisterResult = await runNxCommandAsync(
-      `register ${appName} --accept-terms --developer-space-id ${developerSpaceId}`,
+      `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`,
       {
         silenceError: true,
       }
@@ -108,7 +110,7 @@ describe('basic setup', () => {
 
     // Run with `--no-verfiy` because the generated blank app template causes linting errors
     const nxDeployResult = await runNxCommandAsync(
-      `deploy ${appName} --no-verify`,
+      `run ${appName}:deploy --no-verify`,
       {
         silenceError: true,
       }
@@ -116,16 +118,17 @@ describe('basic setup', () => {
     expect(nxDeployResult.stderr).toEqual('');
     expect(stripAnsi(nxDeployResult.stdout)).toContain('Forge app deployed');
 
-    // Install
+    // Install using Forge CLI
 
-    const nxInstallResult = await runNxCommandAsync(
-      `install ${appName} --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --no-interactive`,
+    const installResult = await runForgeCommandAsync(
+      `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`,
       {
+        cwd: joinPathFragments(tmpProjPath(), 'dist', 'apps', appName),
         silenceError: true,
       }
     );
-    expect(nxInstallResult.stderr).toEqual('');
-    expect(stripAnsi(nxInstallResult.stdout)).toContain('Forge app installed');
+    expect(installResult.stderr).toEqual('');
+    expect(stripAnsi(installResult.stdout)).toMatch(/Install.*complete/);
 
     // Clean up
     const uninstallResult = await runForgeCommandAsync(

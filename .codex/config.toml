@@ -1,0 +1,8 @@
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true
+# Nx's startLocalRegistry helper shells out to `npm config set/delete ... --ws=false`,
+# which temporarily writes the local registry auth token to the user npm config at ~/.npmrc.
+writable_roots = ["~/.npmrc"]

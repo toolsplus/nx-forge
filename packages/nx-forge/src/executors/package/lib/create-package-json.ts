@@ -363,7 +363,6 @@ function recursivelyCollectPeerDependencies(
 
   const packageName = npmPackage.data.packageName;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const packageJson = require(`${packageName}/package.json`);
     if (!packageJson.peerDependencies) {
       return npmDeps;

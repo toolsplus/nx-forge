@@ -1,10 +1,20 @@
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vitepress';
 import {
   injectReferenceOptions,
   validateReferenceDocs,
-} from '../../tools/docs/src/lib/reference-docs';
+} from '../../tools/docs';
+
+const jsonataGrammar = JSON.parse(
+  readFileSync(
+    fileURLToPath(
+      new URL('./grammars/jsonata.tmLanguage.json', import.meta.url)
+    ),
+    'utf-8'
+  )
+);
 
 const base = '/nx-forge/';
 const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -37,6 +47,15 @@ export default defineConfig({
     ],
   ],
   cleanUrls: true,
+  markdown: {
+    languages: [
+      {
+        name: 'jsonata',
+        scopeName: 'source.jsonata',
+        ...jsonataGrammar,
+      },
+    ],
+  },
   vite: {
     plugins: [
       {
