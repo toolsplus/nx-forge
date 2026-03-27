@@ -1,4 +1,5 @@
-import { runNxCommandAsync, uniq } from '@nx/plugin/testing';
+import { uniq } from '@nx/plugin/testing';
+import { runNxCommandAsync } from './async-commands';
 
 /**
  * Generates a Forge app with a unique name to avoid clashes between tests running in parallel.

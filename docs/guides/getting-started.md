@@ -3,7 +3,7 @@ sidebar_position: 10
 ---
 
 <script setup>
-const nxVersion = 20
+const nxVersion = 22
 </script>
 
 # Getting started
@@ -205,7 +205,7 @@ Technically, we have everything in place to build, package, and deploy our Forge
 ```
 :::
 
-These settings tell Nx that when we call the `deploy` target on a project, it should first run the `package` target. Additionally, we make the `package` target dependent on the `build` target. With these ([target dependencies](https://nx.dev/reference/project-configuration#dependson)) in place, we can call `nx deploy <nx-forge-app-name>`, and Nx will ensure that the app is first built, then packaged and finally deployed.
+These settings tell Nx that when we call the `deploy` target on a project, it should first run the `package` target. Additionally, we make the `package` target dependent on the `build` target. With these ([target dependencies](https://nx.dev/reference/project-configuration#dependson)) in place, we can call `nx run <nx-forge-app-name>:deploy`, and Nx will ensure that the app is first built, then packaged and finally deployed.
 
 Feel free to customize and play around with these settings to tune them to your liking.
 
@@ -214,13 +214,13 @@ Feel free to customize and play around with these settings to tune them to your 
 Before you can deploy the Forge app it needs to be registered with the Forge platform. To do this, initially build and package the Forge app (assuming you have configured the target dependencies above):
 
 ```shell
-nx package <nx-forge-app-name>
+nx run <nx-forge-app-name>:package
 ```
 
 Once that's finished, run
 
 ```shell
-nx register <nx-forge-app-name>
+nx run <nx-forge-app-name>:register
 ```
 
 This command will use `<nx-forge-app-name>` by default as the app name on the Forge platform. If you would like to use a different name, add the app name flag as follows: `--appName="My Forge App"`.
@@ -228,15 +228,15 @@ This command will use `<nx-forge-app-name>` by default as the app name on the Fo
 Then run
 
 ```shell
-nx deploy <nx-forge-app-name>
+nx run <nx-forge-app-name>:deploy
 ```
 
 to deploy the Forge app to the default development environment.
 
-Finally, install the app on any of your sites with the following command
+Finally, install the app on any of your sites by running [the Forge CLI executor](../reference/executors.md#forge)
 
 ```shell
-nx install <nx-forge-app-name> --site <my-atlassian-site.atlassian.net> --product jira --no-interactive
+nx forge <nx-forge-app-name> install --site <my-atlassian-site.atlassian.net> --product jira --non-interactive
 ```
 
 :tada: The Forge app is now registered, deployed, and installed with the Forge platform.

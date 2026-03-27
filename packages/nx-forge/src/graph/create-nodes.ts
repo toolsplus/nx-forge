@@ -9,7 +9,6 @@ import {
 import { getRegisterConfig } from '../shared/targets/get-register-config';
 import { getTunnelConfig } from '../shared/targets/get-tunnel-config';
 import { getDeployConfig } from '../shared/targets/get-deploy-config';
-import { getInstallConfig } from '../shared/targets/get-install-config';
 import { getForgeCliConfig } from '../shared/targets/get-forge-cli-config';
 import { getPackageConfig } from '../shared/targets/get-package-config';
 
@@ -27,7 +26,6 @@ const buildForgeProjectTargets = (projectRoot: string): ForgeProjectTargets => {
   targets.package = getPackageConfig({ outputPath });
   targets.tunnel = getTunnelConfig({ outputPath });
   targets.deploy = getDeployConfig({ outputPath });
-  targets.install = getInstallConfig({ outputPath });
   targets.forge = getForgeCliConfig({ outputPath });
 
   return targets;

@@ -1,5 +1,5 @@
+import { existsSync, readdirSync, rmSync } from 'fs';
 import { copySync } from 'fs-extra';
-import { existsSync, rmSync, readdirSync } from 'fs';
 import {
   ExecutorContext,
   getOutputsForTargetAndConfiguration,
@@ -21,16 +21,6 @@ type Options = Pick<
   resourcePath: string;
 };
 
-/**
- * Verifies that UI resource projects are correctly linked to the Nx Forge app
- * and copies build artifacts into the app's output directory. In particular,
- * this will make sure that each Custom UI or UI Kit resource listed in the
- * manifest.yml has its path configured to point to a Nx project in this
- * workspace.
- *
- * @param options Executor options
- * @param context Executor context
- */
 export async function processResourceDependencies(
   options: Options,
   context: ExecutorContext
@@ -105,7 +95,7 @@ const getResourceOutputPath = (
         {},
         resourceProjectGraphNode
       );
-  } catch (error) {
+  } catch {
     throw new Error(
       `Failed to find 'build' target for resource project '${resourceProjectName}': Make sure the project's build target is named 'build', or define an explicit output path mapping using the 'resourceOutputPathMap' option of this executor. Add an entry to the mapping object as follows: {'${resourceProjectName}': '<replace-with-project-output-path>'}.`
     );

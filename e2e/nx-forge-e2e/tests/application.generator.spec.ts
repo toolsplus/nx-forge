@@ -2,10 +2,10 @@ import {
   checkFilesExist,
   ensureNxProject,
   readJson,
-  runNxCommandAsync,
 } from '@nx/plugin/testing';
 import { generateForgeApp } from './utils/generate-forge-app';
 import { ensureCorrectWorkspaceRoot } from './utils/e2e-workspace';
+import { runNxCommandAsync } from './utils/async-commands';
 
 describe('Forge application generator', () => {
   beforeAll(() => {

@@ -2,6 +2,7 @@
   "name": "nx-forge",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/nx-forge/src",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
@@ -51,6 +52,5 @@
         "jestConfig": "packages/nx-forge/jest.config.ts"
       }
     }
-  },
-  "tags": []
+  }
 }

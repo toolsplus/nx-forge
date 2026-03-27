@@ -10,6 +10,11 @@ import {
 import { applicationGenerator } from './generator';
 import { ApplicationGeneratorOptions } from './schema';
 
+const jestConfigPath = (projectRoot: string) =>
+  `${projectRoot}/jest.config.cts`;
+const eslintConfigPath = (projectRoot: string) =>
+  `${projectRoot}/eslint.config.mjs`;
+
 describe('application generator', () => {
   let tree: Tree;
 
@@ -123,7 +128,8 @@ describe('application generator', () => {
         addPlugin: true,
       });
       expect(tree.exists('my-forge-app/webpack.config.js')).toBeTruthy();
-      expect(tree.exists('my-forge-app/jest.config.ts')).toBeTruthy();
+      expect(tree.exists(jestConfigPath('my-forge-app'))).toBeTruthy();
+      expect(tree.exists(eslintConfigPath('my-forge-app'))).toBeTruthy();
       expect(tree.exists('my-forge-app/manifest.yml')).toBeTruthy();
       expect(tree.exists('my-forge-app/src/index.ts')).toBeTruthy();
 
@@ -149,52 +155,25 @@ describe('application generator', () => {
 
       const tsconfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsconfigApp.compilerOptions.outDir).toEqual('../dist/out-tsc');
-      expect(tsconfigApp.compilerOptions.jsx).toEqual('react');
-      expect(tsconfigApp.compilerOptions.jsxFactory).toEqual(
-        'ForgeUI.createElement'
-      );
+      expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsx');
+      expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsxFactory');
       expect(tsconfigApp.extends).toEqual('./tsconfig.json');
-      expect(tsconfigApp.exclude).toEqual([
-        'jest.config.ts',
-        'src/**/*.spec.ts',
-        'src/**/*.test.ts',
-      ]);
+      expect(tsconfigApp.exclude.sort()).toEqual(
+        [
+          'jest.config.ts',
+          'jest.config.cts',
+          'src/**/*.spec.ts',
+          'src/**/*.test.ts',
+        ].sort()
+      );
+      expect(tsconfigApp.exclude).toContain('jest.config.cts');
 
-      const eslintrc = readJson(tree, 'my-forge-app/.eslintrc.json');
-      expect(eslintrc).toMatchInlineSnapshot(`
-        {
-          "extends": [
-            "../.eslintrc.json",
-          ],
-          "ignorePatterns": [
-            "!**/*",
-          ],
-          "overrides": [
-            {
-              "files": [
-                "*.ts",
-                "*.tsx",
-                "*.js",
-                "*.jsx",
-              ],
-              "rules": {},
-            },
-            {
-              "files": [
-                "*.ts",
-                "*.tsx",
-              ],
-              "rules": {},
-            },
-            {
-              "files": [
-                "*.js",
-                "*.jsx",
-              ],
-              "rules": {},
-            },
-          ],
-        }
+      expect(tree.read(eslintConfigPath('my-forge-app'), 'utf-8'))
+        .toMatchInlineSnapshot(`
+        "import baseConfig from '../eslint.config.mjs';
+
+        export default [...baseConfig];
+        "
       `);
     });
 
@@ -329,7 +308,12 @@ describe('application generator', () => {
 
       const hasJsonValue = ({ path, expectedValue, lookupFn }) => {
         const config = readJson(tree, path);
-        expect(lookupFn(config)).toEqual(expectedValue);
+        const actual = lookupFn(config);
+        if (Array.isArray(actual)) {
+          expect(actual.sort()).toEqual(expectedValue.sort());
+        } else {
+          expect(actual).toEqual(expectedValue);
+        }
       };
 
       [
@@ -350,14 +334,25 @@ describe('application generator', () => {
             'jest.config.ts',
             'src/**/*.spec.ts',
             'src/**/*.test.ts',
+            'jest.config.cts',
           ],
         },
-        {
-          path: 'my-dir/my-forge-app/.eslintrc.json',
-          lookupFn: (json) => json.extends,
-          expectedValue: ['../../.eslintrc.json'],
-        },
       ].forEach(hasJsonValue);
+
+      const nestedTsconfigApp = readJson(
+        tree,
+        'my-dir/my-forge-app/tsconfig.app.json'
+      );
+      expect(nestedTsconfigApp.exclude).toContain('jest.config.cts');
+
+      expect(tree.exists(eslintConfigPath('my-dir/my-forge-app'))).toBeTruthy();
+      expect(tree.read(eslintConfigPath('my-dir/my-forge-app'), 'utf-8'))
+        .toMatchInlineSnapshot(`
+        "import baseConfig from '../../eslint.config.mjs';
+
+        export default [...baseConfig];
+        "
+      `);
     });
   });
 
@@ -371,6 +366,7 @@ describe('application generator', () => {
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(tree.exists('my-forge-app/tsconfig.spec.json')).toBeFalsy();
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeFalsy();
+      expect(tree.exists(jestConfigPath('my-forge-app'))).toBeFalsy();
     });
   });
 
@@ -383,9 +379,9 @@ describe('application generator', () => {
         addPlugin: true,
       } as ApplicationGeneratorOptions);
 
-      expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
+      expect(tree.read(jestConfigPath('my-forge-app'), 'utf-8'))
         .toMatchInlineSnapshot(`
-        "export default {
+        "module.exports = {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
@@ -409,9 +405,9 @@ describe('application generator', () => {
         addPlugin: true,
       } as ApplicationGeneratorOptions);
 
-      expect(tree.read(`my-forge-app/jest.config.ts`, 'utf-8'))
+      expect(tree.read(jestConfigPath('my-forge-app'), 'utf-8'))
         .toMatchInlineSnapshot(`
-        "export default {
+        "module.exports = {
           displayName: 'my-forge-app',
           preset: '../jest.preset.js',
           testEnvironment: 'node',
@@ -445,14 +441,17 @@ describe('application generator', () => {
 
       const tsConfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsConfigApp.include).toEqual(['src/**/*.ts', 'src/**/*.js']);
-      expect(tsConfigApp.exclude).toEqual([
-        'jest.config.ts',
-        'src/**/*.spec.ts',
-        'src/**/*.test.ts',
-        'jest.config.js',
-        'src/**/*.spec.js',
-        'src/**/*.test.js',
-      ]);
+      expect(tsConfigApp.exclude.sort()).toEqual(
+        [
+          'jest.config.ts',
+          'jest.config.cts',
+          'src/**/*.spec.ts',
+          'src/**/*.test.ts',
+          'jest.config.js',
+          'src/**/*.spec.js',
+          'src/**/*.test.js',
+        ].sort()
+      );
     });
 
     it('should generate js files for nested libs as well', async () => {

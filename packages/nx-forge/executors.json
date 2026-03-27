@@ -6,11 +6,6 @@
       "schema": "./src/executors/register/schema.json",
       "description": "register executor"
     },
-    "build": {
-      "implementation": "./src/executors/build/executor",
-      "schema": "./src/executors/build/schema.json",
-      "description": "build executor"
-    },
     "deploy": {
       "implementation": "./src/executors/deploy/executor",
       "schema": "./src/executors/deploy/schema.json",
@@ -20,11 +15,6 @@
       "implementation": "./src/executors/tunnel/executor",
       "schema": "./src/executors/tunnel/schema.json",
       "description": "tunnel executor"
-    },
-    "install": {
-      "implementation": "./src/executors/install/executor",
-      "schema": "./src/executors/install/schema.json",
-      "description": "install executor"
     },
     "package": {
       "implementation": "./src/executors/package/executor",

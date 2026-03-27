@@ -5,11 +5,14 @@ import {
   updateProjectConfiguration,
 } from '@nx/devkit';
 import { forEachExecutorOptions } from '@nx/devkit/src/generators/executor-options-utils';
-import { BuildExecutorOptions } from '../../executors/build/schema';
+
+interface LegacyBuildExecutorOptions {
+  webpackConfig?: string;
+}
 
 export default async function (tree: Tree) {
   const update = (
-    options: BuildExecutorOptions,
+    options: LegacyBuildExecutorOptions,
     projectName: string,
     targetName: string,
     configurationName?: string
@@ -41,7 +44,7 @@ export default async function (tree: Tree) {
     }
   };
 
-  forEachExecutorOptions<BuildExecutorOptions>(
+  forEachExecutorOptions<LegacyBuildExecutorOptions>(
     tree,
     '@toolsplus/nx-forge:build',
     update

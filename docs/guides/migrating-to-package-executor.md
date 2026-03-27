@@ -1,8 +1,8 @@
 # Migrating to the package executor
 
-Since plugin version 5.1.0, the existing `build` executor has been deprecated in favor of a Nx native build in combination with the `package` executor.
+Since plugin version 5.1.0, the legacy Nx Forge `build` target has been replaced by a native Nx build in combination with the `package` target.
 
-For all the details and motivation of this change refer to [the discussion on GitHub](https://github.com/toolsplus/nx-forge/discussions/86).
+For all the details and motivation of this change, refer to [the discussion on GitHub](https://github.com/toolsplus/nx-forge/discussions/86).
 
 ## Migration steps
 
