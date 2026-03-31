@@ -24,10 +24,14 @@ jobs:
         name: Checkout [main]
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - uses: actions/setup-node@v4
         name: Setup Node.js
         with:
           node-version: 'lts/-1'
+          cache: pnpm
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env
@@ -36,17 +40,17 @@ jobs:
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
           echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Build and test
         run: |
           rm -rf dist
-          npx nx run nx-forge:build
-          npx nx run nx-forge:test
+          pnpm nx run nx-forge:build
+          pnpm nx run nx-forge:test
       - run:
-          npx nx run nx-forge-e2e:e2e
+          pnpm nx run nx-forge-e2e:e2e
         env:
           NODE_OPTIONS: '--no-deprecation'
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: pnpm exec semantic-release
