@@ -7,10 +7,9 @@
     "e2e": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "e2e/nx-forge-e2e/jest.config.js",
-        "runInBand": true
+        "jestConfig": "e2e/nx-forge-e2e/jest.config.js"
       },
-      "dependsOn": ["nx-forge:build"]
+      "dependsOn": ["^build"]
     }
   },
   "tags": [],

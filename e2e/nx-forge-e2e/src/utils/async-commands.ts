@@ -1,9 +1,5 @@
 import { exec } from 'child_process';
-import {
-  detectPackageManager,
-  getPackageManagerCommand,
-} from '@nx/devkit';
-import { tmpProjPath } from '@nx/plugin/testing';
+import { detectPackageManager, getPackageManagerCommand } from '@nx/devkit';
 
 const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
   const commandEnv = { ...process.env, ...env };
@@ -17,7 +13,7 @@ const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
 };
 
 /**
- * Runs the given command asynchronously inside the e2e directory (if cwd is not provided).
+ * Runs the given command asynchronously inside the provided working directory.
  *
  * This is a local re-implementation of the helper from `@nx/plugin/testing`
  * so the e2e suite can control the child process environment.
@@ -32,15 +28,13 @@ const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
  */
 export const runCommandAsync = (
   command: string,
-  opts: { silenceError?: boolean; env?: NodeJS.ProcessEnv; cwd?: string } = {
-    silenceError: false,
-  }
+  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
 ): Promise<{ stdout: string; stderr: string }> => {
   return new Promise((resolve, reject) => {
     exec(
       command,
       {
-        cwd: opts.cwd ?? tmpProjPath(),
+        cwd: opts.cwd,
         env: getCommandEnv(opts.env),
         windowsHide: true,
       },
@@ -55,7 +49,7 @@ export const runCommandAsync = (
 };
 
 /**
- * Runs an Nx command asynchronously inside the e2e directory.
+ * Runs an Nx command asynchronously inside the provided working directory.
  *
  * This mirrors `runNxCommandAsync` from `@nx/plugin/testing`, but delegates to
  * the local `runCommandAsync` above so the same NO_COLOR cleanup is applied to
@@ -65,21 +59,17 @@ export const runCommandAsync = (
  */
 export const runNxCommandAsync = (
   command: string,
-  opts: { silenceError?: boolean; env?: NodeJS.ProcessEnv; cwd?: string } = {
-    silenceError: false,
-  }
+  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
 ): Promise<{ stdout: string; stderr: string }> => {
-  const cwd = opts.cwd ?? tmpProjPath();
-  const pmc = getPackageManagerCommand(detectPackageManager(cwd));
+  const pmc = getPackageManagerCommand(detectPackageManager(opts.cwd));
 
   return runCommandAsync(`${pmc.exec} nx ${command}`, {
     ...opts,
-    cwd,
   });
 };
 
 /**
- * Runs the given Forge CLI command asynchronously inside the e2e directory (if cwd is not provided).
+ * Runs the given Forge CLI command asynchronously inside the provided working directory.
  *
  * Note that this implementation is only meant to be used in testing code. It is using `exec`
  * to run the Forge CLI command. `exec` returns `stdout` and `stderr` as strings which is convenient
@@ -93,16 +83,14 @@ export const runNxCommandAsync = (
  */
 export const runForgeCommandAsync = (
   command: string,
-  opts: { silenceError?: boolean; env?: NodeJS.ProcessEnv; cwd?: string } = {
-    silenceError: false,
-  }
+  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
 ): Promise<{ stdout: string; stderr: string }> => {
   const pmc = getPackageManagerCommand();
   return new Promise((resolve, reject) => {
     exec(
       `${pmc.exec} forge ${command}`,
       {
-        cwd: opts.cwd ?? tmpProjPath(),
+        cwd: opts.cwd,
         env: getCommandEnv(opts.env),
       },
       (err, stdout, stderr) => {

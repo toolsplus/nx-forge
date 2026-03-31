@@ -1,5 +1,7 @@
-import { uniq } from '@nx/plugin/testing';
 import { runNxCommandAsync } from './async-commands';
+
+const uniqueAppName = () =>
+  `nx-forge-test-app-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
 /**
  * Generates a Forge app with a unique name to avoid clashes between tests running in parallel.
@@ -11,17 +13,20 @@ import { runNxCommandAsync } from './async-commands';
  * @returns Name of the generated Forge app.
  */
 export const generateForgeApp = async ({
+  cwd,
   directory,
   options,
 }: {
+  cwd: string;
   directory: string;
   options?: string;
 }): Promise<string> => {
-  const appName = uniq('nx-forge-test-app-');
+  const appName = uniqueAppName();
   await runNxCommandAsync(
     `generate @toolsplus/nx-forge:application ${directory}/${appName} ${
       options ?? ''
-    }`
+    }`,
+    { cwd }
   );
   return appName;
 };
