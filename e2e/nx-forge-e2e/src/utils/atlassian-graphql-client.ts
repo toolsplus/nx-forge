@@ -1,7 +1,7 @@
 import { gql, GraphQLClient } from 'graphql-request';
 import { Credentials } from './config';
 
-interface DeleteAppResponse {
+export interface DeleteAppResponse {
   success: boolean;
   errors?: [{ message: string }];
 }

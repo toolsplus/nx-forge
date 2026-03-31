@@ -9,6 +9,11 @@ const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
   // warnings on stderr unless NO_COLOR is removed for the child command.
   delete commandEnv.NO_COLOR;
 
+  // The e2e suite creates and mutates fresh workspaces on disk between
+  // commands. Disabling the Nx daemon avoids stale project graph state
+  // causing follow-up commands to miss newly generated projects.
+  commandEnv.NX_DAEMON = 'false';
+
   return commandEnv;
 };
 
@@ -36,11 +41,22 @@ export const runCommandAsync = (
       {
         cwd: opts.cwd,
         env: getCommandEnv(opts.env),
+        maxBuffer: 10 * 1024 * 1024,
         windowsHide: true,
       },
       (err, stdout, stderr) => {
         if (!opts.silenceError && err) {
-          reject(err);
+          const error = new Error(
+            [
+              `Command failed: ${command}`,
+              stdout && `stdout:\n${stdout}`,
+              stderr && `stderr:\n${stderr}`,
+            ]
+              .filter(Boolean)
+              .join('\n\n')
+          );
+          reject(error);
+          return;
         }
         resolve({ stdout, stderr });
       }

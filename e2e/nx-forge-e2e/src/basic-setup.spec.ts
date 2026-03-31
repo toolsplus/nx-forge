@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GraphQLClient } from 'graphql-request';
 import { generateForgeApp } from './utils/generate-forge-app';
+import { cleanupRegisteredForgeApp } from './utils/cleanup-registered-forge-app';
 import {
   Credentials,
   ForgeInstallationContext,
@@ -9,28 +10,28 @@ import {
   getDeveloperSpaceId,
   getForgeInstallationContext,
 } from './utils/config';
-import { createClient, deleteApp } from './utils/atlassian-graphql-client';
+import { createClient } from './utils/atlassian-graphql-client';
 import {
   runCommandAsync,
   runForgeCommandAsync,
   runNxCommandAsync,
 } from './utils/async-commands';
 import {
-  cleanupTestProject,
-  createTestProject,
-} from './utils/test-project';
+  cleanupTestWorkspace,
+  createTestWorkspace,
+} from './utils/test-workspace';
 import stripAnsi = require('strip-ansi');
 
 describe('Forge lifecycle', () => {
   // initialize before all tests
-  let projectDirectory: string;
+  let workspaceDirectory: string;
   let developerCredentials: Credentials;
   let apiClient: GraphQLClient;
   let installationContext: ForgeInstallationContext;
   let developerSpaceId: string;
 
   beforeAll(async () => {
-    projectDirectory = createTestProject();
+    workspaceDirectory = createTestWorkspace();
     developerCredentials = getCredentials();
     apiClient = createClient(developerCredentials);
     installationContext = getForgeInstallationContext();
@@ -38,31 +39,31 @@ describe('Forge lifecycle', () => {
 
     // Initialize the Forge CLI, otherwise commands may fail due to expected interactive input
     await runCommandAsync(`npx forge settings set usage-analytics false`, {
-      cwd: projectDirectory,
+      cwd: workspaceDirectory,
       silenceError: true,
     });
   });
 
   afterAll(async () => {
     try {
-      if (projectDirectory) {
-        await runNxCommandAsync('reset', { cwd: projectDirectory });
+      if (workspaceDirectory) {
+        await runNxCommandAsync('reset', { cwd: workspaceDirectory });
       }
     } finally {
-      cleanupTestProject(projectDirectory);
+      cleanupTestWorkspace(workspaceDirectory);
     }
   });
 
   it('should generate, build, package, register, deploy and install a Forge app', async () => {
     const appName = await generateForgeApp({
-      cwd: projectDirectory,
+      cwd: workspaceDirectory,
       directory: 'apps',
     });
 
     // Build
 
     const nxBuildResult = await runNxCommandAsync(`run ${appName}:build`, {
-      cwd: projectDirectory,
+      cwd: workspaceDirectory,
       silenceError: true,
     });
     expect(nxBuildResult.stderr).toEqual('');
@@ -72,9 +73,12 @@ describe('Forge lifecycle', () => {
 
     // Package
 
-    const nxPackageResult = await runNxCommandAsync(`run ${appName}:package`, {
-      cwd: projectDirectory,
-    });
+    const nxPackageResult = await runNxCommandAsync(
+      `run ${appName}:package`,
+      {
+        cwd: workspaceDirectory,
+      }
+    );
     expect(nxPackageResult.stderr).toEqual('');
     expect(stripAnsi(nxPackageResult.stdout)).toEqual(
       expect.stringContaining('Successfully ran target package for project')
@@ -83,7 +87,7 @@ describe('Forge lifecycle', () => {
     // Register
 
     const unregisteredOutputManifestContent = readFileSync(
-      join(projectDirectory, 'dist', 'apps', appName, 'manifest.yml'),
+      join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
       'utf8'
     );
     expect(unregisteredOutputManifestContent).toContain(
@@ -93,7 +97,7 @@ describe('Forge lifecycle', () => {
     const nxRegisterResult = await runNxCommandAsync(
       `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`,
       {
-        cwd: projectDirectory,
+        cwd: workspaceDirectory,
         silenceError: true,
       }
     );
@@ -107,7 +111,7 @@ describe('Forge lifecycle', () => {
       /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
     const registeredOutputManifestContent = readFileSync(
-      join(projectDirectory, 'dist', 'apps', appName, 'manifest.yml'),
+      join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
       'utf8'
     );
     const [registeredAppId] =
@@ -117,7 +121,7 @@ describe('Forge lifecycle', () => {
     expect(registeredAppId).not.toEqual('');
 
     const projectManifestContent = readFileSync(
-      join(projectDirectory, 'apps', appName, 'manifest.yml'),
+      join(workspaceDirectory, 'apps', appName, 'manifest.yml'),
       'utf8'
     );
     expect(projectManifestContent).toContain(registeredAppId);
@@ -129,7 +133,7 @@ describe('Forge lifecycle', () => {
       const nxDeployResult = await runNxCommandAsync(
         `run ${appName}:deploy --no-verify`,
         {
-          cwd: projectDirectory,
+          cwd: workspaceDirectory,
           silenceError: true,
         }
       );
@@ -141,7 +145,7 @@ describe('Forge lifecycle', () => {
       const installResult = await runForgeCommandAsync(
         `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`,
         {
-          cwd: join(projectDirectory, 'dist', 'apps', appName),
+          cwd: join(workspaceDirectory, 'dist', 'apps', appName),
           silenceError: true,
         }
       );
@@ -149,34 +153,12 @@ describe('Forge lifecycle', () => {
       expect(stripAnsi(installResult.stdout)).toMatch(/Install.*complete/);
     } finally {
       if (registeredAppId) {
-        try {
-          await runForgeCommandAsync(
-            `uninstall --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`,
-            {
-              cwd: join(projectDirectory, 'dist', 'apps', appName),
-              silenceError: true,
-            }
-          );
-        } catch (error) {
-          console.warn(
-            `Failed to uninstall Forge app ${registeredAppId}`,
-            error
-          );
-        }
-
-        try {
-          const result = await deleteApp(registeredAppId)(apiClient);
-          if (!result.success) {
-            console.warn(
-              `Failed to delete registered app ${registeredAppId}: ${result.errors}`
-            );
-          }
-        } catch (error) {
-          console.warn(
-            `Failed to delete registered app ${registeredAppId}`,
-            error
-          );
-        }
+        await cleanupRegisteredForgeApp({
+          appDirectory: join(workspaceDirectory, 'dist', 'apps', appName),
+          appId: registeredAppId,
+          apiClient,
+          installationContext,
+        });
       }
     }
   });

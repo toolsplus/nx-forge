@@ -3,8 +3,8 @@
  * It is meant to be called in jest's globalTeardown.
  */
 
-export default () => {
+export default async () => {
   if (global.stopLocalRegistry) {
-    global.stopLocalRegistry();
+    await global.stopLocalRegistry();
   }
 };
