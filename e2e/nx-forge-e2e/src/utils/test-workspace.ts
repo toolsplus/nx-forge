@@ -31,7 +31,7 @@ export const createTestWorkspace = (
   });
 
   runCommand(
-    `npx -y create-nx-workspace@latest ${workspaceName} --preset=apps --nxCloud=skip --packageManager=npm --no-interactive`,
+    `pnpm dlx create-nx-workspace@latest ${workspaceName} --preset=apps --nxCloud=skip --packageManager=pnpm --no-interactive`,
     TEST_WORKSPACES_ROOT
   );
 
@@ -41,7 +41,7 @@ export const createTestWorkspace = (
   writeFileSync(nxJsonPath, JSON.stringify(nxJson, null, 2) + '\n', 'utf8');
 
   runCommand(
-    'npx nx add @toolsplus/nx-forge@e2e --interactive=false',
+    'pnpm exec nx add @toolsplus/nx-forge@e2e --interactive=false',
     workspaceDirectory
   );
 

@@ -15,9 +15,13 @@ jobs:
           fetch-depth: 0
       - uses: nrwl/nx-set-shas@v4
         name: Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/-1'
+          cache: pnpm
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ secrets.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env
@@ -25,12 +29,12 @@ jobs:
           echo ATLASSIAN_PRODUCT=${{ vars.ATLASSIAN_PRODUCT }} >> e2e/nx-forge-e2e/.env
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
           echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
-      - run: npm ci
-      - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-      - run: npx nx affected --target=format:check --parallel=2
-      - run: npx nx affected --target=lint --parallel=2
-      - run: npx nx affected --target=build --parallel=3
-      - run: npx nx affected --target=test --parallel=2
-      - run: npx nx affected --target=e2e --parallel=2 --no-silent
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+      - run: pnpm nx affected --target=format:check --parallel=2
+      - run: pnpm nx affected --target=lint --parallel=2
+      - run: pnpm nx affected --target=build --parallel=3
+      - run: pnpm nx affected --target=test --parallel=2
+      - run: pnpm nx affected --target=e2e --parallel=2 --no-silent
         env:
           NODE_OPTIONS: '--no-deprecation'

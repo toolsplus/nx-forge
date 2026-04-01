@@ -5,7 +5,6 @@ import {
   References,
 } from '@forge/manifest';
 import { readFileSync } from 'node:fs';
-import { YAMLError } from 'yaml';
 import { ValidatorInterface } from '@forge/manifest/out/validators/validator-interface';
 import { ManifestValidationResult } from '@forge/manifest/out/types';
 
@@ -45,23 +44,6 @@ class YamlValidator<T>
         },
       };
     } catch (e) {
-      if (e instanceof YAMLError) {
-        const pos = e.linePos?.[0];
-        return {
-          success: false,
-          errors: [
-            {
-              message: errors.invalidManifest(
-                e.message.replace(/(at line).+/gms, '').trim()
-              ),
-              reference: References.InvalidManifest,
-              level: 'error',
-              line: pos?.line ?? 0,
-              column: pos?.col ?? 0,
-            },
-          ],
-        };
-      }
       return {
         success: false,
         errors: [

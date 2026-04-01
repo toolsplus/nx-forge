@@ -7,6 +7,68 @@ import {
   Tree,
 } from '@nx/devkit';
 
+/*
+ * Force lintProjectGenerator and configurationGenerator to run with addPlugin: false
+ * so these generator.spec.ts snapshots assert explicit generated targets instead of
+ * depending on Nx plugin inference. This keeps the outputs deterministic in tests.
+ *
+ * What we verified locally:
+ * - applicationGenerator() passes addPlugin through to lintProjectGenerator() and
+ *   configurationGenerator() in generator.ts.
+ * - These tests use createTreeWithEmptyWorkspace(), so the Tree root is '/virtual'.
+ * - With addPlugin: true, current Nx does not stay inside the in-memory Tree. During a
+ *   Jest test run, multiGlobWithWorkspaceContext('/virtual', ...) unexpectedly returns
+ *   real workspace files such as e2e/nx-forge-e2e/project.json and
+ *   e2e/nx-forge-e2e/jest.config.js.
+ * - @nx/jest/plugin then calls readdirSync(join('/virtual', projectRoot)), which crashes
+ *   with ENOENT for '/virtual/e2e/nx-forge-e2e'.
+ * - Strangely, this bug only appeared after switching to pnpm. It is not clear why this
+ *   bug was not surfaced under npm.
+ *
+ * Nx upstream usually takes a different approach: generator specs often keep addPlugin: true
+ * and import a private test helper that mocks the project graph, for example:
+ * - https://github.com/nrwl/nx/blob/master/packages/js/src/generators/library/library.spec.ts
+ * - https://github.com/nrwl/nx/blob/master/packages/jest/src/generators/configuration/configuration.spec.ts
+ * - https://github.com/nrwl/nx/blob/master/packages/eslint/src/generators/lint-project/lint-project.spec.ts
+ * - https://github.com/nrwl/nx/blob/master/packages/nx/src/internal-testing-utils/mock-project-graph.ts
+ *
+ * We tried that upstream-style alternative here, but it does not work cleanly in this repo.
+ * The helper is not published in the installed Nx package, and mirroring its
+ * createProjectGraphAsync mock locally still left the Jest test path above failing.
+ *
+ * Similar Nx issues:
+ * - https://github.com/nrwl/nx/issues/32588
+ * - https://github.com/nrwl/nx/issues/29708
+ * - https://github.com/nrwl/nx/issues/34474
+ */
+jest.mock('@nx/eslint', () => {
+  const actual = jest.requireActual<typeof import('@nx/eslint')>('@nx/eslint');
+
+  return {
+    ...actual,
+    lintProjectGenerator: jest.fn((tree, options) =>
+      actual.lintProjectGenerator(tree, {
+        ...options,
+        addPlugin: false,
+      })
+    ),
+  };
+});
+
+jest.mock('@nx/jest', () => {
+  const actual = jest.requireActual<typeof import('@nx/jest')>('@nx/jest');
+
+  return {
+    ...actual,
+    configurationGenerator: jest.fn((tree, options) =>
+      actual.configurationGenerator(tree, {
+        ...options,
+        addPlugin: false,
+      })
+    ),
+  };
+});
+
 import { applicationGenerator } from './generator';
 import { ApplicationGeneratorOptions } from './schema';
 
@@ -40,7 +102,20 @@ describe('application generator', () => {
           "root": "my-forge-app",
           "sourceRoot": "my-forge-app/src",
           "tags": [],
-          "targets": {},
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "my-forge-app/jest.config.cts",
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}",
+              ],
+            },
+          },
         }
       `);
     });
@@ -99,6 +174,18 @@ describe('application generator', () => {
               },
               "outputs": [
                 "{options.outputPath}",
+              ],
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "my-forge-app/jest.config.cts",
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}",
               ],
             },
           },
@@ -208,7 +295,20 @@ describe('application generator', () => {
           "root": "my-dir/my-forge-app",
           "sourceRoot": "my-dir/my-forge-app/src",
           "tags": [],
-          "targets": {},
+          "targets": {
+            "lint": {
+              "executor": "@nx/eslint:lint",
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "my-dir/my-forge-app/jest.config.cts",
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}",
+              ],
+            },
+          },
         }
       `);
     });
@@ -268,6 +368,18 @@ describe('application generator', () => {
               },
               "outputs": [
                 "{options.outputPath}",
+              ],
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "options": {
+                "jestConfig": "my-dir/my-forge-app/jest.config.cts",
+              },
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}",
               ],
             },
           },

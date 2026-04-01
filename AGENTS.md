@@ -22,7 +22,7 @@ Long-term maintainability is a core priority. If you add new functionality, firs
 
 ## Technology Stack
 
-- Use npm
+- Use pnpm
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

@@ -4,7 +4,7 @@
 
 Before you start developing or making any changes to the project, ensure that you have installed the project dependencies via
 
-    npm install
+    pnpm install
 
 This ensures the project toolchain is set up correctly. Specifically, this will install a husky commit hook that ensures commit messages follow the project guidelines.
 
@@ -50,8 +50,8 @@ To publish packages to a local registry, do the following:
 1. Start Verdaccio by running `nx local-registry` in a terminal. This will become your main registry while the process is running.
 2. From the plugin project root run `nx build nx-forge`
 3. Make sure the `version` field in `dist/packages/nx-forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
-4. From `dist/packages/nx-forge` run `npm publish`
-5.On the consumer side you can now install the latest package version by running `npm i @toolsplus/nx-forge@latest`
+4. From `dist/packages/nx-forge` run `pnpm publish`
+5. On the consumer side you can now install the latest package version by running `pnpm add @toolsplus/nx-forge@latest`
 
 Note that as soon as you terminate the process with the local Verdaccio registry, you will get back your previous registry configuration.
 
@@ -66,9 +66,9 @@ From the project root run
 This will update Nx project dependencies in package.json and create a migrations.json file.
 Make sure package.json changes make sense and then run 
 
-    npm install
+    pnpm install
 
-Once the npm command completes run
+Once the install completes, run
 
     nx migrate --run-migrations
 
@@ -80,4 +80,4 @@ Finally, proceed with committing and submitting the changes to the repo.
 
 ## Update plugin dependencies
 
-If you are add or update plugin dependencies that the nx-forge plugin depends on, i.e. not dependencies used to build the nx-forge plugin, their version must be updated in `packages/nx-forge/package.json` to match the installed version. There are ESLint rules in place to verify that this correct and that all plugin dependencies are declared in the package.json.
+If you add or update plugin dependencies that the nx-forge plugin depends on, i.e., not dependencies used to build the nx-forge plugin, their version must be updated in `packages/nx-forge/package.json` to match the installed version. There are ESLint rules in place to verify that this is correct and that all plugin dependencies are declared in the package.json.
