@@ -4,6 +4,7 @@ import { TunnelExecutorOptions } from './schema';
 import runTunnel, { isTunnelPreparationComplete } from './lib/run-tunnel';
 import { getCustomUiProjects } from './lib/extract-custom-ui-projects';
 import { startCustomUIs } from './lib/start-custom-uis';
+import { logTerminalInfo } from '../../utils/log-terminal';
 
 /**
  * Forge tunnel executor that serves dependent Custom UI projects on the tunnel
@@ -63,7 +64,7 @@ export default async function runTunnelExecutor(
         throw new Error(`A started process failed: ${JSON.stringify(output)}`);
 
       if (output?.id === 'tunnel') {
-        logger.info('Tunnel process has been terminated.');
+        logTerminalInfo('Tunnel process has been terminated.');
         const { value } = await combined.return({ success: true });
         return value;
       }

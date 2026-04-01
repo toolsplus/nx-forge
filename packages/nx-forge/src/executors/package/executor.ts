@@ -1,9 +1,10 @@
-import { ExecutorContext, logger } from '@nx/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { NormalizedOptions, PackageExecutorSchema } from './schema';
 import { processResourceDependencies } from './lib/process-resource-dependencies';
 import { patchManifestYml } from './lib/patch-manifest-yml';
 import { generatePackageJson } from './lib/generate-package-json';
 import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
+import { logTerminalInfo } from '../../utils/log-terminal';
 
 export function normalizeOptions(
   options: PackageExecutorSchema,
@@ -61,7 +62,7 @@ export default async function runExecutor(
     manifestResources: resources,
   });
 
-  logger.info('Executor ran for package');
+  logTerminalInfo('Executor ran for package');
   return {
     success: true,
   };

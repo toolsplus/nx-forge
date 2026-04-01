@@ -3,13 +3,13 @@ import {
   CreateDependenciesContext,
   DependencyType,
   FileData,
-  logger,
   RawProjectGraphDependency,
 } from '@nx/devkit';
 import {
   extractUIResourceProjectNames,
   readManifestYml,
 } from '../utils/forge/manifest-yml';
+import { logTerminalInfo } from '../utils/log-terminal';
 
 const getUIResourceDependencies = async (
   [projectName, manifestFile]: [string, FileData],
@@ -74,7 +74,7 @@ export const createDependencies: CreateDependencies = async (
     for (const manifestFile of changed.filter((f) =>
       f.file.endsWith('manifest.yml')
     )) {
-      logger.info(`[nx-forge] Processing ${projectName}:${manifestFile.file}`);
+      logTerminalInfo(`[nx-forge] Processing ${projectName}:${manifestFile.file}`);
       const uiResourceDependencies = await getUIResourceDependencies(
         [projectName, manifestFile],
         context

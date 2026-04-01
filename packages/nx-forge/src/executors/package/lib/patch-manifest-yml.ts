@@ -14,6 +14,7 @@ import {
   ResourceType,
   ResourceTypeIndex,
 } from '../../../shared/manifest/util-manifest';
+import { logTerminalInfo } from '../../../utils/log-terminal';
 
 type Options = Pick<
   NormalizedOptions,
@@ -26,7 +27,7 @@ export async function patchManifestYml(options: Options) {
   const absoluteOutputPath = resolve(options.root, options.outputPath);
   const manifestPath = joinPathFragments(absoluteOutputPath, 'manifest.yml');
 
-  logger.info(`Patching ${manifestPath}...`);
+  logTerminalInfo(`Patching ${manifestPath}...`);
 
   const manifestSchema = await readManifestYml(manifestPath, {
     interpolate: false,
@@ -40,7 +41,7 @@ export async function patchManifestYml(options: Options) {
 
   writeManifestYml(manifestPath, patchedManifest);
 
-  logger.info(`Done patching ${manifestPath}.`);
+  logTerminalInfo(`Done patching ${manifestPath}.`);
 }
 
 function patchManifestInternal(
@@ -118,11 +119,13 @@ function getVerifiedResourcePath(
   }
 
   if (resourceType === 'custom-ui') {
-    logger.info(`Detected resource '${resource.key}' as Custom UI dependency`);
+    logTerminalInfo(
+      `Detected resource '${resource.key}' as Custom UI dependency`
+    );
     return relativeResourcePath;
   }
 
-  logger.info(`Detected resource '${resource.key}' as UI Kit dependency`);
+  logTerminalInfo(`Detected resource '${resource.key}' as UI Kit dependency`);
 
   const acceptedUiKitEntryPoints = [
     'index.js',
@@ -154,7 +157,7 @@ function patchResource(
   absoluteOutputPath: string,
   resourceType?: ResourceType
 ): HostedResourcesSchema {
-  logger.info(`Patching resource with key '${resource.key}'...`);
+  logTerminalInfo(`Patching resource with key '${resource.key}'...`);
 
   if (!resourceType) {
     logger.warn(

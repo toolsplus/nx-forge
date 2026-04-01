@@ -1,8 +1,9 @@
-import { ExecutorContext, logger } from '@nx/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { RegisterExecutorOptions } from './schema';
 import { normalizeOptions } from './lib/normalize-options';
 import { patchManifestYml } from './lib/patch-manifest-yml';
 import { runForgeCommandAsync } from '../../utils/forge/async-commands';
+import { logTerminalInfo } from '../../utils/log-terminal';
 
 export default async function runExecutor(
   rawOptions: RegisterExecutorOptions,
@@ -36,7 +37,7 @@ export default async function runExecutor(
     options.appName,
   ];
 
-  logger.log(`Running: forge ${args.join(' ')}`);
+  logTerminalInfo(`Running: forge ${args.join(' ')}`);
 
   await runForgeCommandAsync(args, {
     cwd: options.outputPath,
@@ -44,7 +45,7 @@ export default async function runExecutor(
 
   await patchManifestYml(options);
 
-  logger.info('✅ Forge app registered');
+  logTerminalInfo('✅ Forge app registered');
 
   return {
     success: true,

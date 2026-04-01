@@ -1,13 +1,13 @@
 import { copyFileSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
-import { logger } from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
 import { directoryExists } from '../../../utils/util-fs';
+import { logTerminalInfo } from '../../../utils/log-terminal';
 
 type Options = Pick<NormalizedOptions, 'root' | 'outputPath' | 'projectRoot'>;
 
 export function copyForgeAppAssets(options: Options) {
-  logger.info('Copying Forge app assets...');
+  logTerminalInfo('Copying Forge app assets...');
 
   const absoluteOutputPath = resolve(options.root, options.outputPath);
 
@@ -20,5 +20,5 @@ export function copyForgeAppAssets(options: Options) {
     join(absoluteOutputPath, 'manifest.yml')
   );
 
-  logger.info('Done copying Forge app assets.');
+  logTerminalInfo('Done copying Forge app assets.');
 }

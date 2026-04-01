@@ -4,7 +4,6 @@ import {
   ExecutorContext,
   getOutputsForTargetAndConfiguration,
   joinPathFragments,
-  logger,
   ProjectGraphProjectNode,
 } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
@@ -13,6 +12,7 @@ import { NormalizedOptions } from '../schema';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
 import { isResourceType } from '../../../shared/manifest/util-manifest';
 import { directoryExists } from '../../../utils/util-fs';
+import { logTerminalInfo } from '../../../utils/log-terminal';
 
 type Options = Pick<
   NormalizedOptions,
@@ -44,13 +44,15 @@ export async function processResourceDependencies(
   );
 
   if (uiResources.length > 0) {
-    logger.info(
+    logTerminalInfo(
       `Detected the following UI resources in the manifest.yml:\n${uiResources
         .map((r) => `  - ${r.key}`)
         .join('\n')}`
     );
   } else {
-    logger.info(`Plugin did not detected any UI resources in the manifest.yml`);
+    logTerminalInfo(
+      `Plugin did not detected any UI resources in the manifest.yml`
+    );
   }
 
   uiResources.forEach((r) =>
@@ -151,7 +153,7 @@ const verifyAndCopyResourceDependency = (
     );
   }
 
-  logger.info(
+  logTerminalInfo(
     `Copying ${resource.key} (${resourceProjectName}) resource build artifacts...`
   );
 
@@ -170,7 +172,7 @@ const verifyAndCopyResourceDependency = (
     recursive: true,
   });
 
-  logger.info(
+  logTerminalInfo(
     `Done copying ${resource.key} (${resourceProjectName}) resource build artifacts.`
   );
 };

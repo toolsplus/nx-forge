@@ -1,10 +1,10 @@
 import { ExecutorContext, logger } from '@nx/devkit';
-import { spawn } from 'node:child_process';
-import * as process from 'node:process';
 import { TunnelExecutorOptions } from '../schema';
 import { waitUntilServerIsListening } from './wait-until-server-is-listening';
 import { statSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { runForgeCommandAsync } from '../../../utils/forge/async-commands';
+import { logTerminalInfo } from '../../../utils/log-terminal';
 
 /**
  * Checks if the tunnel executor is ready to run the Forge tunnel process.
@@ -92,7 +92,7 @@ export default async function runTunnel(
   context: ExecutorContext
 ): Promise<{ id: 'tunnel'; success: boolean }> {
   if (options.customUIProjectConfigs.length > 0) {
-    logger.info(
+    logTerminalInfo(
       `Wait for all Custom UI 'serve' targets to have started and servers are listening...`
     );
 
@@ -102,7 +102,7 @@ export default async function runTunnel(
       )
     );
 
-    logger.info(
+    logTerminalInfo(
       `All Custom UI 'serve' targets have started and servers are listening`
     );
   }
@@ -114,38 +114,27 @@ export default async function runTunnel(
   ];
 
   const command = `forge ${args.join(' ')}`;
-  logger.info(`Running: > ${command}`);
-
-  // https://2ality.com/2018/05/child-process-streams.html#running-commands-in-child-processes
-  const tunnelProcess = spawn(command, {
-    cwd: options.outputPath,
-    env: {
-      ...process.env,
-      // Unset NODE_ENV, if this is set to 'development' it may cause issues
-      // starting the tunnel process
-      // https://stackoverflow.com/questions/69566849/installing-forge-cli-is-bringing-spawn-ts-node-enoent-error
-      NODE_ENV: undefined,
-    },
-    stdio: 'inherit',
-    shell: true,
-  });
+  logTerminalInfo(`Running: > ${command}`);
 
   return new Promise<{ id: 'tunnel'; success: boolean }>((resolve, reject) => {
-    tunnelProcess.once('exit', (code: number) => {
-      if (code === 0) {
-        logger.info('Exiting the forge tunnel process...');
+    runForgeCommandAsync(args, {
+      cwd: options.outputPath,
+      env: {
+        // Unset NODE_ENV, if this is set to 'development' it may cause issues
+        // starting the tunnel process
+        // https://stackoverflow.com/questions/69566849/installing-forge-cli-is-bringing-spawn-ts-node-enoent-error
+        NODE_ENV: undefined,
+      },
+    })
+      .then(() => {
+        logTerminalInfo('Exiting the forge tunnel process...');
         resolve({
           id: 'tunnel',
           success: true,
         });
-      } else {
-        reject(
-          new Error('Forge tunnel process terminated with error code: ' + code)
-        );
-      }
-    });
-    tunnelProcess.once('error', (err: Error) => {
-      reject(new Error('Forge tunnel process failed: ' + err));
-    });
+      })
+      .catch((err: Error) => {
+        reject(new Error('Forge tunnel process failed: ' + err));
+      });
   });
 }

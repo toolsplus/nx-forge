@@ -1,7 +1,8 @@
-import { ExecutorContext, logger } from '@nx/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { DeployExecutorOptions } from './schema';
 import { runForgeCommandAsync } from '../../utils/forge/async-commands';
 import { transformManifestYml } from './lib/transform-manifest-yml';
+import { logTerminalInfo } from '../../utils/log-terminal';
 
 const normalizeOptions = (
   options: DeployExecutorOptions,
@@ -29,7 +30,7 @@ export default async function runExecutor(
   const options = normalizeOptions(rawOptions, context);
 
   if (options.manifestTransform && options.manifestTransform !== '') {
-    logger.info(
+    logTerminalInfo(
       `Applying Forge manifest transformation ${
         context.configurationName ? `(${context.configurationName})` : ''
       }: ${options.manifestTransform}`
@@ -48,13 +49,13 @@ export default async function runExecutor(
     ...(options.interactive === false ? ['--non-interactive'] : []),
   ];
 
-  logger.log(`Running: forge ${args.join(' ')}`);
+  logTerminalInfo(`Running: forge ${args.join(' ')}`);
 
   await runForgeCommandAsync(args, {
     cwd: options.outputPath,
   });
 
-  logger.log('✅ Forge app deployed');
+  logTerminalInfo('✅ Forge app deployed');
   return {
     success: true,
   };
