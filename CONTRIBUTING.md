@@ -47,11 +47,13 @@ To test if your changes will actually work once the changes are published, it ca
 
 To publish packages to a local registry, do the following:
 
-1. Start Verdaccio by running `nx local-registry` in a terminal. This will become your main registry while the process is running.
-2. From the plugin project root run `nx build nx-forge`
-3. Make sure the `version` field in `dist/packages/nx-forge/package.json` is unique (not yet published, you may use `9.9.9-alpha.1` and increase the alpha count on each subsequent release).
-4. From `dist/packages/nx-forge` run `pnpm publish`
-5. On the consumer side you can now install the latest package version by running `pnpm add @toolsplus/nx-forge@latest`
+1. Start Verdaccio by running `pnpm nx local-registry --location project` in a terminal. This will become your main registry while the process is running.
+2. From the workspace root run `pnpm publish:local`
+3. On the consumer side you can now install the latest package version by running `pnpm add @toolsplus/nx-forge@latest`
+
+`pnpm publish:local` builds `nx-forge`, assigns a unique local prerelease version inside `dist/packages/nx-forge/package.json`, and publishes it to the running local registry with the `latest` tag.
+
+If you make more changes and want to release again, keep Verdaccio running and rerun `pnpm publish:local`. The script generates a fresh local version on every publish, so you do not need to edit package versions by hand or clear the registry between publishes.
 
 Note that as soon as you terminate the process with the local Verdaccio registry, you will get back your previous registry configuration.
 

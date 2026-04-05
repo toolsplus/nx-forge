@@ -2,14 +2,13 @@
   "version": 2,
   "outputCapture": "direct-nodejs",
   "$schema": "http://json-schema.org/schema",
-  "title": "Forge application serve target",
-  "description": "Forge application serve target",
+  "title": "Forge application tunnel target",
+  "description": "Prepare and run a local Forge tunnel development loop.",
   "type": "object",
   "properties": {
-    "outputPath": {
+    "buildOutputPath": {
       "type": "string",
-      "description": "The output path of the Forge app files.",
-      "visible": false
+      "description": "Advanced override for the Forge app build output directory when auto-detection cannot resolve it."
     },
     "debug": {
       "type": "boolean",
@@ -22,13 +21,6 @@
       "description": "Run Forge tunnel in verbose mode.",
       "alias": "v",
       "default": false
-    },
-    "preTunnelTimeout": {
-      "type": "number",
-      "description": "Max milliseconds to wait for tunnel preparation tasks.",
-      "default": 5000,
-      "visible": false
     }
-  },
-  "required": ["outputPath"]
+  }
 }

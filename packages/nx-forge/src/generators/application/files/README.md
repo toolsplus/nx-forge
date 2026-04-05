@@ -26,7 +26,7 @@ Before you tunnel a Forge app, make sure you have completed the prerequisite ste
 
     nx run <%= name %>:tunnel
 
-This will start the `tunnel` target for all UI projects defined in the app `manifest.yml` on their specified tunnel port. After that, it will start a build process in watch mode for the Forge app itself, before ultimately, starting the `forge tunnel` process for the Forge app.
+This prepares the Forge app output once, starts the `serve` target for any Custom UI projects defined in the app `manifest.yml` on their specified tunnel ports, starts a build process in watch mode for the Forge app itself, and then launches `forge tunnel`.
 
 ## Manual dev loop
 

@@ -88,7 +88,7 @@ _Mirrors the [register command](https://developer.atlassian.com/platform/forge/c
 nx tunnel <nx-forge-app-name>
 ```
 
-Starts the `tunnel` target for all Custom UI projects defined in the `manifest.yml` of the Forge app project named `<nx-forge-app-name>` on their specified tunnel port. After that, starts a build process in watch mode for the Forge app itself, before ultimately, starting the Forge `tunnel` process for the Forge app.
+Prepares the Forge app output once, starts isolated Custom UI dev servers for the resources defined in `manifest.yml`, starts a Forge app build watch process, and then launches the Forge CLI tunnel.
 
 _Mirrors the [tunnel command](https://developer.atlassian.com/platform/forge/cli-reference/tunnel/) of the Forge CLI._
 

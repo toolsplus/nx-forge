@@ -24,7 +24,7 @@ const buildForgeProjectTargets = (projectRoot: string): ForgeProjectTargets => {
 
   targets.register = getRegisterConfig({ outputPath });
   targets.package = getPackageConfig({ outputPath });
-  targets.tunnel = getTunnelConfig({ outputPath });
+  targets.tunnel = getTunnelConfig();
   targets.deploy = getDeployConfig({ outputPath });
   targets.forge = getForgeCliConfig({ outputPath });
 

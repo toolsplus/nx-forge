@@ -1,9 +1,6 @@
 import { ExecutorContext, logger } from '@nx/devkit';
 import { NormalizedOptions, PackageExecutorSchema } from './schema';
-import { processResourceDependencies } from './lib/process-resource-dependencies';
-import { patchManifestYml } from './lib/patch-manifest-yml';
-import { generatePackageJson } from './lib/generate-package-json';
-import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
+import { prepareForgeOutput } from './lib/prepare-forge-output';
 
 export function normalizeOptions(
   options: PackageExecutorSchema,
@@ -41,25 +38,7 @@ export default async function runExecutor(
   }
 
   const options = normalizeOptions(rawOptions, context.root, sourceRoot, root);
-
-  copyForgeAppAssets(options);
-
-  const resources = await processResourceDependencies(
-    { ...options, resourcePath: options.resourcePath },
-    context
-  );
-
-  await patchManifestYml({ ...options, resourcePath: options.resourcePath });
-
-  generatePackageJson({
-    root: options.root,
-    projectRoot: options.projectRoot,
-    outputPath: options.outputPath,
-    tsConfig: options.tsConfig,
-    projectName: context.projectName,
-    projectGraph: context.projectGraph,
-    manifestResources: resources,
-  });
+  await prepareForgeOutput(options, context);
 
   logger.info('Executor ran for package');
   return {

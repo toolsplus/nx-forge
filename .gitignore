@@ -40,6 +40,9 @@ Thumbs.db
 
 # Never commit .env files!
 .env
+.npmrc
+.yarnrc
+.yarnrc.yml
 
 .nx/cache
 .nx/workspace-data

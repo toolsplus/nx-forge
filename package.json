@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nx build",
     "test": "nx test",
+    "publish:local": "ts-node --project tools/tsconfig.tools.json tools/scripts/publish-local-build.ts",
     "semantic-release": "semantic-release",
     "prepare": "husky install"
   },
