@@ -23,6 +23,9 @@
     "jsonata": "catalog:",
     "tslib": "catalog:"
   },
+  "peerDependencies": {
+    "nx": ">=23 <24"
+  },
   "type": "commonjs",
   "nx-migrations": {
     "migrations": "./migrations.json"

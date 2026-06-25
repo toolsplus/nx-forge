@@ -1,5 +1,55 @@
 import { exec } from 'child_process';
+import type { ExecException } from 'child_process';
 import { detectPackageManager, getPackageManagerCommand } from '@nx/devkit';
+
+export type CommandResult = {
+  stdout: string;
+  stderr: string;
+  exitCode: string | number | null;
+  signal: NodeJS.Signals | null;
+};
+
+type CommandOptions = {
+  cwd: string;
+  silenceError?: boolean;
+  env?: NodeJS.ProcessEnv;
+};
+
+const getCommandResult = (
+  error: ExecException | null,
+  stdout: string,
+  stderr: string
+): CommandResult => ({
+  stdout,
+  stderr,
+  exitCode: error ? error.code ?? null : 0,
+  signal: error?.signal ?? null,
+});
+
+export const formatCommandResult = (
+  command: string,
+  result: CommandResult
+): string => {
+  const sections = [
+    `Command: ${command}`,
+    `Exit code: ${String(result.exitCode)}`,
+  ];
+
+  if (result.signal) {
+    sections.push(`Signal: ${result.signal}`);
+  }
+
+  sections.push(`stdout:\n${result.stdout.trimEnd() || '<empty>'}`);
+  sections.push(`stderr:\n${result.stderr.trimEnd() || '<empty>'}`);
+
+  return sections.join('\n\n');
+};
+
+export const formatCommandFailure = (
+  command: string,
+  result: CommandResult,
+  reason = `Command failed: ${command}`
+): string => [reason, formatCommandResult(command, result)].join('\n\n');
 
 const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
   const commandEnv = { ...process.env, ...env };
@@ -8,6 +58,11 @@ const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
   // Nx then forces FORCE_COLOR for forked tasks, which produces noisy
   // warnings on stderr unless NO_COLOR is removed for the child command.
   delete commandEnv.NO_COLOR;
+
+  // Nx runs task processes with NX_ADD_PLUGINS=false, but these e2e commands
+  // execute inside fresh child workspaces that should follow their own nx.json
+  // inference settings instead of inheriting the parent workspace task setting.
+  delete commandEnv.NX_ADD_PLUGINS;
 
   // The e2e suite creates and mutates fresh workspaces on disk between
   // commands. Disabling the Nx daemon avoids stale project graph state
@@ -33,8 +88,8 @@ const getCommandEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
  */
 export const runCommandAsync = (
   command: string,
-  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
-): Promise<{ stdout: string; stderr: string }> => {
+  opts: CommandOptions
+): Promise<CommandResult> => {
   return new Promise((resolve, reject) => {
     exec(
       command,
@@ -45,20 +100,13 @@ export const runCommandAsync = (
         windowsHide: true,
       },
       (err, stdout, stderr) => {
+        const result = getCommandResult(err, stdout, stderr);
+
         if (!opts.silenceError && err) {
-          const error = new Error(
-            [
-              `Command failed: ${command}`,
-              stdout && `stdout:\n${stdout}`,
-              stderr && `stderr:\n${stderr}`,
-            ]
-              .filter(Boolean)
-              .join('\n\n')
-          );
-          reject(error);
+          reject(new Error(formatCommandFailure(command, result)));
           return;
         }
-        resolve({ stdout, stderr });
+        resolve(result);
       }
     );
   });
@@ -75,8 +123,8 @@ export const runCommandAsync = (
  */
 export const runNxCommandAsync = (
   command: string,
-  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
-): Promise<{ stdout: string; stderr: string }> => {
+  opts: CommandOptions
+): Promise<CommandResult> => {
   const pmc = getPackageManagerCommand(detectPackageManager(opts.cwd));
 
   return runCommandAsync(`${pmc.exec} nx ${command}`, {
@@ -99,23 +147,11 @@ export const runNxCommandAsync = (
  */
 export const runForgeCommandAsync = (
   command: string,
-  opts: { cwd: string; silenceError?: boolean; env?: NodeJS.ProcessEnv }
-): Promise<{ stdout: string; stderr: string }> => {
+  opts: CommandOptions
+): Promise<CommandResult> => {
   const pmc = getPackageManagerCommand();
-  return new Promise((resolve, reject) => {
-    exec(
-      `${pmc.exec} forge ${command}`,
-      {
-        cwd: opts.cwd,
-        env: getCommandEnv(opts.env),
-      },
-      (err, stdout, stderr) => {
-        if (!opts.silenceError && err) {
-          console.error('Failed to run Forge command:', err, stdout, stderr);
-          reject(err);
-        }
-        resolve({ stdout, stderr });
-      }
-    );
+
+  return runCommandAsync(`${pmc.exec} forge ${command}`, {
+    ...opts,
   });
 };

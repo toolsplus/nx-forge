@@ -23,19 +23,20 @@ export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
         tree,
         options.appProjectRoot
       ),
-      webpackPluginOptions: hasWebpackPlugin(tree)
-        ? {
-            outputPath: joinPathFragments(
-              'dist',
-              (options.rootProject ? options.name : options.appProjectRoot) ??
-                '',
-              'src'
-            ),
-            main: './src/index' + (options.js ? '.js' : '.ts'),
-            tsConfig: './tsconfig.app.json',
-            assets: ['./src/assets'],
-          }
-        : null,
+      webpackPluginOptions:
+        hasWebpackPlugin(tree) && options.addPlugin
+          ? {
+              outputPath: joinPathFragments(
+                'dist',
+                (options.rootProject ? options.name : options.appProjectRoot) ??
+                  '',
+                'src'
+              ),
+              main: './src/index' + (options.js ? '.js' : '.ts'),
+              tsConfig: './tsconfig.app.json',
+              assets: ['./src/assets'],
+            }
+          : null,
     }
   );
 

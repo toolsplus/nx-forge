@@ -1,6 +1,6 @@
 import { readNxJson, Tree } from '@nx/devkit';
 import type { ApplicationGeneratorOptions, NormalizedOptions } from '../schema';
-import { determineProjectNameAndRootOptions } from '@nx/devkit/src/generators/project-name-and-root-utils';
+import { determineProjectNameAndRootOptions } from '@nx/devkit/internal';
 
 export async function normalizeOptions(
   tree: Tree,
@@ -23,12 +23,13 @@ export async function normalizeOptions(
 
   const nxJson = readNxJson(tree);
   const addPlugin =
-    process.env.NX_ADD_PLUGINS !== 'false' &&
-    nxJson?.useInferencePlugins !== false;
+    options.addPlugin ??
+    (process.env.NX_ADD_PLUGINS !== 'false' &&
+      nxJson?.useInferencePlugins !== false);
 
   return {
-    addPlugin,
     ...options,
+    addPlugin,
     name: appProjectName,
     appProjectRoot,
     parsedTags,

@@ -9,19 +9,27 @@ import {
   esbuildVersion,
   tsLibVersion,
   typesNodeVersion,
-} from '@nx/js/src/utils/versions';
+} from '@nx/js/internal';
 import type { NormalizedOptions } from '../schema';
 
 async function getLatestPackageVersion(
   pkg: string
 ): Promise<string | undefined> {
   try {
-    const response = await fetch(`https://registry.npmjs.org/${pkg}`);
+    const response = await fetch(`https://registry.npmjs.org/${pkg}`, {
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) {
+      logger.error(
+        `Failed to fetch latest version of ${pkg}: ${response.status}`
+      );
+      return undefined;
+    }
     const json = await response.json();
     return json?.['dist-tags']?.['latest'];
   } catch (error) {
     logger.error(`Failed to fetch latest version of ${pkg}: ${error}`);
-    throw new Error(`Failed to fetch latest version of ${pkg}`);
+    return undefined;
   }
 }
 

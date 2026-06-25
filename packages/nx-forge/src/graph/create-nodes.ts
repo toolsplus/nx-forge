@@ -1,11 +1,6 @@
 import { readdirSync } from 'fs';
 import { dirname, join } from 'path';
-import {
-  CreateNodesContextV2,
-  createNodesFromFiles,
-  CreateNodesV2,
-  ProjectConfiguration,
-} from '@nx/devkit';
+import { CreateNodesContext, createNodesFromFiles, CreateNodes, ProjectConfiguration } from '@nx/devkit';
 import { getRegisterConfig } from '../shared/targets/get-register-config';
 import { getTunnelConfig } from '../shared/targets/get-tunnel-config';
 import { getDeployConfig } from '../shared/targets/get-deploy-config';
@@ -33,7 +28,7 @@ const buildForgeProjectTargets = (projectRoot: string): ForgeProjectTargets => {
 
 const forgeManifestGlob = '**/manifest.yml';
 
-export const createNodesV2: CreateNodesV2 = [
+export const createNodesV2: CreateNodes = [
   forgeManifestGlob,
   (manifestFilePaths, options, context) => {
     return createNodesFromFiles(
@@ -49,7 +44,7 @@ export const createNodesV2: CreateNodesV2 = [
 function createNodesInternal(
   manifestFilePath: string,
   options: unknown,
-  context: CreateNodesContextV2
+  context: CreateNodesContext
 ) {
   const projectRoot = dirname(manifestFilePath);
 

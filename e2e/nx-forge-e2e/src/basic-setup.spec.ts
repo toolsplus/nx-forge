@@ -11,7 +11,9 @@ import {
   getForgeInstallationContext,
 } from './utils/config';
 import { createClient } from './utils/atlassian-graphql-client';
+import type { CommandResult } from './utils/async-commands';
 import {
+  formatCommandFailure,
   runCommandAsync,
   runForgeCommandAsync,
   runNxCommandAsync,
@@ -21,6 +23,54 @@ import {
   createTestWorkspace,
 } from './utils/test-workspace';
 import stripAnsi = require('strip-ansi');
+
+const forgeLifecycleTestTimeoutMs = 8 * 60 * 1000;
+
+const normalizeCommandResult = (result: CommandResult): CommandResult => ({
+  ...result,
+  stdout: stripAnsi(result.stdout),
+  stderr: stripAnsi(result.stderr),
+});
+
+const expectCliCommand = ({
+  command,
+  result,
+  stdout,
+  allowStderr = false,
+}: {
+  command: string;
+  result: CommandResult;
+  stdout?: string | RegExp;
+  allowStderr?: boolean;
+}) => {
+  const normalizedResult = normalizeCommandResult(result);
+  const failures: string[] = [];
+
+  if (normalizedResult.exitCode !== 0) {
+    failures.push(
+      `Expected exit code 0, got ${String(normalizedResult.exitCode)}.`
+    );
+  }
+
+  if (!allowStderr && normalizedResult.stderr !== '') {
+    failures.push('Expected stderr to be empty.');
+  }
+
+  if (typeof stdout === 'string' && !normalizedResult.stdout.includes(stdout)) {
+    failures.push(`Expected stdout to contain: ${stdout}`);
+  } else if (
+    stdout instanceof RegExp &&
+    !stdout.test(normalizedResult.stdout)
+  ) {
+    failures.push(`Expected stdout to match: ${stdout.toString()}`);
+  }
+
+  if (failures.length > 0) {
+    throw new Error(
+      formatCommandFailure(command, normalizedResult, failures.join('\n'))
+    );
+  }
+};
 
 describe('Forge lifecycle', () => {
   // initialize before all tests
@@ -38,9 +88,17 @@ describe('Forge lifecycle', () => {
     developerSpaceId = getDeveloperSpaceId();
 
     // Initialize the Forge CLI, otherwise commands may fail due to expected interactive input
-    await runCommandAsync(`npx forge settings set usage-analytics false`, {
-      cwd: workspaceDirectory,
-      silenceError: true,
+    const forgeSettingsResult = await runCommandAsync(
+      `npx forge settings set usage-analytics false`,
+      {
+        cwd: workspaceDirectory,
+        silenceError: true,
+      }
+    );
+    expectCliCommand({
+      command: 'npx forge settings set usage-analytics false',
+      result: forgeSettingsResult,
+      allowStderr: true,
     });
   });
 
@@ -62,27 +120,29 @@ describe('Forge lifecycle', () => {
 
     // Build
 
-    const nxBuildResult = await runNxCommandAsync(`run ${appName}:build`, {
+    const buildCommand = `run ${appName}:build`;
+    const nxBuildResult = await runNxCommandAsync(buildCommand, {
       cwd: workspaceDirectory,
       silenceError: true,
     });
-    expect(nxBuildResult.stderr).toEqual('');
-    expect(stripAnsi(nxBuildResult.stdout)).toContain(
-      'Successfully ran target build for project'
-    );
+    expectCliCommand({
+      command: `nx ${buildCommand}`,
+      result: nxBuildResult,
+      stdout: 'Successfully ran target build for project',
+    });
 
     // Package
 
-    const nxPackageResult = await runNxCommandAsync(
-      `run ${appName}:package`,
-      {
-        cwd: workspaceDirectory,
-      }
-    );
-    expect(nxPackageResult.stderr).toEqual('');
-    expect(stripAnsi(nxPackageResult.stdout)).toEqual(
-      expect.stringContaining('Successfully ran target package for project')
-    );
+    const packageCommand = `run ${appName}:package`;
+    const nxPackageResult = await runNxCommandAsync(packageCommand, {
+      cwd: workspaceDirectory,
+      silenceError: true,
+    });
+    expectCliCommand({
+      command: `nx ${packageCommand}`,
+      result: nxPackageResult,
+      stdout: 'Successfully ran target package for project',
+    });
 
     // Register
 
@@ -94,17 +154,16 @@ describe('Forge lifecycle', () => {
       'ari:cloud:ecosystem::app/to-be-generated'
     );
 
-    const nxRegisterResult = await runNxCommandAsync(
-      `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`,
-      {
-        cwd: workspaceDirectory,
-        silenceError: true,
-      }
-    );
-    expect(nxRegisterResult.stderr).toEqual('');
-    expect(stripAnsi(nxRegisterResult.stdout)).toContain(
-      'Forge app registered'
-    );
+    const registerCommand = `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`;
+    const nxRegisterResult = await runNxCommandAsync(registerCommand, {
+      cwd: workspaceDirectory,
+      silenceError: true,
+    });
+    expectCliCommand({
+      command: `nx ${registerCommand}`,
+      result: nxRegisterResult,
+      stdout: 'Forge app registered',
+    });
 
     // ari:cloud:ecosystem::app/<uuid>
     const registeredAppIdRegex =
@@ -129,28 +188,30 @@ describe('Forge lifecycle', () => {
     try {
       // Deploy
 
-      // Run with `--no-verfiy` because the generated blank app template causes linting errors
-      const nxDeployResult = await runNxCommandAsync(
-        `run ${appName}:deploy --no-verify`,
-        {
-          cwd: workspaceDirectory,
-          silenceError: true,
-        }
-      );
-      expect(nxDeployResult.stderr).toEqual('');
-      expect(stripAnsi(nxDeployResult.stdout)).toContain('Forge app deployed');
+      // Run with `--no-verify` because the generated blank app template causes linting errors.
+      const deployCommand = `run ${appName}:deploy --no-verify --no-interactive`;
+      const nxDeployResult = await runNxCommandAsync(deployCommand, {
+        cwd: workspaceDirectory,
+        silenceError: true,
+      });
+      expectCliCommand({
+        command: `nx ${deployCommand}`,
+        result: nxDeployResult,
+        stdout: 'Forge app deployed',
+      });
 
       // Install using Forge CLI
 
-      const installResult = await runForgeCommandAsync(
-        `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`,
-        {
-          cwd: join(workspaceDirectory, 'dist', 'apps', appName),
-          silenceError: true,
-        }
-      );
-      expect(installResult.stderr).toEqual('');
-      expect(stripAnsi(installResult.stdout)).toMatch(/Install.*complete/);
+      const installCommand = `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`;
+      const installResult = await runForgeCommandAsync(installCommand, {
+        cwd: join(workspaceDirectory, 'dist', 'apps', appName),
+        silenceError: true,
+      });
+      expectCliCommand({
+        command: `forge ${installCommand}`,
+        result: installResult,
+        stdout: /Install.*complete/,
+      });
     } finally {
       if (registeredAppId) {
         await cleanupRegisteredForgeApp({
@@ -161,5 +222,5 @@ describe('Forge lifecycle', () => {
         });
       }
     }
-  });
+  }, forgeLifecycleTestTimeoutMs);
 });

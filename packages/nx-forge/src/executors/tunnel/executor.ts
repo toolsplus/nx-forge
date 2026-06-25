@@ -1,5 +1,5 @@
 import { ExecutorContext, logger, runExecutor } from '@nx/devkit';
-import { combineAsyncIterables } from '@nx/devkit/src/utils/async-iterable';
+import { combineAsyncIterables } from '@nx/devkit/internal';
 import { TunnelExecutorOptions } from './schema';
 import runTunnel, { isTunnelPreparationComplete } from './lib/run-tunnel';
 import { getCustomUiProjects } from './lib/extract-custom-ui-projects';

@@ -12,7 +12,9 @@ For all the details and motivation of this change, refer to [the discussion on G
 2. [Generate a new Forge app](./generating-a-forge-app.md) with the updated app generator. Make sure to set the `bundler` option to [choose if the `build` task should be run by Webpack or esbuild](../reference/generators.md#application). You do not need to run the `build`, `package`, or `register` tasks. Generating this Forge app will ensure you have the correct dependencies installed and your workspace is configured to work with Webpack or esbuild.
 3. a) If you chose the Webpack bundler option (default): 
    
-   Copy the `webpack.config.js` to your app's project directory and update the `output.path` to match your project layout. Delete the existing `build` target configuration.
+   Copy the generated `webpack.config.js` to your app's project directory and update the `outputPath`, `main`, `tsConfig`, and `assets` values to match your project layout. The generated app uses the `@nx/webpack/plugin` entry in `nx.json` to infer the `build` target, so you can delete the existing `build` target configuration from your app's `project.json`.
+
+   If your workspace has inferred plugins disabled, keep an explicit `build` target instead. In that case, copy the generated app's `build` target configuration from `project.json` and adjust the paths to match your project layout.
 
    b) If you chose the esbuild bundler option:
 

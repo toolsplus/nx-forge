@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { deleteApp, DeleteAppResponse } from './atlassian-graphql-client';
-import { runForgeCommandAsync } from './async-commands';
+import { formatCommandFailure, runForgeCommandAsync } from './async-commands';
 import { ForgeInstallationContext } from './config';
 
 const DELETE_RETRY_INTERVAL_MS = 2_000;
@@ -38,14 +38,23 @@ export const cleanupRegisteredForgeApp = async ({
   apiClient: GraphQLClient;
   installationContext: ForgeInstallationContext;
 }) => {
+  const uninstallCommand = `uninstall --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment}`;
+
   try {
-    await runForgeCommandAsync(
-      `uninstall --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`,
-      {
-        cwd: appDirectory,
-        silenceError: true,
-      }
-    );
+    const uninstallResult = await runForgeCommandAsync(uninstallCommand, {
+      cwd: appDirectory,
+      silenceError: true,
+    });
+
+    if (uninstallResult.exitCode !== 0) {
+      console.warn(
+        formatCommandFailure(
+          `forge ${uninstallCommand}`,
+          uninstallResult,
+          `Failed to uninstall Forge app ${appId}`
+        )
+      );
+    }
   } catch (error) {
     console.warn(`Failed to uninstall Forge app ${appId}`, error);
   }
