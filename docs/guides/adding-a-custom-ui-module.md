@@ -6,15 +6,9 @@
 
 If you have not installed [`@nx/react`](https://nx.dev/nx-api/react/documents/overview) in your workspace, you can install it by running the following command:
 
-:::code-group
-```shell[Nx 18+]
+```shell
 nx add @nx/react
 ```
-
-```shell[Nx <18]
-npm i -D @nx/react
-```
-:::
 
 ## Generating a React application
 

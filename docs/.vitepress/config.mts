@@ -163,6 +163,10 @@ export default defineConfig({
                 link: 'migrating-plugin-version',
               },
               {
+                text: 'Overriding plugin dependencies',
+                link: 'overriding-plugin-dependencies',
+              },
+              {
                 text: 'Migrating to the package executor',
                 link: 'migrating-to-package-executor',
               },

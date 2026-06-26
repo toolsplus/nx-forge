@@ -16,7 +16,7 @@ import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
 import { addProject, addAppFiles, normalizeOptions } from './lib';
 import { addProjectDependencies } from './lib/add-project-dependencies';
-import { logShowProjectCommand } from '@nx/devkit/src/utils/log-show-project-command';
+import { logShowProjectCommand } from '@nx/devkit/internal';
 
 function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
   updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => {

@@ -4,7 +4,7 @@ This page summarizes the main Nx Forge plugin concepts and ideas.
 
 ## Building Forge apps
 
-When using [the app generator](../guides/generating-a-forge-app.md) to scaffold a Forge app, you will get an Nx project with a build target and a collection of inferred targets provided by the Nx Forge plugin.
+When using [the app generator](../guides/generating-a-forge-app.md) to scaffold a Forge app, you will get an Nx project with a `build` target provided by the selected bundler plugin and a collection of inferred Forge lifecycle targets provided by the Nx Forge plugin.
 
 The most important thing to know is that to deploy a Forge app, you need to run the following targets to get an artifact that can be deployed to the Forge platform:
 

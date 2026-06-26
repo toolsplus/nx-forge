@@ -257,9 +257,11 @@ describe('application generator', () => {
 
       expect(tree.read(eslintConfigPath('my-forge-app'), 'utf-8'))
         .toMatchInlineSnapshot(`
-        "import baseConfig from '../eslint.config.mjs';
+        "import baseConfig from "../eslint.config.mjs";
 
-        export default [...baseConfig];
+        export default [
+            ...baseConfig
+        ];
         "
       `);
     });
@@ -460,9 +462,11 @@ describe('application generator', () => {
       expect(tree.exists(eslintConfigPath('my-dir/my-forge-app'))).toBeTruthy();
       expect(tree.read(eslintConfigPath('my-dir/my-forge-app'), 'utf-8'))
         .toMatchInlineSnapshot(`
-        "import baseConfig from '../../eslint.config.mjs';
+        "import baseConfig from "../../eslint.config.mjs";
 
-        export default [...baseConfig];
+        export default [
+            ...baseConfig
+        ];
         "
       `);
     });
@@ -498,10 +502,10 @@ describe('application generator', () => {
           preset: '../jest.preset.js',
           testEnvironment: 'node',
           transform: {
-            '^.+\\\\.[tj]s$': '@swc/jest',
+            '^.+\\\\.[tj]s$': '@swc/jest'
           },
           moduleFileExtensions: ['ts', 'js', 'html'],
-          coverageDirectory: '../coverage/my-forge-app',
+          coverageDirectory: '../coverage/my-forge-app'
         };
         "
       `);
@@ -524,10 +528,10 @@ describe('application generator', () => {
           preset: '../jest.preset.js',
           testEnvironment: 'node',
           transform: {
-            '^.+\\\\.[tj]s$': 'babel-jest',
+            '^.+\\\\.[tj]s$': 'babel-jest'
           },
           moduleFileExtensions: ['ts', 'js', 'html'],
-          coverageDirectory: '../coverage/my-forge-app',
+          coverageDirectory: '../coverage/my-forge-app'
         };
         "
       `);

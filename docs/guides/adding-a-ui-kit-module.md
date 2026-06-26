@@ -22,23 +22,13 @@ npm i @forge/react
 
 If you have not installed [`@nx/react`](https://nx.dev/nx-api/react/documents/overview) in your workspace, you can install it by running the following command:
 
-:::code-group
-```shell[Nx 18+]
+```shell
 nx add @nx/react
 ```
-
-```shell[Nx <18]
-npm i -D @nx/react
-```
-:::
 
 ## Generating a React application
 
 With the React plugin installed, we can use the [React application generator](https://nx.dev/nx-api/react/generators/application) to scaffold a React application for our UI Kit. Replace `<ui-kit-app-name>` with the name of the UI Kit project you want to create. You can add the `--dry-run` flag to preview the generated files.
-
-::: tip
-If you are asked about the project name and where the project should be generated, select "as provided" (this will become the default in Nx 20).
-:::
 
 ```shell
 nx g @nx/react:app <ui-kit-app-name> --directory=apps/<ui-kit-app-name> --style=css

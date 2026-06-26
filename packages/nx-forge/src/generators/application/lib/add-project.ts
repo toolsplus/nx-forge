@@ -6,7 +6,7 @@ import {
   Tree,
 } from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
-import { addBuildTargetDefaults } from '@nx/devkit/src/generators/target-defaults-utils';
+import { addBuildTargetDefaults } from '@nx/devkit/internal';
 import { hasWebpackPlugin } from '../../../utils/has-webpack-plugin';
 
 function getWebpackBuildConfig(
@@ -103,21 +103,16 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
   };
 
   if (options.bundler === 'esbuild') {
-    addBuildTargetDefaults(tree, '@nx/esbuild:esbuild');
+    addBuildTargetDefaults(tree, '@nx/esbuild:esbuild', 'build');
     project.targets ??= {};
     project.targets.build = getEsBuildConfig(project, options);
   } else if (options.bundler === 'webpack') {
-    if (!hasWebpackPlugin(tree)) {
-      addBuildTargetDefaults(tree, `@nx/webpack:webpack`);
+    if (!hasWebpackPlugin(tree) && !options.addPlugin) {
+      addBuildTargetDefaults(tree, `@nx/webpack:webpack`, 'build');
       project.targets ??= {};
       project.targets.build = getWebpackBuildConfig(project, options);
     }
   }
 
-  addProjectConfiguration(
-    tree,
-    options.name || '',
-    project,
-    options.standaloneConfig
-  );
+  addProjectConfiguration(tree, options.name, project);
 }

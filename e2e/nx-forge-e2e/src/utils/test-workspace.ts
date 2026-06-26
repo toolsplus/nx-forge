@@ -5,11 +5,21 @@ import { workspaceRoot } from '@nx/devkit';
 
 const TEST_WORKSPACES_ROOT = join(workspaceRoot, 'tmp');
 
+const getCommandEnv = (): NodeJS.ProcessEnv => {
+  const commandEnv = { ...process.env };
+
+  // Nx runs task processes with NX_ADD_PLUGINS=false, but these e2e commands
+  // create fresh child workspaces that should use their own inference settings.
+  delete commandEnv.NX_ADD_PLUGINS;
+
+  return commandEnv;
+};
+
 const runCommand = (command: string, cwd: string) => {
   execSync(command, {
     cwd,
     stdio: 'inherit',
-    env: process.env,
+    env: getCommandEnv(),
     windowsHide: true,
   });
 };
@@ -31,7 +41,7 @@ export const createTestWorkspace = (
   });
 
   runCommand(
-    `pnpm dlx create-nx-workspace@latest ${workspaceName} --preset=apps --nxCloud=skip --packageManager=pnpm --no-interactive`,
+    `npx -y create-nx-workspace@latest ${workspaceName} --preset=apps --nxCloud=skip --packageManager=npm --no-interactive`,
     TEST_WORKSPACES_ROOT
   );
 
@@ -41,7 +51,7 @@ export const createTestWorkspace = (
   writeFileSync(nxJsonPath, JSON.stringify(nxJson, null, 2) + '\n', 'utf8');
 
   runCommand(
-    'pnpm exec nx add @toolsplus/nx-forge@e2e --interactive=false',
+    'npx nx add @toolsplus/nx-forge@e2e --interactive=false',
     workspaceDirectory
   );
 

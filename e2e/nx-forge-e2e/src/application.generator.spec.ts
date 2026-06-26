@@ -7,7 +7,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { generateForgeApp } from './utils/generate-forge-app';
-import { runNxCommandAsync } from './utils/async-commands';
+import { formatCommandResult, runNxCommandAsync } from './utils/async-commands';
 import {
   cleanupTestWorkspace,
   createTestWorkspace,
@@ -41,7 +41,8 @@ const expectWebpackBuildOutput = async (
   workspaceDirectory: string,
   appName: string
 ) => {
-  const { stdout } = await runNxCommandAsync(`run ${appName}:build`, {
+  const buildCommand = `run ${appName}:build`;
+  const buildResult = await runNxCommandAsync(buildCommand, {
     cwd: workspaceDirectory,
   });
   const outputDir = join(workspaceDirectory, 'dist', 'apps', appName);
@@ -51,7 +52,7 @@ const expectWebpackBuildOutput = async (
     throw new Error(
       [
         `Expected generated build output at ${indexJsPath}.`,
-        `Build stdout:\n${stdout}`,
+        formatCommandResult(`nx ${buildCommand}`, buildResult),
         `Output tree for ${outputDir}:\n${describeDirectoryTree(outputDir)}`,
       ].join('\n\n')
     );
@@ -59,11 +60,25 @@ const expectWebpackBuildOutput = async (
 
   expect(existsSync(join(outputDir, 'src', 'main.js'))).toBe(false);
 
-  await runNxCommandAsync(`run ${appName}:package`, {
+  const packageCommand = `run ${appName}:package`;
+  const packageResult = await runNxCommandAsync(packageCommand, {
     cwd: workspaceDirectory,
   });
-  expect(existsSync(join(outputDir, 'manifest.yml'))).toBe(true);
-  expect(existsSync(join(outputDir, 'package.json'))).toBe(true);
+  const missingPackageFiles = ['manifest.yml', 'package.json'].filter(
+    (file) => !existsSync(join(outputDir, file))
+  );
+
+  if (missingPackageFiles.length > 0) {
+    throw new Error(
+      [
+        `Expected package output to include: ${missingPackageFiles.join(
+          ', '
+        )}.`,
+        formatCommandResult(`nx ${packageCommand}`, packageResult),
+        `Output tree for ${outputDir}:\n${describeDirectoryTree(outputDir)}`,
+      ].join('\n\n')
+    );
+  }
 };
 
 const configureWebpackTaskInference = (

@@ -6,7 +6,6 @@ interface ApplicationGeneratorOptions {
   skipFormat?: boolean;
   skipPackageJson?: boolean;
   linter?: LinterType;
-  standaloneConfig?: boolean;
   tags?: string;
   bundler?: 'esbuild' | 'webpack';
   unitTestRunner?: 'jest' | 'none';

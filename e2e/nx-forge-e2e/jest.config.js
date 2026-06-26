@@ -15,5 +15,5 @@ module.exports = {
   setupFiles: ['dotenv/config'],
   globalSetup: '../../tools/scripts/start-local-registry.ts',
   globalTeardown: '../../tools/scripts/stop-local-registry.ts',
-  testTimeout: 240000, // set the default test timeout to 2min for all e2e tests
+  testTimeout: 240000, // set the default test timeout to 4min for all e2e tests
 };
