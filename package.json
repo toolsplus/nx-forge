@@ -31,6 +31,7 @@
     "@nx/plugin": "catalog:nx",
     "@nx/webpack": "catalog:nx",
     "@nx/workspace": "catalog:nx",
+    "@semantic-release/exec": "catalog:",
     "@swc-node/register": "catalog:",
     "@swc/cli": "catalog:",
     "@swc/core": "catalog:",
