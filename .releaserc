@@ -16,7 +16,12 @@
     }],
     "@semantic-release/release-notes-generator",
     ["@semantic-release/npm", {
-      "pkgRoot": "dist/packages/nx-forge"
+      "pkgRoot": "dist/packages/nx-forge",
+      "npmPublish": false
+    }],
+    ["@semantic-release/exec", {
+      "publishCmd": "pnpm publish dist/packages/nx-forge --no-git-checks --access public --tag ${nextRelease.channel || 'latest'} --provenance",
+      "addChannelCmd": "pnpm dist-tag add @toolsplus/nx-forge@${nextRelease.version} ${nextRelease.channel || 'latest'}"
     }],
     "@semantic-release/github"
   ],
