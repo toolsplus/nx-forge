@@ -4,15 +4,76 @@ on:
     paths-ignore:
       - 'docs/**'
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
-  pr:
+  quality:
+    name: Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
           fetch-depth: 0
+          persist-credentials: false
+      - uses: nrwl/nx-set-shas@v5
+        name: Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'lts/*'
+          check-latest: true
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+      - run: pnpm nx affected --target=format:check --parallel=2
+      - run: pnpm nx affected --target=lint --parallel=2
+
+  build-and-test:
+    name: Build and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: nrwl/nx-set-shas@v5
+        name: Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'lts/*'
+          check-latest: true
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx affected --target=build --parallel=3
+      - run: pnpm nx affected --target=test --parallel=2
+        env:
+          NODE_OPTIONS: '--throw-deprecation'
+
+  e2e:
+    name: E2E
+    needs: [quality, build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: nrwl/nx-set-shas@v5
         name: Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: pnpm/action-setup@v6
@@ -31,11 +92,6 @@ jobs:
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
           echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-      - run: pnpm nx affected --target=format:check --parallel=2
-      - run: pnpm nx affected --target=lint --parallel=2
-      - run: pnpm nx affected --target=build --parallel=3
-      - run: pnpm nx affected --target=test --parallel=2
       - run: pnpm nx affected --target=e2e --parallel=2 --no-silent
         env:
           NODE_OPTIONS: '--no-deprecation'

@@ -35,6 +35,7 @@
     "@swc-node/register": "catalog:",
     "@swc/cli": "catalog:",
     "@swc/core": "catalog:",
+    "@types/cross-spawn": "catalog:",
     "@types/fs-extra": "catalog:",
     "@types/jest": "catalog:",
     "@types/js-yaml": "catalog:",
@@ -69,6 +70,7 @@
   },
   "dependencies": {
     "@forge/manifest": "catalog:",
+    "cross-spawn": "catalog:",
     "fs-extra": "catalog:",
     "js-yaml": "catalog:",
     "jsonata": "catalog:"
