@@ -5,4 +5,6 @@ export interface DeployExecutorOptions {
   interactive: boolean;
   verbose: boolean;
   manifestTransform?: string;
+  approve?: string[];
+  majorVersion?: number;
 }

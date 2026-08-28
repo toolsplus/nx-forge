@@ -36,6 +36,17 @@
     "manifestTransform": {
       "type": "string",
       "description": "A JSONata expression that transforms the manifest.yml content before the deployment."
+    },
+    "approve": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of validation rules to approve, for example the major version upgrade rule."
+    },
+    "majorVersion": {
+      "type": "number",
+      "description": "Specify a major version to update. If not set, minor version upgrades apply to the latest major version."
     }
   },
   "required": ["outputPath"]
