@@ -86,14 +86,23 @@ describe('reference docs utilities', () => {
     const tunnelItem = items.find(
       (item) => item.kind === 'executor' && item.name === 'tunnel'
     );
+    const deployItem = items.find(
+      (item) => item.kind === 'executor' && item.name === 'deploy'
+    );
 
     expect(packageItem).toBeDefined();
     expect(registerItem).toBeDefined();
     expect(tunnelItem).toBeDefined();
+    expect(deployItem).toBeDefined();
+
+    if (!deployItem) {
+      throw new Error('Deploy executor reference item was not loaded.');
+    }
 
     const packageMarkdown = renderOptionsMarkdown(packageItem!);
     const registerMarkdown = renderOptionsMarkdown(registerItem!);
     const tunnelMarkdown = renderOptionsMarkdown(tunnelItem!);
+    const deployMarkdown = renderOptionsMarkdown(deployItem);
 
     expect(packageMarkdown).toContain('| `boolean` |');
     expect(packageMarkdown).toContain(
@@ -103,6 +112,10 @@ describe('reference docs utilities', () => {
     expect(registerMarkdown).toContain('`-s`');
     expect(registerMarkdown).not.toContain('outputPath');
     expect(tunnelMarkdown).not.toContain('preTunnelTimeout');
+    expect(deployMarkdown).toContain('`--approve`');
+    expect(deployMarkdown).toContain('`array`');
+    expect(deployMarkdown).toContain('`--majorVersion`');
+    expect(deployMarkdown).toContain('`number`');
   });
 
   it('injects generated options into the reference pages', () => {

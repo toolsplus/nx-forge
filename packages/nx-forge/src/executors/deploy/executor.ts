@@ -46,6 +46,10 @@ export default async function runExecutor(
     ...(options.verbose === true ? ['--verbose'] : []),
     ...(options.verify === false ? ['--no-verify'] : []),
     ...(options.interactive === false ? ['--non-interactive'] : []),
+    ...(options.approve?.length ? ['--approve', ...options.approve] : []),
+    ...(options.majorVersion !== undefined
+      ? ['--major-version', `${options.majorVersion}`]
+      : []),
   ];
 
   logger.log(`Running: forge ${args.join(' ')}`);

@@ -65,6 +65,13 @@ _Mirrors the [deploy command](https://developer.atlassian.com/platform/forge/cli
 
 <!-- nx-forge:options executor=deploy -->
 
+Use `--approve` to pre-approve one or more Forge deployment rules. Use `--major-version` to backport a deployment to an existing major version.
+
+```shell
+nx run <nx-forge-app-name>:deploy --approve MAJOR_VERSION_RULE
+nx run <nx-forge-app-name>:deploy --major-version 2
+```
+
 For details on how to use the `manifestTransform` parameter, refer to the [guide on transforming the manifest](../guides/transforming-the-manifest).
 
 ## Register

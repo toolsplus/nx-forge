@@ -9,14 +9,14 @@ To fix this, you can instruct your package manager to override the dependency ve
 ```json [npm: package.json] 
 {
   "overrides": {
-    "@forge/manifest": "13.0.0"
+    "@forge/manifest": "13.3.1"
   }
 }
 ```
 
 ```yaml [pnpm: pnpm-workspace.yaml]
 overrides:
-  "@forge/manifest": "13.0.0"
+  "@forge/manifest": "13.3.1"
 ```
 
 :::
