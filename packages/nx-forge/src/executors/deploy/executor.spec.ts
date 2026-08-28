@@ -86,6 +86,23 @@ describe('Deploy executor', () => {
     expect(args).toEqual(expect.arrayContaining(['--major-version', '2']));
   });
 
+  it('should reject an approval rule containing shell metacharacters', async () => {
+    await expect(
+      runExecutor(
+        { ...options, approve: ['MAJOR_VERSION_RULE; rm -rf /'] },
+        context
+      )
+    ).rejects.toThrow(/Invalid approve option/);
+
+    expect(runForgeCommandAsyncMock).not.toHaveBeenCalled();
+  });
+
+  it('should accept approval rule names made up of letters, numbers, "_" and "-"', async () => {
+    await expect(
+      runExecutor({ ...options, approve: ['MAJOR_VERSION-RULE_2'] }, context)
+    ).resolves.toEqual({ success: true });
+  });
+
   it('should forward both --approve and --major-version together', async () => {
     await runExecutor(
       { ...options, approve: ['MAJOR_VERSION_RULE'], majorVersion: 2 },
