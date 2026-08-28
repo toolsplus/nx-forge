@@ -24,6 +24,37 @@ Long-term maintainability is a core priority. If you add new functionality, firs
 
 - Use pnpm
 
+## Commits
+
+Use Angular Conventional Commits. Treat `.commitlintrc` as the source of truth for commit-message rules.
+
+## Agent skills
+
+### Documentation boundary
+
+The `docs/` directory is the source for the public VitePress website. Place only content intended for publication under `docs/`.
+
+Use these locations for internal project knowledge:
+
+- Agent configuration: `.agents/config/`
+- Domain glossary: `CONTEXT.md`
+- Architecture decisions: `architecture/decisions/`
+- Temporary working material: `.scratch/`
+
+These repository-specific paths override engineering-skill defaults that refer to `docs/agents/` or `docs/adr/`. Do not place internal agent configuration, context, ADRs, or working material under `docs/`.
+
+### Issue tracker
+
+Issues and specifications are tracked in GitHub Issues. See `.agents/config/issue-tracker.md`.
+
+### Triage labels
+
+The repository uses the canonical triage label vocabulary. See `.agents/config/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repository. Read `CONTEXT.md` and relevant decisions under `architecture/decisions/` when they exist. See `.agents/config/domain.md`.
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
