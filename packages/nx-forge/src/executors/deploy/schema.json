@@ -33,6 +33,18 @@
       "alias": "v",
       "default": false
     },
+    "approve": {
+      "type": "array",
+      "description": "Pre-approve one or more deployment rules.",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "majorVersion": {
+      "type": "number",
+      "description": "Backport the deployment to a specific major version."
+    },
     "manifestTransform": {
       "type": "string",
       "description": "A JSONata expression that transforms the manifest.yml content before the deployment."
