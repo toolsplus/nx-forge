@@ -1,5 +1,8 @@
-import { spawn } from 'child_process';
 import { getPackageManagerCommand } from '@nx/devkit';
+
+// Node cannot directly launch npm/pnpm/yarn `.cmd` shims on Windows.
+// cross-spawn resolves those shims while preserving each Forge argument.
+import spawn from 'cross-spawn';
 
 /**
  * Runs the given Forge CLI command asynchronously.
@@ -12,13 +15,16 @@ export const runForgeCommandAsync = (
   opts: { env?: NodeJS.ProcessEnv; cwd?: string } = {}
 ): Promise<void> => {
   const pmc = getPackageManagerCommand();
-  const forgeCmd = ['forge', ...args].join(' ');
-  const cliProcess = spawn(`${pmc.exec} ${forgeCmd}`, {
-    cwd: opts.cwd,
-    env: { ...process.env, ...opts.env },
-    stdio: [process.stdin, process.stdout, process.stderr],
-    shell: true,
-  });
+  const [executable, ...packageManagerArgs] = pmc.exec.trim().split(/\s+/);
+  const cliProcess = spawn(
+    executable,
+    [...packageManagerArgs, 'forge', ...args],
+    {
+      cwd: opts.cwd,
+      env: { ...process.env, ...opts.env },
+      stdio: [process.stdin, process.stdout, process.stderr],
+    }
+  );
   return new Promise((resolve, reject) => {
     cliProcess.once('exit', (code: number) => {
       if (code === 0) {

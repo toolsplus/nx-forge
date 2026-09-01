@@ -29,7 +29,7 @@ export default async function runExecutor(
   const args = [
     'register',
     ...(options.developerSpaceId
-      ? [`--developer-space-id ${options.developerSpaceId}`]
+      ? ['--developer-space-id', options.developerSpaceId]
       : []),
     ...(options.acceptTerms === true ? ['--accept-terms'] : []),
     ...(options.verbose === true ? ['--verbose'] : []),

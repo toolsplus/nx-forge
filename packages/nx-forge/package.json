@@ -18,6 +18,7 @@
     "@nx/jest": "catalog:nx",
     "@nx/js": "catalog:nx",
     "@nx/webpack": "catalog:nx",
+    "cross-spawn": "catalog:",
     "fs-extra": "catalog:",
     "js-yaml": "catalog:",
     "jsonata": "catalog:",

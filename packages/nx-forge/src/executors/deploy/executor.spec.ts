@@ -62,22 +62,20 @@ describe('deploy executor', () => {
   });
 
   it('forwards multiple approval rules to Forge', async () => {
+    // Forge documents MAJOR_VERSION_RULE and accepts multiple server-provided rule names:
+    // https://developer.atlassian.com/platform/forge/cli-reference/deploy/#pre-approval
+    const approvals = ['MAJOR_VERSION_RULE', 'LICENSE_RULE'];
+
     await runExecutor(
       {
         ...defaultOptions,
-        approve: ['MAJOR_VERSION_RULE', 'LICENSE_RULE'],
+        approve: approvals,
       },
       context
     );
 
     expect(runForgeCommandAsyncMock).toHaveBeenCalledWith(
-      [
-        'deploy',
-        '--environment=development',
-        '--approve',
-        'MAJOR_VERSION_RULE',
-        'LICENSE_RULE',
-      ],
+      ['deploy', '--environment=development', '--approve', ...approvals],
       { cwd: 'dist/apps/example' }
     );
   });
