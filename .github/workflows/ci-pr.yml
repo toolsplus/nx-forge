@@ -49,6 +49,7 @@ jobs:
           cache: true
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx affected --target=build --parallel=3
+      - run: pnpm nx verify-jest-inference workspace
       - run: pnpm nx affected --target=test --parallel=2
         env:
           NODE_OPTIONS: '--throw-deprecation'
