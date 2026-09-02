@@ -17,6 +17,7 @@ import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
 import { addProject, addAppFiles, normalizeOptions } from './lib';
 import { addProjectDependencies } from './lib/add-project-dependencies';
 import { logShowProjectCommand } from '@nx/devkit/internal';
+import { hasWebpackPlugin } from '../../utils/has-webpack-plugin';
 
 function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
   updateJson(tree, `${options.appProjectRoot}/tsconfig.json`, (json) => {
@@ -47,17 +48,26 @@ export async function applicationGenerator(
   tree: Tree,
   schema: ApplicationGeneratorOptions
 ) {
-  return await applicationGeneratorInternal(tree, {
-    addPlugin: false,
-    ...schema,
-  });
+  return await applicationGeneratorInternal(tree, schema);
 }
 
 export async function applicationGeneratorInternal(
   tree: Tree,
   rawOptions: ApplicationGeneratorOptions
 ): Promise<GeneratorCallback> {
+  // Preserve explicit Jest targets by default. Webpack remains explicit in a
+  // fresh workspace, but must match a plugin the workspace already configured.
+  const addJestPlugin = rawOptions.addPlugin ?? false;
   const options = await normalizeOptions(tree, rawOptions);
+  const addWebpackPlugin =
+    rawOptions.addPlugin ??
+    (options.addPlugin &&
+      options.bundler === 'webpack' &&
+      hasWebpackPlugin(tree));
+  const projectOptions = {
+    ...options,
+    addPlugin: addWebpackPlugin,
+  };
 
   const tasks: GeneratorCallback[] = [];
 
@@ -85,13 +95,13 @@ export async function applicationGeneratorInternal(
     const webpackInitTask = await webpackInitGenerator(tree, {
       skipPackageJson: options.skipPackageJson,
       skipFormat: true,
-      addPlugin: options.addPlugin,
+      addPlugin: addWebpackPlugin,
     });
     tasks.push(webpackInitTask);
   }
 
-  addAppFiles(tree, options);
-  addProject(tree, options);
+  addAppFiles(tree, projectOptions);
+  addProject(tree, projectOptions);
 
   updateTsConfigOptions(tree, options);
 
@@ -114,6 +124,7 @@ export async function applicationGeneratorInternal(
   if (options.unitTestRunner === 'jest') {
     const jestTask = await configurationGenerator(tree, {
       ...options,
+      addPlugin: addJestPlugin,
       project: options.name,
       setupFile: 'none',
       skipSerializers: true,

@@ -7,5 +7,10 @@
     "strict": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.ts"]
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.spec-helper.ts",
+    "**/*.test.ts",
+    "jest.config.ts"
+  ]
 }

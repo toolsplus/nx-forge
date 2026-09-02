@@ -1,4 +1,4 @@
-import { runNxCommandAsync } from './async-commands';
+import { formatCommandResult, runNxCommandAsync } from './async-commands';
 
 const uniqueAppName = () =>
   `nx-forge-test-app-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
@@ -22,11 +22,23 @@ export const generateForgeApp = async ({
   options?: string;
 }): Promise<string> => {
   const appName = uniqueAppName();
-  await runNxCommandAsync(
-    `generate @toolsplus/nx-forge:application ${directory}/${appName} ${
-      options ?? ''
-    }`,
-    { cwd }
-  );
+  const command = `generate @toolsplus/nx-forge:application ${directory}/${appName} ${
+    options ?? ''
+  }`;
+  const result = await runNxCommandAsync(command, { cwd });
+
+  if (
+    `${result.stdout}\n${result.stderr}`.includes(
+      'deprecated `@nx/eslint:lint` executor'
+    )
+  ) {
+    throw new Error(
+      [
+        'Generated application used the deprecated ESLint executor.',
+        formatCommandResult(`nx ${command}`, result),
+      ].join('\n\n')
+    );
+  }
+
   return appName;
 };

@@ -37,6 +37,16 @@ const describeDirectoryTree = (directory: string, depth = 0): string => {
     .join('\n');
 };
 
+const parseJsonOutput = (output: string) => {
+  const jsonStart = output.indexOf('{');
+
+  if (jsonStart === -1) {
+    throw new Error(`Expected JSON output, received:\n${output}`);
+  }
+
+  return JSON.parse(output.slice(jsonStart));
+};
+
 const expectWebpackBuildOutput = async (
   workspaceDirectory: string,
   appName: string
@@ -105,7 +115,7 @@ const configureWebpackTaskInference = (
 const enableWebpackTaskInference = async (workspaceDirectory: string) => {
   configureWebpackTaskInference(workspaceDirectory, true);
   await runNxCommandAsync(
-    'generate @nx/webpack:init --addPlugin=true --interactive=false',
+    'generate @nx/webpack:init --addPlugin=true --skipPackageJson=true --interactive=false',
     {
       cwd: workspaceDirectory,
     }
@@ -147,6 +157,41 @@ describe('Forge application generator', () => {
     ).toBe(true);
     expect(
       existsSync(join(workspaceDirectory, 'apps', appName, 'src', 'index.ts'))
+    ).toBe(true);
+
+    const project = JSON.parse(
+      readFileSync(
+        join(workspaceDirectory, 'apps', appName, 'project.json'),
+        'utf8'
+      )
+    );
+    expect(project.targets?.lint).toBeUndefined();
+
+    const resolvedProject = parseJsonOutput(
+      (
+        await runNxCommandAsync(`show project ${appName} --json`, {
+          cwd: workspaceDirectory,
+        })
+      ).stdout
+    );
+    expect(resolvedProject.targets.lint).toMatchObject({
+      cache: true,
+      executor: 'nx:run-commands',
+      outputs: ['{options.outputFile}'],
+      options: {
+        command: 'eslint .',
+        cwd: `apps/${appName}`,
+      },
+    });
+
+    await runNxCommandAsync(
+      `run ${appName}:lint --output-file=lint-results.json --format=json`,
+      {
+        cwd: workspaceDirectory,
+      }
+    );
+    expect(
+      existsSync(join(workspaceDirectory, 'apps', appName, 'lint-results.json'))
     ).toBe(true);
   });
 
@@ -221,7 +266,7 @@ describe('Forge application generator', () => {
     const appName = await generateForgeApp({
       cwd: workspaceDirectory,
       directory: 'apps',
-      options: '--bundler=webpack',
+      options: '--bundler=webpack --linter=none --unitTestRunner=none',
     });
     expect(
       readFileSync(

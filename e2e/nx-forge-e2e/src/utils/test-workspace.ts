@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { workspaceRoot } from '@nx/devkit';
+import { NX_VERSION, workspaceRoot } from '@nx/devkit';
 
 const TEST_WORKSPACES_ROOT = join(workspaceRoot, 'tmp');
 
@@ -41,7 +41,7 @@ export const createTestWorkspace = (
   });
 
   runCommand(
-    `npx -y create-nx-workspace@latest ${workspaceName} --preset=apps --nxCloud=skip --packageManager=npm --no-interactive`,
+    `npx -y create-nx-workspace@${NX_VERSION} ${workspaceName} --preset=apps --nxCloud=skip --packageManager=npm --no-interactive`,
     TEST_WORKSPACES_ROOT
   );
 

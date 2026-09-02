@@ -1,4 +1,5 @@
 import {
+  logger,
   readNxJson,
   readProjectConfiguration,
   Tree,
@@ -6,6 +7,7 @@ import {
 } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 
+import './test-utils/mock-plugin-inference.spec-helper';
 import { applicationGenerator } from './generator';
 
 describe('application generator (legacy)', () => {
@@ -21,6 +23,8 @@ describe('application generator (legacy)', () => {
     await applicationGenerator(tree, {
       directory: 'my-forge-app',
       bundler: 'webpack',
+      linter: 'none',
+      unitTestRunner: 'none',
       addPlugin: false,
     });
     const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -54,5 +58,26 @@ describe('application generator (legacy)', () => {
     const webpackConfig = tree.read('my-forge-app/webpack.config.js', 'utf-8');
     expect(webpackConfig).toContain(`composePlugins`);
     expect(webpackConfig).toContain(`target: 'node'`);
+  });
+
+  it('supports an explicit lint executor with a deprecation warning', async () => {
+    const warn = jest.spyOn(logger, 'warn').mockImplementation();
+
+    await applicationGenerator(tree, {
+      directory: 'my-forge-app',
+      bundler: 'esbuild',
+      unitTestRunner: 'none',
+      addPlugin: false,
+      skipFormat: true,
+    });
+
+    const project = readProjectConfiguration(tree, 'my-forge-app');
+    expect(project.targets?.lint).toEqual({ executor: '@nx/eslint:lint' });
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Generating a target that uses the deprecated `@nx/eslint:lint` executor.'
+      )
+    );
   });
 });
