@@ -24,15 +24,10 @@ jobs:
         name: Checkout [main]
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v6
+      - uses: ./.github/actions/setup-node-and-pnpm
+        name: Setup pnpm and Node.js
         with:
-          run_install: false
-      - uses: actions/setup-node@v5
-        name: Setup Node.js
-        with:
-          node-version: 'lts/*'
-          check-latest: true
-          cache: pnpm
+          cache: true
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ vars.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env

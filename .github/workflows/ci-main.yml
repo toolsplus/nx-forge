@@ -16,14 +16,9 @@ jobs:
           fetch-depth: 0
       - uses: nrwl/nx-set-shas@v5
         name: Derive appropriate SHAs for base and head for `nx affected` commands
-      - uses: pnpm/action-setup@v6
+      - uses: ./.github/actions/setup-node-and-pnpm
         with:
-          run_install: false
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 'lts/*'
-          check-latest: true
-          cache: pnpm
+          cache: false # Release owns cache writes on release branches.
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx affected --target=build --parallel=2
       - run: pnpm nx affected --target=test --parallel=2
