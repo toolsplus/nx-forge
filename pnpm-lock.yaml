@@ -365,19 +365,19 @@ importers:
         specifier: 'catalog:'
         version: 13.8.0(typescript@6.0.3)
       '@nx/devkit':
-        specifier: catalog:nx
+        specifier: ^24.0.1
         version: 24.0.1(nx@24.0.1(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/core@1.15.8))
       '@nx/eslint':
-        specifier: catalog:nx
+        specifier: ^24.0.1
         version: 24.0.1(ddf0cf6a23301316abd866b0ae313180)
       '@nx/jest':
-        specifier: catalog:nx
+        specifier: ^24.0.1
         version: 24.0.1(@babel/traverse@7.29.7)(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/cli@0.8.1(@swc/core@1.15.8)(chokidar@5.0.0))(@swc/core@1.15.8)(@types/node@26.0.1)(babel-plugin-macros@3.1.0)(jest@30.3.0(@types/node@26.0.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.1(@swc/core@1.15.8)(@types/node@26.0.1)(typescript@6.0.3)))(nx@24.0.1(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/core@1.15.8))(ts-jest@29.4.15(@babel/core@7.29.7)(@jest/transform@30.4.1)(@jest/types@30.4.1)(babel-jest@30.4.1(@babel/core@7.29.7))(jest-util@30.4.1)(jest@30.3.0(@types/node@26.0.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.1(@swc/core@1.15.8)(@types/node@26.0.1)(typescript@6.0.3)))(typescript@6.0.3))(ts-node@10.9.1(@swc/core@1.15.8)(@types/node@26.0.1)(typescript@6.0.3))(typescript@6.0.3)(verdaccio@6.7.4(typanion@3.14.0))
       '@nx/js':
-        specifier: catalog:nx
+        specifier: ^24.0.1
         version: 24.0.1(@babel/traverse@7.29.7)(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/cli@0.8.1(@swc/core@1.15.8)(chokidar@5.0.0))(@swc/core@1.15.8)(nx@24.0.1(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/core@1.15.8))(verdaccio@6.7.4(typanion@3.14.0))
       '@nx/webpack':
-        specifier: catalog:nx
+        specifier: ^24.0.1
         version: 24.0.1(@babel/traverse@7.29.7)(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/cli@0.8.1(@swc/core@1.15.8)(chokidar@5.0.0))(@swc/core@1.15.8)(html-webpack-plugin@5.6.7(webpack@5.108.0))(nx@24.0.1(@swc-node/register@1.11.1(@swc/core@1.15.8)(@swc/types@0.1.27)(typescript@6.0.3))(@swc/core@1.15.8))(typescript@6.0.3)(verdaccio@6.7.4(typanion@3.14.0))(webpack-cli@7.0.3)(webpack-dev-server@5.2.5)(webpack@5.108.0)
       cross-spawn:
         specifier: 'catalog:'

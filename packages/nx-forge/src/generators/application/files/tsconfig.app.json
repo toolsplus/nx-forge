@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "<%= offset %>dist/out-tsc",
     "module": "commonjs",
+    "moduleResolution": "<%= moduleResolution %>",
     "sourceMap": true,
     "types": ["node"]
   },

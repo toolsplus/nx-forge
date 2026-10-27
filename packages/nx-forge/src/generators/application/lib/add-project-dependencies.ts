@@ -77,6 +77,9 @@ export async function addProjectDependencies(
     {
       ...bundlers[options.bundler],
       '@types/node': typesNodeVersion,
-    }
+    },
+    undefined,
+    // Keep the versions of dependencies that the workspace already uses.
+    true
   );
 }

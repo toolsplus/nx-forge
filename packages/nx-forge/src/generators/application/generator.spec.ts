@@ -166,9 +166,7 @@ describe('application generator', () => {
 
       const tsconfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsconfigApp.compilerOptions.outDir).toEqual('../dist/out-tsc');
-      expect(tsconfigApp.compilerOptions).not.toHaveProperty(
-        'moduleResolution'
-      );
+      expect(tsconfigApp.compilerOptions.moduleResolution).toEqual('bundler');
       expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsx');
       expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsxFactory');
       expect(tsconfigApp.extends).toEqual('./tsconfig.json');
@@ -403,6 +401,66 @@ describe('application generator', () => {
         ];
         "
       `);
+    });
+  });
+
+  describe('TypeScript version', () => {
+    const setTypeScriptVersion = (version: string) =>
+      devkit.updateJson(tree, 'package.json', (json) => ({
+        ...json,
+        devDependencies: { ...json.devDependencies, typescript: version },
+      }));
+
+    it('should resolve modules with node10 on TypeScript 5', async () => {
+      setTypeScriptVersion('~5.9.2');
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json').compilerOptions
+      ).toEqual(
+        expect.objectContaining({
+          module: 'commonjs',
+          moduleResolution: 'node10',
+        })
+      );
+    });
+
+    it('should resolve modules with bundler on TypeScript 6', async () => {
+      setTypeScriptVersion('~6.0.3');
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json').compilerOptions
+      ).toEqual(
+        expect.objectContaining({
+          module: 'commonjs',
+          moduleResolution: 'bundler',
+        })
+      );
+    });
+  });
+
+  describe('dependencies', () => {
+    it('should keep existing versions of Forge dependencies', async () => {
+      devkit.updateJson(tree, 'package.json', (json) => ({
+        ...json,
+        dependencies: {
+          ...json.dependencies,
+          '@forge/api': '^8.3.0',
+          '@forge/resolver': '^2.0.1',
+        },
+      }));
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(readJson(tree, 'package.json').dependencies).toEqual(
+        expect.objectContaining({
+          '@forge/api': '^8.3.0',
+          '@forge/resolver': '^2.0.1',
+        })
+      );
     });
   });
 

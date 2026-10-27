@@ -6,6 +6,7 @@ import {
   toJS,
 } from '@nx/devkit';
 import { getRelativePathToRootTsConfig } from '@nx/js';
+import { getTsConfigModuleResolution } from '@nx/js/internal';
 import type { NormalizedOptions } from '../schema';
 
 export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
@@ -18,6 +19,9 @@ export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
       name: options.name,
       root: options.appProjectRoot,
       offset: offsetFromRoot(options.appProjectRoot),
+      // `bundler` requires an ES `module` before TypeScript 6, which rejects
+      // the `node10` resolution that `commonjs` apps need on TypeScript 5.
+      moduleResolution: getTsConfigModuleResolution(tree),
       rootTsConfigPath: getRelativePathToRootTsConfig(
         tree,
         options.appProjectRoot
