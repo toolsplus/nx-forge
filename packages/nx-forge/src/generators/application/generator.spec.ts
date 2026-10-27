@@ -472,6 +472,9 @@ describe('application generator', () => {
       });
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(tree.exists('my-forge-app/tsconfig.spec.json')).toBeFalsy();
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json')
+      ).not.toHaveProperty('exclude');
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeFalsy();
       expect(tree.exists(jestConfigPath('my-forge-app'))).toBeFalsy();
       expect(
@@ -495,8 +498,12 @@ describe('application generator', () => {
       expect(
         readJson(tree, 'my-forge-app/tsconfig.spec.json').compilerOptions.types
       ).toContain('vitest');
-      expect(readJson(tree, 'my-forge-app/tsconfig.app.json').exclude).toEqual(
+      const { exclude } = readJson(tree, 'my-forge-app/tsconfig.app.json');
+      expect(exclude).toEqual(
         expect.arrayContaining(['vitest.config.mts', 'src/**/*.spec.ts'])
+      );
+      expect(exclude).not.toEqual(
+        expect.arrayContaining([expect.stringMatching(/^jest\.config/)])
       );
       expect(readNxJson(tree).plugins).toContainEqual(
         expect.objectContaining({ plugin: '@nx/vitest' })
@@ -645,17 +652,13 @@ describe('application generator', () => {
 
       const tsConfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsConfigApp.include).toEqual(['src/**/*.ts', 'src/**/*.js']);
-      expect(tsConfigApp.exclude.sort()).toEqual(
-        [
-          'jest.config.ts',
-          'jest.config.cts',
-          'src/**/*.spec.ts',
-          'src/**/*.test.ts',
-          'jest.config.js',
-          'src/**/*.spec.js',
-          'src/**/*.test.js',
-        ].sort()
-      );
+      expect(tsConfigApp.exclude).toEqual([
+        'jest.config.js',
+        'src/**/*.spec.ts',
+        'src/**/*.test.ts',
+        'src/**/*.spec.js',
+        'src/**/*.test.js',
+      ]);
     });
 
     it('should generate js files for nested libs as well', async () => {
