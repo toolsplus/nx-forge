@@ -2,7 +2,6 @@ import { existsSync } from 'fs';
 import { join, resolve } from 'path';
 import { joinPathFragments, logger } from '@nx/devkit';
 import { ManifestSchema, Resources } from '@forge/manifest';
-import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import {
   readManifestYml,
@@ -10,6 +9,7 @@ import {
 } from '../../../utils/forge/manifest-yml';
 import {
   getResourceTypeIndex,
+  HostedResourcesSchema,
   isResourceType,
   ResourceType,
   ResourceTypeIndex,

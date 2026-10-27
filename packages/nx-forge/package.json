@@ -25,7 +25,7 @@
     "tslib": "catalog:"
   },
   "peerDependencies": {
-    "nx": ">=23 <24"
+    "nx": ">=24 <25"
   },
   "type": "commonjs",
   "nx-migrations": {

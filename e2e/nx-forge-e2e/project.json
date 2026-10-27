@@ -3,15 +3,20 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "e2e/nx-forge-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["nx-forge"],
   "targets": {
     "e2e": {
-      "executor": "@nx/jest:jest",
+      "dependsOn": ["^build"],
       "options": {
-        "jestConfig": "e2e/nx-forge-e2e/jest.config.js"
+        "passWithNoTests": true
       },
-      "dependsOn": ["^build"]
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "coverage": true
+        }
+      }
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["nx-forge"]
+  }
 }

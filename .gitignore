@@ -34,6 +34,9 @@ yarn-error.log
 testem.log
 /typings
 
+# Temporary agent working material, see AGENTS.md
+/.scratch
+
 # System Files
 .DS_Store
 Thumbs.db

@@ -1,29 +1,30 @@
 import { readdirSync } from 'fs';
 import { dirname, join } from 'path';
-import { CreateNodesContext, createNodesFromFiles, CreateNodes, ProjectConfiguration } from '@nx/devkit';
+import {
+  CreateNodesContext,
+  createNodesFromFiles,
+  CreateNodes,
+  ProjectConfiguration,
+} from '@nx/devkit';
 import { getRegisterConfig } from '../shared/targets/get-register-config';
 import { getTunnelConfig } from '../shared/targets/get-tunnel-config';
 import { getDeployConfig } from '../shared/targets/get-deploy-config';
 import { getForgeCliConfig } from '../shared/targets/get-forge-cli-config';
 import { getPackageConfig } from '../shared/targets/get-package-config';
+import { getForgeOutputPath } from '../shared/forge-output-path';
 
-type ForgeProjectTargets = Pick<ProjectConfiguration, 'targets'>;
+const buildForgeProjectTargets = (
+  projectRoot: string
+): ProjectConfiguration['targets'] => {
+  const outputPath = `{workspaceRoot}/${getForgeOutputPath(projectRoot)}`;
 
-const buildForgeProjectTargets = (projectRoot: string): ForgeProjectTargets => {
-  const outputPath =
-    projectRoot === '.'
-      ? `{projectRoot}/dist}`
-      : `{workspaceRoot}/dist/{projectRoot}`;
-
-  const targets: ProjectConfiguration['targets'] = {};
-
-  targets.register = getRegisterConfig({ outputPath });
-  targets.package = getPackageConfig({ outputPath });
-  targets.tunnel = getTunnelConfig({ outputPath });
-  targets.deploy = getDeployConfig({ outputPath });
-  targets.forge = getForgeCliConfig({ outputPath });
-
-  return targets;
+  return {
+    register: getRegisterConfig({ outputPath }),
+    package: getPackageConfig({ outputPath }),
+    tunnel: getTunnelConfig({ outputPath }),
+    deploy: getDeployConfig({ outputPath }),
+    forge: getForgeCliConfig({ outputPath }),
+  };
 };
 
 const forgeManifestGlob = '**/manifest.yml';

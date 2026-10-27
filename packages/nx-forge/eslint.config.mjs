@@ -46,7 +46,13 @@ export default [
       '@nx/dependency-checks': [
         'error',
         {
-          ignoredDependencies: ['nx'],
+          ignoredDependencies: [
+            'nx',
+            // Loaded through `ensurePackage` by `addLintingToProject` from
+            // `@nx/js`; declared so that the generator does not install it on
+            // demand.
+            '@nx/eslint',
+          ],
         },
       ],
     },

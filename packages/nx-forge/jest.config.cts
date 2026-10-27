@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'nx-forge',
   globals: {},
   transform: {

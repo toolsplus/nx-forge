@@ -25,5 +25,5 @@
     }],
     "@semantic-release/github"
   ],
-  "preset": "angular"
+  "preset": "conventionalcommits"
 }

@@ -18,7 +18,7 @@
   ],
   "devDependencies": {
     "@commitlint/cli": "catalog:",
-    "@commitlint/config-angular": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
     "@eslint/eslintrc": "catalog:",
     "@eslint/js": "catalog:",
     "@forge/cli": "catalog:",
@@ -42,6 +42,7 @@
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
+    "conventional-changelog-conventionalcommits": "catalog:",
     "dotenv": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",

@@ -4,7 +4,6 @@
     "outDir": "<%= offset %>dist/out-tsc",
     "module": "commonjs",
     "sourceMap": true,
-    "moduleResolution": "node",
     "types": ["node"]
   },
   "exclude": [

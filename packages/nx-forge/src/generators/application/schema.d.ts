@@ -1,11 +1,9 @@
-import type { LinterType } from '@nx/eslint';
-
-interface ApplicationGeneratorOptions {
+export interface ApplicationGeneratorOptions {
   directory: string;
   name?: string;
   skipFormat?: boolean;
   skipPackageJson?: boolean;
-  linter?: LinterType;
+  linter?: 'eslint' | 'none';
   tags?: string;
   bundler?: 'esbuild' | 'webpack';
   unitTestRunner?: 'jest' | 'none';
@@ -13,16 +11,18 @@ interface ApplicationGeneratorOptions {
   /** @deprecated use `swcJest` instead */
   babelJest?: boolean;
   js?: boolean;
-  setParserOptionsProject?: boolean;
+  enableTypedLinting?: boolean;
   rootProject?: boolean;
-  addPlugin?: boolean;
 }
 
-interface NormalizedOptions extends ApplicationGeneratorOptions {
+export interface NormalizedOptions extends ApplicationGeneratorOptions {
   name: string;
-  addPlugin: boolean;
   appProjectRoot: string;
-  linter: LinterType;
+  /** Workspace-relative directory that the Forge app is packaged into. */
+  outputPath: string;
+  bundler: 'esbuild' | 'webpack';
+  linter: 'eslint' | 'none';
   unitTestRunner: 'jest' | 'none';
+  rootProject: boolean;
   parsedTags: string[];
 }

@@ -75,7 +75,7 @@ export async function addProjectDependencies(
       tslib: tsLibVersion,
     },
     {
-      ...bundlers[options.bundler ?? 'webpack'],
+      ...bundlers[options.bundler],
       '@types/node': typesNodeVersion,
     }
   );

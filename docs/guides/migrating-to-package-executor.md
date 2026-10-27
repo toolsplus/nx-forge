@@ -14,8 +14,6 @@ For all the details and motivation of this change, refer to [the discussion on G
    
    Copy the generated `webpack.config.js` to your app's project directory and update the `outputPath`, `main`, `tsConfig`, and `assets` values to match your project layout. The generated app uses the `@nx/webpack/plugin` entry in `nx.json` to infer the `build` target, so you can delete the existing `build` target configuration from your app's `project.json`.
 
-   If your workspace has inferred plugins disabled, keep an explicit `build` target instead. In that case, copy the generated app's `build` target configuration from `project.json` and adjust the paths to match your project layout.
-
    b) If you chose the esbuild bundler option:
 
    Copy the `build` target configuration from the generated app's `project.json` and replace the existing `build` target configuration in your app's `project.json`. Adjust the path configurations in the `build` target to match your project layout.

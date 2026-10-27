@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'docs-tools',
   preset: '../../jest.preset.js',
   transform: {

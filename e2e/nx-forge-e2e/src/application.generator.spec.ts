@@ -1,10 +1,4 @@
-import {
-  existsSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { generateForgeApp } from './utils/generate-forge-app';
 import { formatCommandResult, runNxCommandAsync } from './utils/async-commands';
@@ -79,41 +73,6 @@ const expectWebpackBuildOutput = async (
       ].join('\n\n')
     );
   }
-};
-
-const configureWebpackTaskInference = (
-  workspaceDirectory: string,
-  enabled: boolean
-) => {
-  const nxJsonPath = join(workspaceDirectory, 'nx.json');
-  const nxJson = JSON.parse(readFileSync(nxJsonPath, 'utf8'));
-  const plugins = (nxJson.plugins ?? []).filter((plugin) =>
-    typeof plugin === 'string'
-      ? plugin !== '@nx/webpack/plugin'
-      : plugin.plugin !== '@nx/webpack/plugin'
-  );
-  nxJson.useInferencePlugins = enabled;
-
-  if (enabled) {
-    plugins.push('@nx/webpack/plugin');
-  }
-
-  nxJson.plugins = plugins;
-  writeFileSync(nxJsonPath, JSON.stringify(nxJson, null, 2) + '\n', 'utf8');
-};
-
-const enableWebpackTaskInference = async (workspaceDirectory: string) => {
-  configureWebpackTaskInference(workspaceDirectory, true);
-  await runNxCommandAsync(
-    'generate @nx/webpack:init --addPlugin=true --interactive=false',
-    {
-      cwd: workspaceDirectory,
-    }
-  );
-};
-
-const disableWebpackTaskInference = (workspaceDirectory: string) => {
-  configureWebpackTaskInference(workspaceDirectory, false);
 };
 
 describe('Forge application generator', () => {
@@ -191,8 +150,6 @@ describe('Forge application generator', () => {
   });
 
   it('should create expected output with inferred webpack plugin', async () => {
-    await enableWebpackTaskInference(workspaceDirectory);
-
     const appName = await generateForgeApp({
       cwd: workspaceDirectory,
       directory: 'apps',
@@ -213,30 +170,7 @@ describe('Forge application generator', () => {
     expect(project.targets?.build).toBeUndefined();
 
     await expectWebpackBuildOutput(workspaceDirectory, appName);
-  });
-
-  it('should create expected output with legacy webpack executor', async () => {
-    disableWebpackTaskInference(workspaceDirectory);
-
-    const appName = await generateForgeApp({
-      cwd: workspaceDirectory,
-      directory: 'apps',
-      options: '--bundler=webpack',
-    });
-    expect(
-      readFileSync(
-        join(workspaceDirectory, 'apps', appName, 'webpack.config.js'),
-        'utf8'
-      )
-    ).toContain('composePlugins');
-    const project = JSON.parse(
-      readFileSync(
-        join(workspaceDirectory, 'apps', appName, 'project.json'),
-        'utf8'
-      )
-    );
-    expect(project.targets?.build).toBeDefined();
-
-    await expectWebpackBuildOutput(workspaceDirectory, appName);
+    await runNxCommandAsync(`run ${appName}:lint`, { cwd: workspaceDirectory });
+    await runNxCommandAsync(`run ${appName}:test`, { cwd: workspaceDirectory });
   });
 });
