@@ -43,7 +43,7 @@
     "unitTestRunner": {
       "description": "Test runner to use for unit tests.",
       "type": "string",
-      "enum": ["jest", "none"],
+      "enum": ["jest", "vitest", "none"],
       "default": "jest",
       "x-priority": "important",
       "x-prompt": "Which unit test runner would you like to use?"

@@ -48,10 +48,14 @@ export default [
         {
           ignoredDependencies: [
             'nx',
-            // Loaded through `ensurePackage` by `addLintingToProject` from
-            // `@nx/js`; declared so that the generator does not install it on
-            // demand.
+            // Nx tooling packages that the application generator loads with
+            // `ensurePackage` at the workspace's Nx version. Declaring them
+            // would install a copy that can differ from the workspace's Nx
+            // version and write mismatched versions to its package.json.
             '@nx/eslint',
+            '@nx/jest',
+            '@nx/vitest',
+            '@nx/webpack',
           ],
         },
       ],

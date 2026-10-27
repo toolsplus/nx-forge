@@ -6,7 +6,7 @@ export interface ApplicationGeneratorOptions {
   linter?: 'eslint' | 'none';
   tags?: string;
   bundler?: 'esbuild' | 'webpack';
-  unitTestRunner?: 'jest' | 'none';
+  unitTestRunner?: 'jest' | 'vitest' | 'none';
   swcJest?: boolean;
   /** @deprecated use `swcJest` instead */
   babelJest?: boolean;
@@ -22,7 +22,7 @@ export interface NormalizedOptions extends ApplicationGeneratorOptions {
   outputPath: string;
   bundler: 'esbuild' | 'webpack';
   linter: 'eslint' | 'none';
-  unitTestRunner: 'jest' | 'none';
+  unitTestRunner: 'jest' | 'vitest' | 'none';
   rootProject: boolean;
   parsedTags: string[];
 }

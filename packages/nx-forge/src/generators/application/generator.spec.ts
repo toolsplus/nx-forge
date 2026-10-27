@@ -483,6 +483,47 @@ describe('application generator', () => {
     });
   });
 
+  describe('--unit-test-runner vitest', () => {
+    it('should set up vitest instead of jest', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        unitTestRunner: 'vitest',
+      });
+
+      expect(tree.exists('my-forge-app/vitest.config.mts')).toBeTruthy();
+      expect(tree.exists(jestConfigPath('my-forge-app'))).toBeFalsy();
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.spec.json').compilerOptions.types
+      ).toContain('vitest');
+      expect(readJson(tree, 'my-forge-app/tsconfig.app.json').exclude).toEqual(
+        expect.arrayContaining(['vitest.config.mts', 'src/**/*.spec.ts'])
+      );
+      expect(readNxJson(tree).plugins).toContainEqual(
+        expect.objectContaining({ plugin: '@nx/vitest' })
+      );
+      expect(readNxJson(tree).plugins ?? []).not.toContainEqual(
+        expect.objectContaining({ plugin: '@nx/jest/plugin' })
+      );
+      expect(readJson(tree, 'package.json').devDependencies).toEqual(
+        expect.objectContaining({ '@nx/vitest': expect.any(String) })
+      );
+      expect(readJson(tree, 'package.json').devDependencies).not.toHaveProperty(
+        '@nx/jest'
+      );
+    });
+
+    it('should pass with no tests', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        unitTestRunner: 'vitest',
+      });
+
+      expect(tree.read('my-forge-app/vitest.config.mts', 'utf-8')).toContain(
+        'passWithNoTests: true'
+      );
+    });
+  });
+
   describe('--linter', () => {
     it('should not set up linting with --linter=none', async () => {
       await applicationGenerator(tree, {

@@ -1,4 +1,10 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { generateForgeApp } from './utils/generate-forge-app';
 import { formatCommandResult, runNxCommandAsync } from './utils/async-commands';
@@ -172,5 +178,26 @@ describe('Forge application generator', () => {
     await expectWebpackBuildOutput(workspaceDirectory, appName);
     await runNxCommandAsync(`run ${appName}:lint`, { cwd: workspaceDirectory });
     await runNxCommandAsync(`run ${appName}:test`, { cwd: workspaceDirectory });
+  });
+
+  it('should set up vitest with --unitTestRunner=vitest', async () => {
+    const appName = await generateForgeApp({
+      cwd: workspaceDirectory,
+      directory: 'apps',
+      options: '--unitTestRunner=vitest',
+    });
+    const appDirectory = join(workspaceDirectory, 'apps', appName);
+    expect(existsSync(join(appDirectory, 'vitest.config.mts'))).toBe(true);
+    expect(existsSync(join(appDirectory, 'jest.config.cts'))).toBe(false);
+    writeFileSync(
+      join(appDirectory, 'src', 'index.spec.ts'),
+      `import { expect, it } from 'vitest';\n\nit('runs', () => {\n  expect(1 + 1).toBe(2);\n});\n`
+    );
+
+    const testResult = await runNxCommandAsync(`run ${appName}:test`, {
+      cwd: workspaceDirectory,
+    });
+    expect(testResult.stdout).toMatch(/1 passed/);
+    await expectWebpackBuildOutput(workspaceDirectory, appName);
   });
 });

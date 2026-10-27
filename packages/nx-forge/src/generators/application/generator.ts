@@ -11,7 +11,6 @@ import {
   updateProjectConfiguration,
   updateTsConfigsToJs,
 } from '@nx/devkit';
-import { configurationGenerator } from '@nx/jest';
 import { initGenerator as jsInitGenerator } from '@nx/js';
 import { addLintingToProject, getTsConfigBaseOptions } from '@nx/js/internal';
 import initGenerator from '../init/generator';
@@ -117,7 +116,9 @@ export async function applicationGenerator(
   }
 
   if (options.unitTestRunner === 'jest') {
-    const jestTask = await configurationGenerator(tree, {
+    const { configurationGenerator: jestConfigurationGenerator } =
+      ensurePackage<typeof import('@nx/jest')>('@nx/jest', NX_VERSION);
+    const jestTask = await jestConfigurationGenerator(tree, {
       ...options,
       project: options.name,
       setupFile: 'none',
@@ -129,6 +130,25 @@ export async function applicationGenerator(
     });
     tasks.push(jestTask);
     addPassWithNoTests(tree, options.name);
+  } else if (options.unitTestRunner === 'vitest') {
+    ensurePackage('@nx/vitest', NX_VERSION);
+    // CommonJS `require` instead of dynamic ESM `import`: `ensurePackage`
+    // exposes the temp install via `Module._initPaths`, which ESM ignores.
+    const {
+      configurationGenerator: vitestConfigurationGenerator,
+    }: typeof import('@nx/vitest/generators') = require('@nx/vitest/generators');
+    const vitestTask = await vitestConfigurationGenerator(tree, {
+      project: options.name,
+      uiFramework: 'none',
+      coverageProvider: 'v8',
+      testEnvironment: 'node',
+      runtimeTsconfigFileName: 'tsconfig.app.json',
+      // There are no tests by default, so avoid failing `nx test` on a new app.
+      passWithNoTests: true,
+      skipPackageJson: options.skipPackageJson,
+      skipFormat: true,
+    });
+    tasks.push(vitestTask);
   }
 
   if (options.js) {

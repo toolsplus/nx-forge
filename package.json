@@ -29,6 +29,7 @@
     "@nx/js": "catalog:nx",
     "@nx/node": "catalog:nx",
     "@nx/plugin": "catalog:nx",
+    "@nx/vitest": "catalog:nx",
     "@nx/webpack": "catalog:nx",
     "@nx/workspace": "catalog:nx",
     "@semantic-release/exec": "catalog:",
