@@ -1,73 +1,13 @@
+import '../../test-utils/mock-devkit';
 import * as devkit from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import {
   getProjects,
   readJson,
+  readNxJson,
   readProjectConfiguration,
   Tree,
 } from '@nx/devkit';
-
-/*
- * Force lintProjectGenerator and configurationGenerator to run with addPlugin: false
- * so these generator.spec.ts snapshots assert explicit generated targets instead of
- * depending on Nx plugin inference. This keeps the outputs deterministic in tests.
- *
- * What we verified locally:
- * - applicationGenerator() passes addPlugin through to lintProjectGenerator() and
- *   configurationGenerator() in generator.ts.
- * - These tests use createTreeWithEmptyWorkspace(), so the Tree root is '/virtual'.
- * - With addPlugin: true, current Nx does not stay inside the in-memory Tree. During a
- *   Jest test run, multiGlobWithWorkspaceContext('/virtual', ...) unexpectedly returns
- *   real workspace files such as e2e/nx-forge-e2e/project.json and
- *   e2e/nx-forge-e2e/jest.config.js.
- * - @nx/jest/plugin then calls readdirSync(join('/virtual', projectRoot)), which crashes
- *   with ENOENT for '/virtual/e2e/nx-forge-e2e'.
- * - Strangely, this bug only appeared after switching to pnpm. It is not clear why this
- *   bug was not surfaced under npm.
- *
- * Nx upstream usually takes a different approach: generator specs often keep addPlugin: true
- * and import a private test helper that mocks the project graph, for example:
- * - https://github.com/nrwl/nx/blob/master/packages/js/src/generators/library/library.spec.ts
- * - https://github.com/nrwl/nx/blob/master/packages/jest/src/generators/configuration/configuration.spec.ts
- * - https://github.com/nrwl/nx/blob/master/packages/eslint/src/generators/lint-project/lint-project.spec.ts
- * - https://github.com/nrwl/nx/blob/master/packages/nx/src/internal-testing-utils/mock-project-graph.ts
- *
- * We tried that upstream-style alternative here, but it does not work cleanly in this repo.
- * The helper is not published in the installed Nx package, and mirroring its
- * createProjectGraphAsync mock locally still left the Jest test path above failing.
- *
- * Similar Nx issues:
- * - https://github.com/nrwl/nx/issues/32588
- * - https://github.com/nrwl/nx/issues/29708
- * - https://github.com/nrwl/nx/issues/34474
- */
-jest.mock('@nx/eslint', () => {
-  const actual = jest.requireActual<typeof import('@nx/eslint')>('@nx/eslint');
-
-  return {
-    ...actual,
-    lintProjectGenerator: jest.fn((tree, options) =>
-      actual.lintProjectGenerator(tree, {
-        ...options,
-        addPlugin: false,
-      })
-    ),
-  };
-});
-
-jest.mock('@nx/jest', () => {
-  const actual = jest.requireActual<typeof import('@nx/jest')>('@nx/jest');
-
-  return {
-    ...actual,
-    configurationGenerator: jest.fn((tree, options) =>
-      actual.configurationGenerator(tree, {
-        ...options,
-        addPlugin: false,
-      })
-    ),
-  };
-});
 
 import { applicationGenerator } from './generator';
 import { ApplicationGeneratorOptions } from './schema';
@@ -81,7 +21,9 @@ describe('application generator', () => {
   let tree: Tree;
 
   beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace();
+    // Nx defaults test workspaces to oxfmt, which the generator would install on
+    // demand. Prettier is already installed in this workspace.
+    tree = createTreeWithEmptyWorkspace({ formatter: 'prettier' });
     jest.clearAllMocks();
   });
 
@@ -90,7 +32,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         bundler: 'webpack',
-        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -103,17 +44,10 @@ describe('application generator', () => {
           "sourceRoot": "my-forge-app/src",
           "tags": [],
           "targets": {
-            "lint": {
-              "executor": "@nx/eslint:lint",
-            },
             "test": {
-              "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "my-forge-app/jest.config.cts",
+                "passWithNoTests": true,
               },
-              "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}",
-              ],
             },
           },
         }
@@ -124,7 +58,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         bundler: 'esbuild',
-        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -176,17 +109,10 @@ describe('application generator', () => {
                 "{options.outputPath}",
               ],
             },
-            "lint": {
-              "executor": "@nx/eslint:lint",
-            },
             "test": {
-              "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "my-forge-app/jest.config.cts",
+                "passWithNoTests": true,
               },
-              "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}",
-              ],
             },
           },
         }
@@ -197,7 +123,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         tags: 'one,two',
-        addPlugin: true,
       });
 
       const projects = Object.fromEntries(getProjects(tree));
@@ -212,7 +137,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         bundler: 'webpack',
-        addPlugin: true,
       });
       expect(tree.exists('my-forge-app/webpack.config.js')).toBeTruthy();
       expect(tree.exists(jestConfigPath('my-forge-app'))).toBeTruthy();
@@ -242,6 +166,7 @@ describe('application generator', () => {
 
       const tsconfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsconfigApp.compilerOptions.outDir).toEqual('../dist/out-tsc');
+      expect(tsconfigApp.compilerOptions.moduleResolution).toEqual('bundler');
       expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsx');
       expect(tsconfigApp.compilerOptions).not.toHaveProperty('jsxFactory');
       expect(tsconfigApp.extends).toEqual('./tsconfig.json');
@@ -266,12 +191,37 @@ describe('application generator', () => {
       `);
     });
 
+    it('should infer build, lint and test targets', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        bundler: 'webpack',
+      });
+
+      const plugins = (readNxJson(tree).plugins ?? []).map((plugin) =>
+        typeof plugin === 'string' ? plugin : plugin.plugin
+      );
+      expect(plugins).toEqual(
+        expect.arrayContaining([
+          '@nx/webpack/plugin',
+          '@nx/eslint/plugin',
+          '@nx/jest/plugin',
+        ])
+      );
+
+      const webpackConfig = tree.read(
+        'my-forge-app/webpack.config.js',
+        'utf-8'
+      );
+      expect(webpackConfig).toContain('new NxAppWebpackPlugin({');
+      expect(webpackConfig).toContain(`outputPath: '../dist/my-forge-app/src'`);
+      expect(webpackConfig).toContain(`main: './src/index.ts'`);
+    });
+
     it('should extend from root tsconfig.json when no tsconfig.base.json', async () => {
       tree.rename('tsconfig.base.json', 'tsconfig.json');
 
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
-        addPlugin: true,
       });
 
       const tsconfig = readJson(tree, 'my-forge-app/tsconfig.json');
@@ -284,7 +234,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         bundler: 'webpack',
         directory: 'my-dir/my-forge-app',
-        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -298,17 +247,10 @@ describe('application generator', () => {
           "sourceRoot": "my-dir/my-forge-app/src",
           "tags": [],
           "targets": {
-            "lint": {
-              "executor": "@nx/eslint:lint",
-            },
             "test": {
-              "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "my-dir/my-forge-app/jest.config.cts",
+                "passWithNoTests": true,
               },
-              "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}",
-              ],
             },
           },
         }
@@ -319,7 +261,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         bundler: 'esbuild',
         directory: 'my-dir/my-forge-app',
-        addPlugin: true,
       });
 
       const project = readProjectConfiguration(tree, 'my-forge-app');
@@ -372,17 +313,10 @@ describe('application generator', () => {
                 "{options.outputPath}",
               ],
             },
-            "lint": {
-              "executor": "@nx/eslint:lint",
-            },
             "test": {
-              "executor": "@nx/jest:jest",
               "options": {
-                "jestConfig": "my-dir/my-forge-app/jest.config.cts",
+                "passWithNoTests": true,
               },
-              "outputs": [
-                "{workspaceRoot}/coverage/{projectRoot}",
-              ],
             },
           },
         }
@@ -394,7 +328,6 @@ describe('application generator', () => {
         name: 'my-forge-app',
         directory: 'myDir',
         tags: 'one,two',
-        addPlugin: true,
       });
 
       const projects = Object.fromEntries(getProjects(tree));
@@ -409,7 +342,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         name: 'my-forge-app',
         directory: 'my-dir/my-forge-app/',
-        addPlugin: true,
       });
 
       [
@@ -472,17 +404,183 @@ describe('application generator', () => {
     });
   });
 
+  describe('TypeScript version', () => {
+    const setTypeScriptVersion = (version: string) =>
+      devkit.updateJson(tree, 'package.json', (json) => ({
+        ...json,
+        devDependencies: { ...json.devDependencies, typescript: version },
+      }));
+
+    it('should resolve modules with node10 on TypeScript 5', async () => {
+      setTypeScriptVersion('~5.9.2');
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json').compilerOptions
+      ).toEqual(
+        expect.objectContaining({
+          module: 'commonjs',
+          moduleResolution: 'node10',
+        })
+      );
+    });
+
+    it('should resolve modules with bundler on TypeScript 6', async () => {
+      setTypeScriptVersion('~6.0.3');
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json').compilerOptions
+      ).toEqual(
+        expect.objectContaining({
+          module: 'commonjs',
+          moduleResolution: 'bundler',
+        })
+      );
+    });
+  });
+
+  describe('dependencies', () => {
+    it('should keep existing versions of Forge dependencies', async () => {
+      devkit.updateJson(tree, 'package.json', (json) => ({
+        ...json,
+        dependencies: {
+          ...json.dependencies,
+          '@forge/api': '^8.3.0',
+          '@forge/resolver': '^2.0.1',
+        },
+      }));
+
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(readJson(tree, 'package.json').dependencies).toEqual(
+        expect.objectContaining({
+          '@forge/api': '^8.3.0',
+          '@forge/resolver': '^2.0.1',
+        })
+      );
+    });
+  });
+
   describe('--unit-test-runner none', () => {
     it('should not generate test configuration', async () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         unitTestRunner: 'none',
-        addPlugin: true,
       });
       expect(tree.exists('jest.config.ts')).toBeFalsy();
       expect(tree.exists('my-forge-app/tsconfig.spec.json')).toBeFalsy();
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.app.json')
+      ).not.toHaveProperty('exclude');
       expect(tree.exists('my-forge-app/jest.config.ts')).toBeFalsy();
       expect(tree.exists(jestConfigPath('my-forge-app'))).toBeFalsy();
+      expect(
+        readProjectConfiguration(tree, 'my-forge-app').targets?.test
+      ).toBeUndefined();
+      expect(readNxJson(tree).plugins ?? []).not.toContainEqual(
+        expect.objectContaining({ plugin: '@nx/jest/plugin' })
+      );
+    });
+  });
+
+  describe('--unit-test-runner vitest', () => {
+    it('should set up vitest instead of jest', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        unitTestRunner: 'vitest',
+      });
+
+      expect(tree.exists('my-forge-app/vitest.config.mts')).toBeTruthy();
+      expect(tree.exists(jestConfigPath('my-forge-app'))).toBeFalsy();
+      expect(
+        readJson(tree, 'my-forge-app/tsconfig.spec.json').compilerOptions.types
+      ).toContain('vitest');
+      const { exclude } = readJson(tree, 'my-forge-app/tsconfig.app.json');
+      expect(exclude).toEqual(
+        expect.arrayContaining(['vitest.config.mts', 'src/**/*.spec.ts'])
+      );
+      expect(exclude).not.toEqual(
+        expect.arrayContaining([expect.stringMatching(/^jest\.config/)])
+      );
+      expect(readNxJson(tree).plugins).toContainEqual(
+        expect.objectContaining({ plugin: '@nx/vitest' })
+      );
+      expect(readNxJson(tree).plugins ?? []).not.toContainEqual(
+        expect.objectContaining({ plugin: '@nx/jest/plugin' })
+      );
+      expect(readJson(tree, 'package.json').devDependencies).toEqual(
+        expect.objectContaining({ '@nx/vitest': expect.any(String) })
+      );
+      expect(readJson(tree, 'package.json').devDependencies).not.toHaveProperty(
+        '@nx/jest'
+      );
+    });
+
+    it('should pass with no tests', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        unitTestRunner: 'vitest',
+      });
+
+      expect(tree.read('my-forge-app/vitest.config.mts', 'utf-8')).toContain(
+        'passWithNoTests: true'
+      );
+    });
+  });
+
+  describe('--linter', () => {
+    it('should not set up linting with --linter=none', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        linter: 'none',
+      });
+
+      expect(tree.exists(eslintConfigPath('my-forge-app'))).toBeFalsy();
+      expect(readNxJson(tree).plugins ?? []).not.toContainEqual(
+        expect.objectContaining({ plugin: '@nx/eslint/plugin' })
+      );
+    });
+
+    it('should enable typed linting with --enableTypedLinting', async () => {
+      await applicationGenerator(tree, {
+        directory: 'my-forge-app',
+        enableTypedLinting: true,
+      });
+
+      const eslintConfig = tree.read(eslintConfigPath('my-forge-app'), 'utf-8');
+      expect(eslintConfig).toContain('projectService: true');
+      expect(eslintConfig).toContain('tsconfigRootDir: import.meta.dirname');
+    });
+  });
+
+  describe('--rootProject', () => {
+    it('should build root projects into the Forge output path', async () => {
+      await applicationGenerator(tree, {
+        directory: '.',
+        name: 'my-forge-app',
+        rootProject: true,
+      });
+
+      expect(tree.read('webpack.config.js', 'utf-8')).toContain(
+        `outputPath: './dist/src'`
+      );
+    });
+
+    it('should build root esbuild projects into the Forge output path', async () => {
+      await applicationGenerator(tree, {
+        directory: '.',
+        name: 'my-forge-app',
+        rootProject: true,
+        bundler: 'esbuild',
+      });
+
+      expect(
+        readProjectConfiguration(tree, 'my-forge-app').targets?.build?.options
+          ?.outputPath
+      ).toEqual('dist/src');
     });
   });
 
@@ -492,7 +590,6 @@ describe('application generator', () => {
         directory: 'my-forge-app',
         tags: 'one,two',
         swcJest: true,
-        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.read(jestConfigPath('my-forge-app'), 'utf-8'))
@@ -518,7 +615,6 @@ describe('application generator', () => {
         directory: 'my-forge-app',
         tags: 'one,two',
         babelJest: true,
-        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.read(jestConfigPath('my-forge-app'), 'utf-8'))
@@ -543,7 +639,6 @@ describe('application generator', () => {
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         js: true,
-        addPlugin: true,
       } as ApplicationGeneratorOptions);
 
       expect(tree.exists(`my-forge-app/jest.config.js`)).toBeTruthy();
@@ -557,17 +652,13 @@ describe('application generator', () => {
 
       const tsConfigApp = readJson(tree, 'my-forge-app/tsconfig.app.json');
       expect(tsConfigApp.include).toEqual(['src/**/*.ts', 'src/**/*.js']);
-      expect(tsConfigApp.exclude.sort()).toEqual(
-        [
-          'jest.config.ts',
-          'jest.config.cts',
-          'src/**/*.spec.ts',
-          'src/**/*.test.ts',
-          'jest.config.js',
-          'src/**/*.spec.js',
-          'src/**/*.test.js',
-        ].sort()
-      );
+      expect(tsConfigApp.exclude).toEqual([
+        'jest.config.js',
+        'src/**/*.spec.ts',
+        'src/**/*.test.ts',
+        'src/**/*.spec.js',
+        'src/**/*.test.js',
+      ]);
     });
 
     it('should generate js files for nested libs as well', async () => {
@@ -575,7 +666,6 @@ describe('application generator', () => {
         name: 'my-forge-app',
         directory: 'my-dir/my-forge-app/',
         js: true,
-        addPlugin: true,
       } as ApplicationGeneratorOptions);
       expect(tree.exists(`my-dir/my-forge-app/jest.config.js`)).toBeTruthy();
       expect(tree.exists('my-dir/my-forge-app/src/index.js')).toBeTruthy();
@@ -584,23 +674,17 @@ describe('application generator', () => {
 
   describe('--skipFormat', () => {
     it('should format files by default', async () => {
-      jest.spyOn(devkit, 'formatFiles');
-
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
-        addPlugin: true,
       });
 
       expect(devkit.formatFiles).toHaveBeenCalled();
     });
 
     it('should not format files when --skipFormat=true', async () => {
-      jest.spyOn(devkit, 'formatFiles');
-
       await applicationGenerator(tree, {
         directory: 'my-forge-app',
         skipFormat: true,
-        addPlugin: true,
       });
 
       expect(devkit.formatFiles).not.toHaveBeenCalled();

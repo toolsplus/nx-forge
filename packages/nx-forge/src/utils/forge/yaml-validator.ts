@@ -1,12 +1,12 @@
 import {
   ManifestObject,
   ManifestParserBuilder,
+  ManifestValidationResult,
+  ValidatorInterface,
   errors,
   References,
 } from '@forge/manifest';
 import { readFileSync } from 'node:fs';
-import { ValidatorInterface } from '@forge/manifest/out/validators/validator-interface';
-import { ManifestValidationResult } from '@forge/manifest/out/types';
 
 /**
  * Copy of @forge/manifest YamlValidator with the only difference that the

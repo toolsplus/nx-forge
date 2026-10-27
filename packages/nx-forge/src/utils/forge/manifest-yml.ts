@@ -2,12 +2,12 @@ import {
   AbstractValidationProcessor,
   FileValidator,
   ManifestSchema,
+  ManifestValidationResult,
   SchemaValidator,
 } from '@forge/manifest';
-import * as FULL_SCHEMA from '@forge/manifest/out/schema/manifest-schema.json';
+import { FULL_MANIFEST_SCHEMA } from '../../shared/manifest/manifest-schema';
 import { dump } from 'js-yaml';
 import { writeFileSync } from 'fs';
-import { ManifestValidationResult } from '@forge/manifest/out/types';
 import { isResourceType } from '../../shared/manifest/util-manifest';
 import YamlValidator from './yaml-validator';
 
@@ -16,7 +16,7 @@ class ManifestYmlValidator extends AbstractValidationProcessor<ManifestSchema> {
     super([
       new FileValidator(),
       new YamlValidator(options),
-      new SchemaValidator(FULL_SCHEMA),
+      new SchemaValidator(FULL_MANIFEST_SCHEMA),
     ]);
   }
 }
@@ -33,7 +33,7 @@ const schemaAndFileValidator =
 const schemaContentValidator: ManifestSchemaValidator<ManifestSchema> = (
   manifestContent: ManifestSchema
 ) =>
-  new SchemaValidator<ManifestSchema>(FULL_SCHEMA).validate({
+  new SchemaValidator<ManifestSchema>(FULL_MANIFEST_SCHEMA).validate({
     yamlContent: manifestContent,
   });
 

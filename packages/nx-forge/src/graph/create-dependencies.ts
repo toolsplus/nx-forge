@@ -74,7 +74,9 @@ export const createDependencies: CreateDependencies = async (
     for (const manifestFile of changed.filter((f) =>
       f.file.endsWith('manifest.yml')
     )) {
-      logger.info(`[nx-forge] Processing ${projectName}:${manifestFile.file}`);
+      logger.verbose(
+        `[nx-forge] Processing ${projectName}:${manifestFile.file}`
+      );
       const uiResourceDependencies = await getUIResourceDependencies(
         [projectName, manifestFile],
         context

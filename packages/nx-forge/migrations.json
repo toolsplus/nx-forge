@@ -1,21 +1,9 @@
 {
   "generators": {
-    "update-2-3-0-add-nx-forge-plugin": {
-      "version": "2.3.0-beta.0",
-      "description": "Adds @toolsplus/nx-forge plugin to workspace",
-      "cli": "nx",
-      "implementation": "./src/migrations/update-2-3-0/add-nx-forge-plugin"
-    },
-    "update-2-3-0-remove-implicit-custom-ui-dependencies": {
-      "version": "2.3.0-beta.0",
-      "description": "Removes implicit Custom UI dependencies from Forge app projects",
-      "cli": "nx",
-      "implementation": "./src/migrations/update-2-3-0/remove-implicit-custom-ui-dependencies"
-    },
-    "update-3-0-0-webpack-config-setup": {
-      "version": "3.0.0-beta.0",
-      "description": "Add webpack.config.js file when webpackConfig is not defined",
-      "implementation": "./src/migrations/update-3-0-0-webpack-config-setup/update-3-0-0-webpack-config-setup"
+    "update-9-0-0-replace-set-parser-options-project": {
+      "version": "9.0.0-beta.0",
+      "description": "Replaces the removed `setParserOptionsProject` application generator option with `enableTypedLinting` in generator defaults",
+      "implementation": "./src/migrations/update-9-0-0/replace-set-parser-options-project"
     }
   }
 }

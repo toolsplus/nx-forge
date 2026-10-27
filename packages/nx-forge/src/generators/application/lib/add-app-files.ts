@@ -6,8 +6,8 @@ import {
   toJS,
 } from '@nx/devkit';
 import { getRelativePathToRootTsConfig } from '@nx/js';
+import { getTsConfigModuleResolution } from '@nx/js/internal';
 import type { NormalizedOptions } from '../schema';
-import { hasWebpackPlugin } from '../../../utils/has-webpack-plugin';
 
 export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
   generateFiles(
@@ -19,24 +19,19 @@ export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
       name: options.name,
       root: options.appProjectRoot,
       offset: offsetFromRoot(options.appProjectRoot),
+      // `bundler` requires an ES `module` before TypeScript 6, which rejects
+      // the `node10` resolution that `commonjs` apps need on TypeScript 5.
+      moduleResolution: getTsConfigModuleResolution(tree),
       rootTsConfigPath: getRelativePathToRootTsConfig(
         tree,
         options.appProjectRoot
       ),
-      webpackPluginOptions:
-        hasWebpackPlugin(tree) && options.addPlugin
-          ? {
-              outputPath: joinPathFragments(
-                'dist',
-                (options.rootProject ? options.name : options.appProjectRoot) ??
-                  '',
-                'src'
-              ),
-              main: './src/index' + (options.js ? '.js' : '.ts'),
-              tsConfig: './tsconfig.app.json',
-              assets: ['./src/assets'],
-            }
-          : null,
+      webpackPluginOptions: {
+        outputPath: joinPathFragments(options.outputPath, 'src'),
+        main: './src/index' + (options.js ? '.js' : '.ts'),
+        tsConfig: './tsconfig.app.json',
+        assets: ['./src/assets'],
+      },
     }
   );
 
