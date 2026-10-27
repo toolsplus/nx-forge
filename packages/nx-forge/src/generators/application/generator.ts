@@ -4,14 +4,15 @@ import {
   GeneratorCallback,
   joinPathFragments,
   NX_VERSION,
+  readProjectConfiguration,
   runTasksInSerial,
   Tree,
   updateJson,
+  updateProjectConfiguration,
   updateTsConfigsToJs,
 } from '@nx/devkit';
-import { lintProjectGenerator } from '@nx/eslint';
-import { configurationGenerator } from '@nx/jest';
-import { initGenerator as jsInitGenerator, tsConfigBaseOptions } from '@nx/js';
+import { initGenerator as jsInitGenerator } from '@nx/js';
+import { addLintingToProject, getTsConfigBaseOptions } from '@nx/js/internal';
 import initGenerator from '../init/generator';
 import { ApplicationGeneratorOptions, NormalizedOptions } from './schema';
 import { addProject, addAppFiles, normalizeOptions } from './lib';
@@ -23,7 +24,7 @@ function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
     if (options.rootProject) {
       return {
         compilerOptions: {
-          ...tsConfigBaseOptions,
+          ...getTsConfigBaseOptions(tree),
           ...json.compilerOptions,
           esModuleInterop: true,
         },
@@ -43,17 +44,25 @@ function updateTsConfigOptions(tree: Tree, options: NormalizedOptions) {
   });
 }
 
-export async function applicationGenerator(
-  tree: Tree,
-  schema: ApplicationGeneratorOptions
-) {
-  return await applicationGeneratorInternal(tree, {
-    addPlugin: false,
-    ...schema,
+// There are no tests by default, so set `--passWithNoTests` to avoid test failure on new project.
+function addPassWithNoTests(tree: Tree, projectName: string) {
+  const projectConfig = readProjectConfiguration(tree, projectName);
+  updateProjectConfiguration(tree, projectName, {
+    ...projectConfig,
+    targets: {
+      ...projectConfig.targets,
+      test: {
+        ...projectConfig.targets?.test,
+        options: {
+          ...projectConfig.targets?.test?.options,
+          passWithNoTests: true,
+        },
+      },
+    },
   });
 }
 
-export async function applicationGeneratorInternal(
+export async function applicationGenerator(
   tree: Tree,
   rawOptions: ApplicationGeneratorOptions
 ): Promise<GeneratorCallback> {
@@ -63,9 +72,7 @@ export async function applicationGeneratorInternal(
 
   const jsInitTask = await jsInitGenerator(tree, {
     ...rawOptions,
-    tsConfigName: rawOptions.rootProject
-      ? 'tsconfig.json'
-      : 'tsconfig.base.json',
+    tsConfigName: options.rootProject ? 'tsconfig.json' : 'tsconfig.base.json',
     skipFormat: true,
   });
   tasks.push(jsInitTask);
@@ -85,7 +92,6 @@ export async function applicationGeneratorInternal(
     const webpackInitTask = await webpackInitGenerator(tree, {
       skipPackageJson: options.skipPackageJson,
       skipFormat: true,
-      addPlugin: options.addPlugin,
     });
     tasks.push(webpackInitTask);
   }
@@ -95,24 +101,24 @@ export async function applicationGeneratorInternal(
 
   updateTsConfigOptions(tree, options);
 
-  if (options.linter === 'eslint') {
-    const lintTask = await lintProjectGenerator(tree, {
+  if (options.linter !== 'none') {
+    const lintTask = await addLintingToProject(tree, {
       linter: options.linter,
       project: options.name,
       tsConfigPaths: [
         joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
       ],
       unitTestRunner: options.unitTestRunner,
-      skipFormat: true,
-      setParserOptionsProject: options.setParserOptionsProject,
+      enableTypedLinting: options.enableTypedLinting,
       rootProject: options.rootProject,
-      addPlugin: options.addPlugin,
     });
     tasks.push(lintTask);
   }
 
   if (options.unitTestRunner === 'jest') {
-    const jestTask = await configurationGenerator(tree, {
+    const { configurationGenerator: jestConfigurationGenerator } =
+      ensurePackage<typeof import('@nx/jest')>('@nx/jest', NX_VERSION);
+    const jestTask = await jestConfigurationGenerator(tree, {
       ...options,
       project: options.name,
       setupFile: 'none',
@@ -123,6 +129,26 @@ export async function applicationGeneratorInternal(
       skipFormat: true,
     });
     tasks.push(jestTask);
+    addPassWithNoTests(tree, options.name);
+  } else if (options.unitTestRunner === 'vitest') {
+    ensurePackage('@nx/vitest', NX_VERSION);
+    // CommonJS `require` instead of dynamic ESM `import`: `ensurePackage`
+    // exposes the temp install via `Module._initPaths`, which ESM ignores.
+    const {
+      configurationGenerator: vitestConfigurationGenerator,
+    }: typeof import('@nx/vitest/generators') = require('@nx/vitest/generators');
+    const vitestTask = await vitestConfigurationGenerator(tree, {
+      project: options.name,
+      uiFramework: 'none',
+      coverageProvider: 'v8',
+      testEnvironment: 'node',
+      runtimeTsconfigFileName: 'tsconfig.app.json',
+      // There are no tests by default, so avoid failing `nx test` on a new app.
+      passWithNoTests: true,
+      skipPackageJson: options.skipPackageJson,
+      skipFormat: true,
+    });
+    tasks.push(vitestTask);
   }
 
   if (options.js) {

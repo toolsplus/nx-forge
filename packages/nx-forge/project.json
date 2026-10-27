@@ -2,7 +2,6 @@
   "name": "nx-forge",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/nx-forge/src",
-  "tags": [],
   "release": {
     "version": {
       "manifestRootsToUpdate": ["dist/{projectRoot}"],
@@ -10,6 +9,7 @@
       "fallbackCurrentVersionResolver": "disk"
     }
   },
+  "tags": [],
   "targets": {
     "nx-release-publish": {
       "executor": "@nx/js:release-publish",
@@ -53,17 +53,6 @@
             "output": "."
           }
         ]
-      }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/nx-forge"],
-      "options": {
-        "jestConfig": "packages/nx-forge/jest.config.ts"
       }
     }
   }

@@ -1,10 +1,10 @@
 import { App, ManifestSchema } from '@forge/manifest';
 import {
+  HostedResourcesSchema,
   resourceTypeByResourceDefinition,
   isResourceType,
   ResourceType,
 } from './util-manifest';
-import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 
 /**
  * The following test defines a manifest with resource definitions and verifies

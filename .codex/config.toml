@@ -1,17 +1,17 @@
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
 
-approval_policy = 'on-request'
-sandbox_mode = 'workspace-write'
-mcp_servers.nx-mcp.command = 'npx'
-mcp_servers.nx-mcp.args = [
-	'nx',
-	'mcp',
-]
-features.multi_agent = true
+[mcp_servers.nx-mcp]
+command = "npx"
+args = [ "nx", "mcp" ]
+
+[features]
+multi_agent = true
 
 [sandbox_workspace_write]
 network_access = true
-writable_roots = ['~/.npmrc']
+writable_roots = [ "~/.npmrc" ]
 
 [agents.ci-monitor-subagent]
-description = 'CI helper for /monitor-ci. Fetches CI status, retrieves fix details, or updates self-healing fixes. Executes one MCP tool call and returns the result.'
-config_file = 'agents/ci-monitor-subagent.toml'
+description = "CI helper for /monitor-ci. Fetches CI status, retrieves fix details, or updates self-healing fixes. Executes one MCP tool call and returns the result."
+config_file = "agents/ci-monitor-subagent.toml"

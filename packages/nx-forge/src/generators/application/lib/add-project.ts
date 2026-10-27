@@ -7,42 +7,6 @@ import {
 } from '@nx/devkit';
 import { NormalizedOptions } from '../schema';
 import { addBuildTargetDefaults } from '@nx/devkit/internal';
-import { hasWebpackPlugin } from '../../../utils/has-webpack-plugin';
-
-function getWebpackBuildConfig(
-  project: ProjectConfiguration,
-  options: NormalizedOptions
-): TargetConfiguration {
-  return {
-    executor: `@nx/webpack:webpack`,
-    outputs: ['{options.outputPath}'],
-    defaultConfiguration: 'production',
-    options: {
-      target: 'node',
-      compiler: 'tsc',
-      outputPath: joinPathFragments(
-        'dist',
-        (options.rootProject ? options.name : options.appProjectRoot) ?? '',
-        'src'
-      ),
-      main: joinPathFragments(
-        project.sourceRoot ?? '',
-        'index' + (options.js ? '.js' : '.ts')
-      ),
-      outputFileName: 'index.js',
-      tsConfig: joinPathFragments(options.appProjectRoot, 'tsconfig.app.json'),
-      assets: [joinPathFragments(project.sourceRoot ?? '', 'assets')],
-      webpackConfig: joinPathFragments(
-        options.appProjectRoot,
-        'webpack.config.js'
-      ),
-    },
-    configurations: {
-      development: {},
-      production: {},
-    },
-  };
-}
 
 function getEsBuildConfig(
   project: ProjectConfiguration,
@@ -54,11 +18,7 @@ function getEsBuildConfig(
     defaultConfiguration: 'production',
     options: {
       platform: 'node',
-      outputPath: joinPathFragments(
-        'dist',
-        (options.rootProject ? options.name : options.appProjectRoot) ?? '',
-        'src'
-      ),
+      outputPath: joinPathFragments(options.outputPath, 'src'),
       // Use CJS for Node apps for widest compatibility.
       format: ['cjs'],
       bundle: true,
@@ -98,21 +58,17 @@ export function addProject(tree: Tree, options: NormalizedOptions) {
     root: options.appProjectRoot,
     sourceRoot: joinPathFragments(options.appProjectRoot, 'src'),
     projectType: 'application',
-    targets: {},
     tags: options.parsedTags,
   };
 
   if (options.bundler === 'esbuild') {
     addBuildTargetDefaults(tree, '@nx/esbuild:esbuild', 'build');
-    project.targets ??= {};
-    project.targets.build = getEsBuildConfig(project, options);
-  } else if (options.bundler === 'webpack') {
-    if (!hasWebpackPlugin(tree) && !options.addPlugin) {
-      addBuildTargetDefaults(tree, `@nx/webpack:webpack`, 'build');
-      project.targets ??= {};
-      project.targets.build = getWebpackBuildConfig(project, options);
-    }
   }
 
-  addProjectConfiguration(tree, options.name, project);
+  const targets: ProjectConfiguration['targets'] =
+    options.bundler === 'esbuild'
+      ? { build: getEsBuildConfig(project, options) }
+      : {};
+
+  addProjectConfiguration(tree, options.name, { ...project, targets });
 }

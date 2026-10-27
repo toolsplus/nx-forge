@@ -1,6 +1,11 @@
-import { ManifestSchema, Modules } from '@forge/manifest';
-import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
+import { ManifestSchema, Modules, Resources } from '@forge/manifest';
 import { logger } from '@nx/devkit';
+
+/**
+ * A single entry of the manifest `resources` list. `@forge/manifest` only
+ * exports the list type from its public entry point.
+ */
+export type HostedResourcesSchema = Resources[number];
 
 // https://stackoverflow.com/a/8511350/5115898
 const isObject = (v: unknown): v is Record<string, unknown> =>

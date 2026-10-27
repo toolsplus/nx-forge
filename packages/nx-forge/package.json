@@ -13,11 +13,8 @@
   "executors": "./executors.json",
   "dependencies": {
     "@forge/manifest": "catalog:",
-    "@nx/devkit": "catalog:nx",
-    "@nx/eslint": "catalog:nx",
-    "@nx/jest": "catalog:nx",
-    "@nx/js": "catalog:nx",
-    "@nx/webpack": "catalog:nx",
+    "@nx/devkit": "^24.0.1",
+    "@nx/js": "^24.0.1",
     "cross-spawn": "catalog:",
     "fs-extra": "catalog:",
     "js-yaml": "catalog:",
@@ -25,7 +22,7 @@
     "tslib": "catalog:"
   },
   "peerDependencies": {
-    "nx": ">=23 <24"
+    "nx": ">=24 <25"
   },
   "type": "commonjs",
   "nx-migrations": {

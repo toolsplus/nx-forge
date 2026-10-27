@@ -8,10 +8,12 @@ import {
   ProjectGraphProjectNode,
 } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
-import { HostedResourcesSchema } from '@forge/manifest/out/schema/manifest';
 import { NormalizedOptions } from '../schema';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
-import { isResourceType } from '../../../shared/manifest/util-manifest';
+import {
+  HostedResourcesSchema,
+  isResourceType,
+} from '../../../shared/manifest/util-manifest';
 import { directoryExists } from '../../../utils/util-fs';
 
 type Options = Pick<

@@ -1,6 +1,7 @@
-import { readNxJson, Tree } from '@nx/devkit';
+import { Tree } from '@nx/devkit';
 import type { ApplicationGeneratorOptions, NormalizedOptions } from '../schema';
 import { determineProjectNameAndRootOptions } from '@nx/devkit/internal';
+import { getForgeOutputPath } from '../../../shared/forge-output-path';
 
 export async function normalizeOptions(
   tree: Tree,
@@ -13,28 +14,20 @@ export async function normalizeOptions(
       directory: options.directory,
       rootProject: options.rootProject,
     });
-  options.rootProject = appProjectRoot === '.';
-
-  options.bundler = options.bundler ?? 'webpack';
 
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
     : [];
 
-  const nxJson = readNxJson(tree);
-  const addPlugin =
-    options.addPlugin ??
-    (process.env.NX_ADD_PLUGINS !== 'false' &&
-      nxJson?.useInferencePlugins !== false);
-
   return {
     ...options,
-    addPlugin,
     name: appProjectName,
     appProjectRoot,
+    outputPath: getForgeOutputPath(appProjectRoot),
     parsedTags,
+    bundler: options.bundler ?? 'webpack',
     linter: options.linter ?? 'eslint',
     unitTestRunner: options.unitTestRunner ?? 'jest',
-    rootProject: options.rootProject ?? false,
+    rootProject: appProjectRoot === '.',
   };
 }
