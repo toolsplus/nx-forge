@@ -22,6 +22,13 @@ import {
   cleanupTestWorkspace,
   createTestWorkspace,
 } from './utils/test-workspace';
+import {
+  addWebTrigger,
+  invokeWebTrigger,
+  parseWebTriggerUrl,
+  WEB_TRIGGER_KEY,
+  WEB_TRIGGER_RESPONSE_BODY,
+} from './utils/web-trigger';
 import stripAnsi = require('strip-ansi');
 
 const forgeLifecycleTestTimeoutMs = 8 * 60 * 1000;
@@ -112,11 +119,12 @@ describe('Forge lifecycle', () => {
     }
   });
 
-  it('should generate, build, package, register, deploy and install a Forge app', async () => {
+  it('should generate, build, package, register, deploy, install and invoke a Forge app', async () => {
     const appName = await generateForgeApp({
       cwd: workspaceDirectory,
       directory: 'apps',
     });
+    addWebTrigger(join(workspaceDirectory, 'apps', appName));
 
     // Build
 
@@ -211,6 +219,29 @@ describe('Forge lifecycle', () => {
         command: `forge ${installCommand}`,
         result: installResult,
         stdout: /Install.*complete/,
+      });
+
+      // Invoke a function through a web trigger
+
+      const webTriggerCommand = `webtrigger create --functionKey ${WEB_TRIGGER_KEY} --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment}`;
+      const webTriggerResult = await runForgeCommandAsync(webTriggerCommand, {
+        cwd: join(workspaceDirectory, 'dist', 'apps', appName),
+        silenceError: true,
+      });
+      expectCliCommand({
+        command: `forge ${webTriggerCommand}`,
+        result: webTriggerResult,
+        allowStderr: true,
+      });
+      const webTriggerUrl = parseWebTriggerUrl(
+        stripAnsi(webTriggerResult.stdout)
+      );
+      expect(webTriggerUrl).toBeDefined();
+
+      const webTriggerResponse = await invokeWebTrigger(webTriggerUrl ?? '');
+      expect(webTriggerResponse).toEqual({
+        status: 200,
+        body: WEB_TRIGGER_RESPONSE_BODY,
       });
     } finally {
       if (registeredAppId) {

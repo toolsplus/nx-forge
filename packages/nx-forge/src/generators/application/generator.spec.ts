@@ -215,6 +215,7 @@ describe('application generator', () => {
       expect(webpackConfig).toContain('new NxAppWebpackPlugin({');
       expect(webpackConfig).toContain(`outputPath: '../dist/my-forge-app/src'`);
       expect(webpackConfig).toContain(`main: './src/index.ts'`);
+      expect(webpackConfig).toContain(`library: { type: 'commonjs2' }`);
     });
 
     it('should extend from root tsconfig.json when no tsconfig.base.json', async () => {

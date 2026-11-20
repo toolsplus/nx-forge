@@ -4,6 +4,11 @@
       "version": "9.0.0-beta.0",
       "description": "Replaces the removed `setParserOptionsProject` application generator option with `enableTypedLinting` in generator defaults",
       "implementation": "./src/migrations/update-9-0-0/replace-set-parser-options-project"
+    },
+    "update-9-0-1-add-webpack-library-type": {
+      "version": "9.0.1",
+      "description": "Sets `output.library` to `commonjs2` in Forge app Webpack configs so the bundled functions export their handlers",
+      "implementation": "./src/migrations/update-9-0-1/add-webpack-library-type"
     }
   }
 }

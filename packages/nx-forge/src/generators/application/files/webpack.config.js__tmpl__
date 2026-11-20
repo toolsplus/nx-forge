@@ -2,6 +2,9 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 
 module.exports = {
   output: {
+    // Forge loads function handlers from the exports of index.js, so the
+    // bundle must assign the entry module's exports to `module.exports`.
+    library: { type: 'commonjs2' },
     filename: 'index.js',
   },
   plugins: [
