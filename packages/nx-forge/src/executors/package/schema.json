@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/schema",
   "version": 2,
   "title": "Forge application package target",
-  "description": "Packages the built Forge code in a format that the Forge CLI accepts.",
+  "description": "Copies the Forge manifest and resources into the artifact directory and checks that the bundle is ready for Forge to ship.",
   "type": "object",
   "properties": {
     "outputPath": {
@@ -18,10 +18,13 @@
       "description": "Map of resource project names to their respective output path.",
       "default": {}
     },
-    "tsConfig": {
-      "type": "string",
-      "default": "tsconfig.app.json",
-      "description": "Path for the TypeScript configuration file, relative to the current project."
+    "allowMissingModules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Modules that the bundle may load although they are not in it, for optional requires that the code handles itself. A module name also covers its subpaths. The package target fails if the bundle loads any other module that is neither a Node built-in nor a file in the bundle folder.",
+      "default": []
     },
     "uiKit2Packaging": {
       "type": "boolean",

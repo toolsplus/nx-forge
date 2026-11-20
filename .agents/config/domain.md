@@ -1,31 +1,37 @@
-# Domain documentation
+# Domain docs
 
-This repository uses a single domain context.
+How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
-## Locations
+This repository uses a single domain context. These paths override the skill defaults that refer to `docs/adr/`, because `docs/` holds the public user documentation only.
 
-- `CONTEXT.md` is the domain glossary.
-- `architecture/decisions/` contains architecture decision records.
+## Before exploring, read these
 
-These paths override engineering-skill defaults that refer to `docs/adr/`.
+- **`GLOSSARY.md`** at the repo root.
+- **`architecture/decisions/`**: read ADRs that touch the area you're about to work in.
 
-## Consumer rules
+If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill creates them lazily when terms or decisions actually get resolved.
 
-Before exploring or changing the codebase:
+## File structure
 
-1. Read `CONTEXT.md` when it exists.
-2. Read architecture decisions relevant to the area being changed.
-3. Use the glossary’s canonical terminology in code, tests, issues, and documentation.
-4. Surface any conflict with an existing decision explicitly.
-
-If these files or directories do not exist, proceed silently. Create them lazily when the first domain term or qualifying architecture decision needs to be recorded.
-
-`CONTEXT.md` is a glossary, not a specification or implementation guide.
-
-Create an ADR only when the decision is:
-
-- costly to reverse;
-- surprising without its context; and
-- the result of a meaningful trade-off.
+```
+/
+├── GLOSSARY.md
+├── architecture/decisions/
+│   ├── 0001-short-title.md
+│   └── 0002-short-title.md
+└── packages/
+```
 
 Name ADRs sequentially as `architecture/decisions/0001-short-title.md`.
+
+## Use the glossary's vocabulary
+
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
+
+If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
+
+## Flag ADR conflicts
+
+If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
+
+> _Contradicts ADR-0007 (event-sourced orders), but worth reopening because…_

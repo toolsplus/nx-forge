@@ -103,7 +103,7 @@ export default defineConfig({
 
 The final step is to connect the Custom UI project to our Forge application. This step is crucial for Nx Forge to [register the dependency with the Nx project graph](../concepts/project-graph) and for the Nx Forge build task to assemble the Forge app correctly.
 
-In the Forge app project, open the generated `manifest.yml` file and add a Custom UI module, the corresponding resource entry, and the `permissions` declaration. The example below adds the `jira:projectPage` module and the `project-page` resource declaration.
+In the Forge app project, open the generated `manifest.yml` file and add a Custom UI module, the corresponding resource entry, and the `permissions` declaration. Keep the generated `app` section as it is. The example below adds the `jira:projectPage` module and the `project-page` resource declaration.
 
 :::code-group
 ```yaml{2-8,12-20}[manifest.yml]:line-numbers
@@ -129,6 +129,11 @@ permissions:
       - 'unsafe-inline'
 app:
   id: ari:cloud:ecosystem::app/to-be-generated
+  runtime:
+    name: nodejs24.x
+  package:
+    bundler: manual@2026
+    path: bundle
 ```
 :::
 

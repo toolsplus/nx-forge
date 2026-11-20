@@ -10,7 +10,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org). Treat `.commitl
 
 ## Code style
 
-Write clean, functional, composable code. Prefer `const` and immutable data over `let` and mutation. Keep generators and executors close to the matching upstream Nx code, for example the `@nx/node` application generator, so the two are easy to compare.
+Follow `CODING_STANDARDS.md`.
 
 ## Agent skills
 
@@ -21,7 +21,7 @@ The `docs/` directory is the source for the public VitePress website. Place only
 Use these locations for internal project knowledge:
 
 - Agent configuration: `.agents/config/`
-- Domain glossary: `CONTEXT.md`
+- Domain glossary: `GLOSSARY.md`
 - Architecture decisions: `architecture/decisions/`
 - Temporary working material: `.scratch/`
 
@@ -37,7 +37,7 @@ The repository uses the canonical triage label vocabulary. See `.agents/config/t
 
 ### Domain docs
 
-This is a single-context repository. Read `CONTEXT.md` and relevant decisions under `architecture/decisions/` when they exist. See `.agents/config/domain.md`.
+This is a single-context repository. Read `GLOSSARY.md` and relevant decisions under `architecture/decisions/` when they exist. See `.agents/config/domain.md`.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

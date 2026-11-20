@@ -1,83 +1,59 @@
 import { ExecutorContext, logger } from '@nx/devkit';
-import { spawn } from 'node:child_process';
-import * as process from 'node:process';
+import { statSync } from 'node:fs';
+import path from 'node:path';
+import { spawnForgeCommand } from '../../../utils/forge/async-commands';
 import { TunnelExecutorOptions } from '../schema';
 import { waitUntilServerIsListening } from './wait-until-server-is-listening';
-import { statSync, readdirSync } from 'node:fs';
-import path from 'node:path';
+import { forwardTerminationSignals } from './forward-termination-signals';
+import { stopProcessTree } from './stop-process-tree';
+import { BUNDLE_DIRECTORY } from '../../../shared/forge-output-path';
 
 /**
- * Checks if the tunnel executor is ready to run the Forge tunnel process.
+ * Waits until the build has written the bundle to the output path.
  *
- * Checks if:
- * - the manifest.yml exists in the output path
- * - the `src` directory in the output path is non-empty
- *
- * This will perform these checks repeatedly with exponential backoff until,
- * either the function times out, or all checks complete successfully.
+ * Checks repeatedly with exponential backoff, and once more at the deadline,
+ * until either the function times out, or `<outputPath>/bundle/index.js`
+ * exists.
  *
  * @param outputPath App output path
  * @param timeoutMs Timeout in ms
  * @param initialDelayMs Initial delay before re-checking the condition
  */
-export async function isTunnelPreparationComplete(
+export async function waitForBundle(
   outputPath: string,
   timeoutMs: number,
   initialDelayMs = 200
 ): Promise<boolean> {
-  const manifestExists = () =>
-    statSync(path.join(outputPath, 'manifest.yml'), {
-      throwIfNoEntry: false,
-    })?.isFile() ?? false;
-  const isOutputPathSrcDirNonEmpty = () =>
-    (statSync(path.join(outputPath, 'src'), {
-      throwIfNoEntry: false,
-    })?.isDirectory() &&
-      readdirSync(path.join(outputPath, 'src')).length > 0) ??
-    false;
+  const bundleEntry = path.join(outputPath, BUNDLE_DIRECTORY, 'index.js');
+  const bundleExists = () =>
+    statSync(bundleEntry, { throwIfNoEntry: false })?.isFile() ?? false;
 
-  const timeout = new Promise<boolean>((_, reject) => {
-    setTimeout(
-      () =>
-        reject(
-          new Error(
-            `Tunnel preparation timed out: Did not completed within ${timeoutMs} ms.
+  const deadline = Date.now() + timeoutMs;
+  let delay = initialDelayMs;
+  while (!bundleExists()) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      throw new Error(
+        `Tunnel preparation timed out: The build did not write ${bundleEntry} within ${timeoutMs} ms.
 
-            You can set a longer time out using the 'preTunnelTimeout' option of the tunnel executor.`
-          )
-        ),
-      timeoutMs
-    );
-  });
-
-  const tunnelReadyCondition = async function (): Promise<boolean> {
-    let delay = initialDelayMs;
-    while (true) {
-      try {
-        if (manifestExists() && isOutputPathSrcDirNonEmpty()) {
-          return true;
-        }
-      } catch (err) {
-        throw new Error(
-          `Unexpected error checking tunnel preparation complete: ${err}`
-        );
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      delay *= 2;
+        You can set a longer time out using the 'preTunnelTimeout' option of the tunnel executor.`
+      );
     }
-  };
-
-  return Promise.race([tunnelReadyCondition(), timeout]);
+    // Wake up at the deadline at the latest, so that a bundle written late
+    // in the timeout window is still seen.
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.min(delay, remaining))
+    );
+    delay = Math.min(delay * 2, 1000);
+  }
+  return true;
 }
 
 /**
  * Starts the `forge tunnel` process in the app's output directory. The execution of `forge tunnel` will be delayed
  * until all configured Custom UI dev servers are listening on their configured tunnel port.
  *
- * This will set the `FORGE_TUNNEL_MOUNT_DIRECTORIES` env variable on the tunnel process to mount the Nx workspace
- * root `node_modules` folder into the tunnel container. This makes sure that the Forge bundler running in the tunnel
- * Docker container knows about installed npm dependencies.
+ * When this process is asked to stop, it stops `forge tunnel` with SIGTERM, so that the tunnel is deregistered.
  *
  * @param options Tunnel executor options
  * @param context Executor context for this call
@@ -88,6 +64,8 @@ export default async function runTunnel(
       projectName: string;
       port: number;
     }[];
+    /** Aborting it stops `forge tunnel` and the processes it started. */
+    signal?: AbortSignal;
   },
   context: ExecutorContext
 ): Promise<{ id: 'tunnel'; success: boolean }> {
@@ -113,25 +91,35 @@ export default async function runTunnel(
     ...(options.debug === true ? ['--debug'] : []),
   ];
 
-  const command = `forge ${args.join(' ')}`;
-  logger.info(`Running: > ${command}`);
+  // The executor may have stopped while this waited for the Custom UIs.
+  if (options.signal?.aborted) {
+    return { id: 'tunnel', success: false };
+  }
 
-  // https://2ality.com/2018/05/child-process-streams.html#running-commands-in-child-processes
-  const tunnelProcess = spawn(command, {
+  logger.info(`Running: > forge ${args.join(' ')}`);
+
+  const tunnelProcess = spawnForgeCommand(args, {
     cwd: options.outputPath,
     env: {
-      ...process.env,
       // Unset NODE_ENV, if this is set to 'development' it may cause issues
       // starting the tunnel process
       // https://stackoverflow.com/questions/69566849/installing-forge-cli-is-bringing-spawn-ts-node-enoent-error
       NODE_ENV: undefined,
     },
-    stdio: 'inherit',
-    shell: true,
   });
+  forwardTerminationSignals(tunnelProcess);
+  options.signal?.addEventListener(
+    'abort',
+    () => stopProcessTree(tunnelProcess),
+    { once: true }
+  );
 
   return new Promise<{ id: 'tunnel'; success: boolean }>((resolve, reject) => {
-    tunnelProcess.once('exit', (code: number) => {
+    tunnelProcess.once('exit', (code: number | null) => {
+      if (options.signal?.aborted) {
+        resolve({ id: 'tunnel', success: false });
+        return;
+      }
       if (code === 0) {
         logger.info('Exiting the forge tunnel process...');
         resolve({

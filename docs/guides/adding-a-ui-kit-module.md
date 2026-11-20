@@ -109,10 +109,10 @@ ForgeReconciler.render(
 
 The final step is to connect the UI Kit project to the Forge application. This step is crucial for Nx Forge to [register the dependency with the Nx project graph](../concepts/project-graph) and for the Nx Forge package task to assemble the Forge app correctly.
 
-In the Forge app project, open the generated `manifest.yml` file and add a UI Kit module and the corresponding resource entry. The example below adds the `jira:globalPage` module and the `global-page` resource declaration.
+In the Forge app project, open the generated `manifest.yml` file and add a UI Kit module and the corresponding resource entry. Keep the generated `app` section as it is. The example below adds the `jira:globalPage` module and the `global-page` resource declaration.
 
 :::code-group
-```yaml{2-8,12-20}[manifest.yml]:line-numbers
+```yaml{2-8,12-16}[manifest.yml]:line-numbers
 modules:
   jira:globalPage:
     - key: global-page
@@ -131,6 +131,11 @@ resources:
       port: 4200
 app:
   id: ari:cloud:ecosystem::app/to-be-generated
+  runtime:
+    name: nodejs24.x
+  package:
+    bundler: manual@2026
+    path: bundle
 ```
 :::
 

@@ -6,3 +6,6 @@ app:
   id: ari:cloud:ecosystem::app/to-be-generated
   runtime:
     name: nodejs24.x
+  package:
+    bundler: manual@2026
+    path: bundle

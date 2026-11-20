@@ -72,6 +72,8 @@
   },
   "dependencies": {
     "@forge/manifest": "catalog:",
+    "acorn": "catalog:",
+    "acorn-walk": "catalog:",
     "cross-spawn": "catalog:",
     "fs-extra": "catalog:",
     "js-yaml": "catalog:",

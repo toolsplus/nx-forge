@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitepress';
+import { withMermaid } from 'vitepress-plugin-mermaid';
 import {
   injectReferenceOptions,
   validateReferenceDocs,
@@ -32,189 +33,187 @@ function isReferenceMarkdownFile(id: string): boolean {
 }
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
-  base,
-  title: 'Nx Forge',
-  description: 'Efficient and scalable Forge app development',
-  head: [
-    ['link', { rel: 'icon', href: `${base}favicon.ico` }],
-    [
-      'meta',
-      {
-        name: 'google-site-verification',
-        content: 'R6sbKUbsbNXhiSuKd7EDahmJXbiShaEG4swZyuQ1WrM',
-      },
-    ],
-  ],
-  cleanUrls: true,
-  markdown: {
-    languages: [
-      {
-        name: 'jsonata',
-        scopeName: 'source.jsonata',
-        ...jsonataGrammar,
-      },
-    ],
-  },
-  vite: {
-    plugins: [
-      {
-        name: 'nx-forge-reference-docs',
-        enforce: 'pre',
-        buildStart() {
-          validateReferenceDocs(workspaceRoot);
+export default withMermaid(
+  defineConfig({
+    base,
+    title: 'Nx Forge',
+    description: 'Efficient and scalable Forge app development',
+    head: [
+      ['link', { rel: 'icon', href: `${base}favicon.ico` }],
+      [
+        'meta',
+        {
+          name: 'google-site-verification',
+          content: 'R6sbKUbsbNXhiSuKd7EDahmJXbiShaEG4swZyuQ1WrM',
         },
-        load(id) {
-          if (!isReferenceMarkdownFile(id)) {
-            return null;
-          }
-
-          const filePath = normalizeViteId(id);
-          const markdown = readFileSync(filePath, 'utf8');
-
-          return injectReferenceOptions(markdown, filePath, workspaceRoot);
+      ],
+    ],
+    cleanUrls: true,
+    markdown: {
+      languages: [
+        {
+          name: 'jsonata',
+          scopeName: 'source.jsonata',
+          ...jsonataGrammar,
         },
-        transform(code, id) {
-          if (!isReferenceMarkdownFile(id)) {
-            return null;
-          }
+      ],
+    },
+    vite: {
+      plugins: [
+        {
+          name: 'nx-forge-reference-docs',
+          enforce: 'pre',
+          buildStart() {
+            validateReferenceDocs(workspaceRoot);
+          },
+          load(id) {
+            if (!isReferenceMarkdownFile(id)) {
+              return null;
+            }
 
-          const filePath = normalizeViteId(id);
+            const filePath = normalizeViteId(id);
+            const markdown = readFileSync(filePath, 'utf8');
 
-          return injectReferenceOptions(code, filePath, workspaceRoot);
+            return injectReferenceOptions(markdown, filePath, workspaceRoot);
+          },
+          transform(code, id) {
+            if (!isReferenceMarkdownFile(id)) {
+              return null;
+            }
+
+            const filePath = normalizeViteId(id);
+
+            return injectReferenceOptions(code, filePath, workspaceRoot);
+          },
+        },
+      ],
+    },
+    themeConfig: {
+      // https://vitepress.dev/reference/default-theme-config
+      search: {
+        provider: 'algolia',
+        options: {
+          appId: 'NIRN68S2VE',
+          apiKey: '3035f7ea4bf8c165ea89c04d628aebb9',
+          indexName: 'nx-forge',
         },
       },
-    ],
-  },
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    search: {
-      provider: 'algolia',
-      options: {
-        appId: 'NIRN68S2VE',
-        apiKey: '3035f7ea4bf8c165ea89c04d628aebb9',
-        indexName: 'nx-forge',
+      nav: [
+        { text: 'Home', link: '/' },
+        {
+          text: 'Guides',
+          link: '/guides/getting-started',
+          activeMatch: '/guides/',
+        },
+        {
+          text: 'Reference',
+          link: '/reference/generators',
+          activeMatch: '/reference/',
+        },
+        {
+          text: 'Concepts',
+          link: '/concepts/plugin-concepts',
+          activeMatch: '/concepts/',
+        },
+        {
+          text: 'Discussions',
+          link: 'https://github.com/toolsplus/nx-forge/discussions',
+        },
+        {
+          text: 'Releases',
+          link: 'https://github.com/toolsplus/nx-forge/releases',
+        },
+        {
+          text: 'Contributing',
+          link: 'https://github.com/toolsplus/nx-forge/blob/main/CONTRIBUTING.md',
+        },
+      ],
+      sidebar: {
+        '/guides/': {
+          base: '/guides/',
+          items: [
+            {
+              text: 'Introduction',
+              items: [{ text: 'Getting started', link: 'getting-started' }],
+            },
+            {
+              text: 'Usage',
+              items: [
+                {
+                  text: 'Generating a Forge app',
+                  link: 'generating-a-forge-app',
+                },
+                {
+                  text: 'Adding a Custom UI module',
+                  link: 'adding-a-custom-ui-module',
+                },
+                {
+                  text: 'Adding a UI Kit module',
+                  link: 'adding-a-ui-kit-module',
+                },
+                {
+                  text: 'Transforming the manifest',
+                  link: 'transforming-the-manifest',
+                },
+              ],
+            },
+            {
+              text: 'Maintenance',
+              items: [
+                {
+                  text: 'Migrating to a newer plugin version',
+                  link: 'migrating-plugin-version',
+                },
+                {
+                  text: 'Upgrading to v10',
+                  link: 'upgrading-to-v10',
+                },
+                {
+                  text: 'Overriding plugin dependencies',
+                  link: 'overriding-plugin-dependencies',
+                },
+              ],
+            },
+            {
+              text: 'Examples',
+              items: [{ text: 'Nx Forge Examples', link: 'examples' }],
+            },
+          ],
+        },
+        '/reference/': {
+          base: '/reference/',
+          items: [
+            {
+              text: 'Reference',
+              items: [
+                { text: 'Generators', link: 'generators' },
+                { text: 'Executors', link: 'executors' },
+              ],
+            },
+          ],
+        },
+        '/concepts/': {
+          base: '/concepts/',
+          items: [
+            {
+              text: 'Concepts',
+              items: [
+                { text: 'Plugin concepts', link: 'plugin-concepts' },
+                { text: 'Motivation', link: 'motivation' },
+                { text: 'Workspace layout', link: 'workspace-layout' },
+                { text: 'Project graph', link: 'project-graph' },
+              ],
+            },
+          ],
+        },
+      },
+      socialLinks: [
+        { icon: 'github', link: 'https://github.com/toolsplus/nx-forge' },
+      ],
+      footer: {
+        message: 'Released under the MIT License.',
+        copyright: 'Copyright © 2024-present ToolsPlus',
       },
     },
-    nav: [
-      { text: 'Home', link: '/' },
-      {
-        text: 'Guides',
-        link: '/guides/getting-started',
-        activeMatch: '/guides/',
-      },
-      {
-        text: 'Reference',
-        link: '/reference/generators',
-        activeMatch: '/reference/',
-      },
-      {
-        text: 'Concepts',
-        link: '/concepts/plugin-concepts',
-        activeMatch: '/concepts/',
-      },
-      {
-        text: 'Discussions',
-        link: 'https://github.com/toolsplus/nx-forge/discussions',
-      },
-      {
-        text: 'Releases',
-        link: 'https://github.com/toolsplus/nx-forge/releases',
-      },
-      {
-        text: 'Contributing',
-        link: 'https://github.com/toolsplus/nx-forge/blob/main/CONTRIBUTING.md',
-      },
-    ],
-    sidebar: {
-      '/guides/': {
-        base: '/guides/',
-        items: [
-          {
-            text: 'Introduction',
-            items: [{ text: 'Getting started', link: 'getting-started' }],
-          },
-          {
-            text: 'Usage',
-            items: [
-              {
-                text: 'Generating a Forge app',
-                link: 'generating-a-forge-app',
-              },
-              {
-                text: 'Adding a Custom UI module',
-                link: 'adding-a-custom-ui-module',
-              },
-              {
-                text: 'Adding a UI Kit module',
-                link: 'adding-a-ui-kit-module',
-              },
-              {
-                text: 'Transforming the manifest',
-                link: 'transforming-the-manifest',
-              },
-            ],
-          },
-          {
-            text: 'Maintenance',
-            items: [
-              {
-                text: 'Migrating to a newer plugin version',
-                link: 'migrating-plugin-version',
-              },
-              {
-                text: 'Overriding plugin dependencies',
-                link: 'overriding-plugin-dependencies',
-              },
-              {
-                text: 'Migrating to the package executor',
-                link: 'migrating-to-package-executor',
-              },
-              {
-                text: 'Migrating to inferred tasks',
-                link: 'migrating-to-inferred-tasks',
-              },
-            ],
-          },
-          {
-            text: 'Examples',
-            items: [{ text: 'Nx Forge Examples', link: 'examples' }],
-          },
-        ],
-      },
-      '/reference/': {
-        base: '/reference/',
-        items: [
-          {
-            text: 'Reference',
-            items: [
-              { text: 'Generators', link: 'generators' },
-              { text: 'Executors', link: 'executors' },
-            ],
-          },
-        ],
-      },
-      '/concepts/': {
-        base: '/concepts/',
-        items: [
-          {
-            text: 'Concepts',
-            items: [
-              { text: 'Plugin concepts', link: 'plugin-concepts' },
-              { text: 'Motivation', link: 'motivation' },
-              { text: 'Workspace layout', link: 'workspace-layout' },
-              { text: 'Project graph', link: 'project-graph' },
-            ],
-          },
-        ],
-      },
-    },
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/toolsplus/nx-forge' },
-    ],
-    footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present ToolsPlus',
-    },
-  },
-});
+  })
+);

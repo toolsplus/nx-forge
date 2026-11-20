@@ -1,16 +1,20 @@
 name: Setup Node and pnpm
-description: Install the repository pnpm version and the latest Node LTS
+description: Install the repository pnpm version and Node (the latest LTS by default)
 
 inputs:
   cache:
     description: Whether this job owns the pnpm cache write
     required: true
+  node:
+    description: Node version to install, for example 24
+    required: false
+    default: lts
 
 runs:
   using: composite
   steps:
     - uses: pnpm/setup@v2
       with:
-        runtime: node@lts
+        runtime: node@${{ inputs.node }}
         install: false
         cache: ${{ inputs.cache }}

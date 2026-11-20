@@ -9,6 +9,7 @@ import {
   Tree,
 } from '@nx/devkit';
 
+import { load } from 'js-yaml';
 import { applicationGenerator } from './generator';
 import { ApplicationGeneratorOptions } from './schema';
 
@@ -16,6 +17,10 @@ const jestConfigPath = (projectRoot: string) =>
   `${projectRoot}/jest.config.cts`;
 const eslintConfigPath = (projectRoot: string) =>
   `${projectRoot}/eslint.config.mjs`;
+
+// The first test loads the Nx generators that the application generator
+// composes, which can exceed Jest's default timeout on CI runners.
+jest.setTimeout(30_000);
 
 describe('application generator', () => {
   let tree: Tree;
@@ -73,14 +78,7 @@ describe('application generator', () => {
             "build": {
               "configurations": {
                 "development": {},
-                "production": {
-                  "esbuildOptions": {
-                    "outExtension": {
-                      ".js": ".js",
-                    },
-                    "sourcemap": false,
-                  },
-                },
+                "production": {},
               },
               "defaultConfiguration": "production",
               "executor": "@nx/esbuild:esbuild",
@@ -90,6 +88,9 @@ describe('application generator', () => {
                 ],
                 "bundle": true,
                 "esbuildOptions": {
+                  "define": {
+                    "process.env.NODE_ENV": ""production"",
+                  },
                   "outExtension": {
                     ".js": ".js",
                   },
@@ -101,8 +102,9 @@ describe('application generator', () => {
                 "generatePackageJson": false,
                 "main": "my-forge-app/src/index.ts",
                 "outputFileName": "index.js",
-                "outputPath": "dist/my-forge-app/src",
+                "outputPath": "dist/my-forge-app/bundle",
                 "platform": "node",
+                "thirdParty": true,
                 "tsConfig": "my-forge-app/tsconfig.app.json",
               },
               "outputs": [
@@ -213,9 +215,38 @@ describe('application generator', () => {
         'utf-8'
       );
       expect(webpackConfig).toContain('new NxAppWebpackPlugin({');
-      expect(webpackConfig).toContain(`outputPath: '../dist/my-forge-app/src'`);
+      expect(webpackConfig).toContain(
+        `outputPath: '../dist/my-forge-app/bundle'`
+      );
       expect(webpackConfig).toContain(`main: './src/index.ts'`);
       expect(webpackConfig).toContain(`library: { type: 'commonjs2' }`);
+      expect(webpackConfig).toContain(`externalDependencies: 'none'`);
+      expect(webpackConfig).toContain(`sourceMap: true`);
+
+      // Prettier may wrap the plugin calls, so compare without line breaks.
+      const flatConfig = webpackConfig?.replace(/\s+/g, ' ');
+      expect(flatConfig).toContain(
+        `new DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production'), })`
+      );
+      expect(flatConfig).toContain(
+        `new IgnorePlugin({ resourceRegExp: /^encoding$/, contextRegExp: /node-fetch/, })`
+      );
+      expect(flatConfig).toContain(
+        `new IgnorePlugin({ resourceRegExp: /^(bufferutil|utf-8-validate)$/, contextRegExp: /ws[\\\\/]lib$/, })`
+      );
+      expect(flatConfig).toContain(
+        `new IgnorePlugin({ resourceRegExp: /^dtrace-provider$/, contextRegExp: /bunyan$/, })`
+      );
+    });
+
+    it('should generate a manifest with the manual packaging keys', async () => {
+      await applicationGenerator(tree, { directory: 'my-forge-app' });
+
+      expect(
+        load(tree.read('my-forge-app/manifest.yml', 'utf-8') ?? '')
+      ).toMatchObject({
+        app: { package: { bundler: 'manual@2026', path: 'bundle' } },
+      });
     });
 
     it('should extend from root tsconfig.json when no tsconfig.base.json', async () => {
@@ -278,14 +309,7 @@ describe('application generator', () => {
             "build": {
               "configurations": {
                 "development": {},
-                "production": {
-                  "esbuildOptions": {
-                    "outExtension": {
-                      ".js": ".js",
-                    },
-                    "sourcemap": false,
-                  },
-                },
+                "production": {},
               },
               "defaultConfiguration": "production",
               "executor": "@nx/esbuild:esbuild",
@@ -295,6 +319,9 @@ describe('application generator', () => {
                 ],
                 "bundle": true,
                 "esbuildOptions": {
+                  "define": {
+                    "process.env.NODE_ENV": ""production"",
+                  },
                   "outExtension": {
                     ".js": ".js",
                   },
@@ -306,8 +333,9 @@ describe('application generator', () => {
                 "generatePackageJson": false,
                 "main": "my-dir/my-forge-app/src/index.ts",
                 "outputFileName": "index.js",
-                "outputPath": "dist/my-dir/my-forge-app/src",
+                "outputPath": "dist/my-dir/my-forge-app/bundle",
                 "platform": "node",
+                "thirdParty": true,
                 "tsConfig": "my-dir/my-forge-app/tsconfig.app.json",
               },
               "outputs": [
@@ -566,7 +594,7 @@ describe('application generator', () => {
       });
 
       expect(tree.read('webpack.config.js', 'utf-8')).toContain(
-        `outputPath: './dist/src'`
+        `outputPath: './dist/bundle'`
       );
     });
 
@@ -581,7 +609,7 @@ describe('application generator', () => {
       expect(
         readProjectConfiguration(tree, 'my-forge-app').targets?.build?.options
           ?.outputPath
-      ).toEqual('dist/src');
+      ).toEqual('dist/bundle');
     });
   });
 

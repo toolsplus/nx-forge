@@ -68,6 +68,8 @@ jobs:
       - uses: ./.github/actions/setup-node-and-pnpm
         with:
           cache: true
+          # Forge CLI supports Node.js 22.x and 24.x only.
+          node: '24'
       - name: 'Create E2E env file'
         run: |
           echo FORGE_EMAIL=${{ vars.FORGE_EMAIL }} >> e2e/nx-forge-e2e/.env
