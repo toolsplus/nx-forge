@@ -21,7 +21,11 @@ The single CommonJS build output of a Forge app's functions, with every dependen
 _Avoid_: build output, function code, `src` folder
 
 **Packaging keys**:
-The `app.package` entries of the manifest that make Forge ship the bundle as it is instead of bundling the app again.
+The `app.package` entries of the manifest that make the Forge CLI ship the bundle as it is instead of bundling the app again.
+
+**Forge CLI**:
+The `forge` command-line tool from `@forge/cli` that deploys, installs and tunnels Forge apps. nx-forge runs the copy installed in the workspace, and the global one if the workspace has none.
+_Avoid_: Forge (for the CLI), the workspace Forge
 
 **Resource**:
 A Custom UI or UI Kit build output that the manifest references by project name and that is copied into the `resources` folder of the artifact directory.

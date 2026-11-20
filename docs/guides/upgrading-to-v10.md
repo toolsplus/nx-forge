@@ -9,17 +9,18 @@ In version 9, a Forge app was bundled twice. The Nx `build` target bundled the a
 In version 10, the Nx `build` target is the only bundler. It inlines everything, including npm dependencies, into `<artifact>/bundle/index.js`. The Forge CLI then ships that bundle as it is, through Forge's [manual packaging](https://developer.atlassian.com/platform/forge/manifest-reference/packaging/).
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph v9["Version 9"]
     direction TB
-    A1["nx build<br/>leaves npm dependencies as require calls"] --> A2["dist/.../src, package.json"]
-    A2 --> A3["forge deploy<br/>bundles again with Forge's Webpack"]
+    A1["nx build<br/>leaves npm dependencies<br/>as require calls"] --> A2["dist/.../src, package.json"]
+    A2 --> A3["forge deploy<br/>bundles again with<br/>the Forge CLI's Webpack"]
   end
   subgraph v10["Version 10"]
     direction TB
     B1["nx build<br/>inlines everything"] --> B2["dist/.../bundle"]
     B2 --> B3["forge deploy<br/>ships bundle/ as it is"]
   end
+  v9 ~~~ v10
 ```
 
 For the reasoning behind this design, see [Plugin concepts](../concepts/plugin-concepts.md).
@@ -106,18 +107,27 @@ module.exports = {
       deleteOutputPath: false,
     }),
     new DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
-    new IgnorePlugin({ resourceRegExp: /^encoding$/, contextRegExp: /node-fetch/ }),
-    new IgnorePlugin({ resourceRegExp: /^(bufferutil|utf-8-validate)$/, contextRegExp: /ws\/lib$/ }),
-    new IgnorePlugin({ resourceRegExp: /^dtrace-provider$/, contextRegExp: /bunyan$/ }),
+    new IgnorePlugin({
+      resourceRegExp: /^encoding$/,
+      contextRegExp: /node-fetch/,
+    }),
+    new IgnorePlugin({
+      resourceRegExp: /^(bufferutil|utf-8-validate)$/,
+      contextRegExp: /ws\/lib$/,
+    }),
+    new IgnorePlugin({
+      resourceRegExp: /^dtrace-provider$/,
+      contextRegExp: /bunyan$/,
+    }),
   ],
 };
 ```
 
 The migration does not add these parts. Add them by hand:
 
-- **`DefinePlugin` for `NODE_ENV`.** The Forge runtime does not set `NODE_ENV`, and Forge's bundler used to inline `production`. Without it, libraries that check `NODE_ENV` run their development code.
+- **`DefinePlugin` for `NODE_ENV`.** The Forge runtime does not set `NODE_ENV`, and the Forge CLI's bundler used to inline `production`. Without it, libraries that check `NODE_ENV` run their development code.
 - **`sourceMap: true`.** It writes `index.js.map` next to the bundle.
-- **The three `IgnorePlugin` rules.** They skip optional dependencies of `node-fetch`, `ws` and `bunyan`, as Forge's bundler did.
+- **The three `IgnorePlugin` rules.** They skip optional dependencies of `node-fetch`, `ws` and `bunyan`, as the Forge CLI's bundler did.
 
 Check that `output.library` is set to `{ type: 'commonjs2' }`. Without it, the bundle does not export the handlers.
 
@@ -149,9 +159,9 @@ A new app's `build` target includes these options:
 
 The migration does not change `esbuildOptions`. Add `define` and `sourcemap: true` by hand. If a configuration sets its own `esbuildOptions`, it replaces the ones in `options`. Apps generated with version 9 have such a `production` configuration, which also turns source maps off. Remove its `esbuildOptions`, or add `define` and `sourcemap: true` to it.
 
-### Workarounds for Forge's bundler
+### Workarounds for the Forge CLI's bundler
 
-If you added settings so that Forge's bundler could find your dependencies, remove them. The build must now inline every npm dependency, so remove any `externals` or `externalDependencies` lists that leave packages out of the bundle.
+If you added settings so that the Forge CLI's bundler could find your dependencies, remove them. The build must now inline every npm dependency, so remove any `externals` or `externalDependencies` lists that leave packages out of the bundle.
 
 If the migration reported that it could not update a build configuration, make the changes above by hand.
 

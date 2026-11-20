@@ -11,7 +11,7 @@ jest.mock('./wait-until-server-is-listening', () => ({
 }));
 
 describe('runTunnel', () => {
-  it('should not start Forge if the executor stopped while it waited for the Custom UIs', async () => {
+  it('should not start the Forge CLI if the executor stopped while it waited for the Custom UIs', async () => {
     const stop = new AbortController();
     jest.mocked(waitUntilServerIsListening).mockImplementation(async () => {
       stop.abort();

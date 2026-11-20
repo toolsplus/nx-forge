@@ -49,6 +49,13 @@ export default withMermaid(
       ],
     ],
     cleanUrls: true,
+    // VitePress styles paragraphs with a larger line height than the one
+    // Mermaid measures HTML labels with, which cuts off their last line. SVG
+    // text labels do not depend on the page styles.
+    mermaid: {
+      htmlLabels: false,
+      flowchart: { htmlLabels: false },
+    },
     markdown: {
       languages: [
         {

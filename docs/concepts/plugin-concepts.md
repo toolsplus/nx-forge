@@ -71,11 +71,11 @@ Forge's own bundler is designed for a single Forge app with its own `package.jso
 flowchart TB
   SRC["App source + workspace libraries"] --> B1["nx build<br/>inlines workspace libraries<br/>leaves npm dependencies as require calls"]
   B1 --> ART["Artifact directory"]
-  ART --> B2["forge deploy<br/>Forge's bundler runs again<br/>resolves npm dependencies from the artifact directory"]
+  ART --> B2["forge deploy<br/>the Forge CLI bundles again<br/>resolves npm dependencies from the artifact directory"]
   B2 --> UP["Uploaded to Forge"]
 ```
 
-That design bundles twice, and the second bundler resolves dependencies from the artifact directory in `dist`, not from the project the code was written in. It works only when every dependency happens to be findable from there. With pnpm, or any workspace that does not hoist all dependencies into one root `node_modules`, it finds the wrong version or nothing at all. It also needs a generated `package.json` in the artifact directory and forces the build output into a folder Forge's bundler expects. And it gains nothing: Forge's bundler inlines everything anyway.
+That design bundles twice, and the second bundler resolves dependencies from the artifact directory in `dist`, not from the project the code was written in. It works only when every dependency happens to be findable from there. With pnpm, or any workspace that does not hoist all dependencies into one root `node_modules`, it finds the wrong version or nothing at all. It also needs a generated `package.json` in the artifact directory and forces the build output into a folder the Forge CLI's bundler expects. And it gains nothing: the Forge CLI's bundler inlines everything anyway.
 
 Bundling once, in Nx, avoids all of that. The bundler runs where the code lives, so it resolves the same dependencies your editor, tests and type checker see. What you build is exactly what Forge runs.
 
