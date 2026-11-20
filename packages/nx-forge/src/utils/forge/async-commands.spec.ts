@@ -10,36 +10,50 @@ import {
 } from 'fs';
 import { tmpdir } from 'os';
 import { delimiter, join } from 'path';
-import { getPackageManagerCommand } from '@nx/devkit';
+import { workspaceRoot } from '@nx/devkit';
 import { runForgeCommandAsync } from './async-commands';
 
 jest.mock('@nx/devkit', () => ({
   ...jest.requireActual('@nx/devkit'),
-  getPackageManagerCommand: jest.fn(),
+  workspaceRoot: jest
+    .requireActual<typeof import('fs')>('fs')
+    .mkdtempSync(
+      jest
+        .requireActual<typeof import('path')>('path')
+        .join(
+          jest.requireActual<typeof import('os')>('os').tmpdir(),
+          'nx-forge-workspace-'
+        )
+    ),
 }));
 
-const getPackageManagerCommandMock = jest.mocked(getPackageManagerCommand);
-
 describe('runForgeCommandAsync', () => {
+  const workspaceBinPath = join(workspaceRoot, 'node_modules', '.bin');
   let testRoot: string;
-  let binPath: string;
+  let pathBinPath: string;
   let invocationPath: string;
   let sideEffectPath: string;
 
   beforeEach(() => {
     testRoot = mkdtempSync(join(tmpdir(), 'nx-forge-command-'));
-    binPath = join(testRoot, 'bin');
+    pathBinPath = join(testRoot, 'bin');
     invocationPath = join(testRoot, 'invocation.json');
     sideEffectPath = join(testRoot, 'shell-side-effect');
-    mkdirSync(binPath);
+    mkdirSync(pathBinPath);
+    mkdirSync(workspaceBinPath, { recursive: true });
 
-    createPackageManagerShim(binPath, 'pnpm');
-    mockPackageManagerCommand('pnpm exec');
+    createForgeShim(workspaceBinPath, 'workspace');
+    createForgeShim(pathBinPath, 'path');
   });
 
   afterEach(() => {
     rmSync(testRoot, { recursive: true, force: true });
+    rmSync(workspaceBinPath, { recursive: true, force: true });
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    rmSync(workspaceRoot, { recursive: true, force: true });
   });
 
   it('preserves Forge arguments without shell interpretation', async () => {
@@ -57,58 +71,57 @@ describe('runForgeCommandAsync', () => {
 
     await runForgeCommandAsync(forgeArgs, {
       cwd: testRoot,
-      env: createEnvironment(binPath, invocationPath, {
+      env: createEnvironment(pathBinPath, invocationPath, {
         FORGE_SIDE_EFFECT: sideEffectPath,
         FORGE_TEST_ENV: 'forwarded',
       }),
     });
 
     expect(JSON.parse(readFileSync(invocationPath, 'utf8'))).toEqual({
-      args: ['exec', 'forge', ...forgeArgs],
+      args: forgeArgs,
       cwd: realpathSync(testRoot),
       environmentValue: 'forwarded',
+      source: 'workspace',
     });
     expect(existsSync(sideEffectPath)).toBe(false);
   });
 
-  it.each([
-    { exec: 'npx', executable: 'npx', prefixArgs: [] },
-    { exec: 'pnpm exec', executable: 'pnpm', prefixArgs: ['exec'] },
-    { exec: 'yarn', executable: 'yarn', prefixArgs: [] },
-    { exec: 'bun', executable: 'bun', prefixArgs: [] },
-  ])('supports the $exec package-manager command shape', async (command) => {
-    createPackageManagerShim(binPath, command.executable);
-    mockPackageManagerCommand(command.exec);
+  it('runs the Forge CLI in the given directory, which has no package.json', async () => {
+    await runForgeCommandAsync(['version'], {
+      cwd: testRoot,
+      env: createEnvironment(pathBinPath, invocationPath),
+    });
+
+    expect(existsSync(join(testRoot, 'package.json'))).toBe(false);
+    expect(JSON.parse(readFileSync(invocationPath, 'utf8')).cwd).toEqual(
+      realpathSync(testRoot)
+    );
+  });
+
+  it('falls back to the Forge CLI on the PATH', async () => {
+    rmSync(workspaceBinPath, { recursive: true, force: true });
 
     await runForgeCommandAsync(['version'], {
       cwd: testRoot,
-      env: createEnvironment(binPath, invocationPath),
+      env: createEnvironment(pathBinPath, invocationPath),
     });
 
-    expect(JSON.parse(readFileSync(invocationPath, 'utf8')).args).toEqual([
-      ...command.prefixArgs,
-      'forge',
-      'version',
-    ]);
+    expect(JSON.parse(readFileSync(invocationPath, 'utf8')).source).toEqual(
+      'path'
+    );
   });
 
   it('rejects when Forge exits with a non-zero code', async () => {
     await expect(
       runForgeCommandAsync(['lint'], {
         cwd: testRoot,
-        env: createEnvironment(binPath, invocationPath, {
+        env: createEnvironment(pathBinPath, invocationPath, {
           FORGE_EXIT_CODE: '7',
         }),
       })
     ).rejects.toThrow('Exit with error code: 7');
   });
 });
-
-function mockPackageManagerCommand(exec: string): void {
-  getPackageManagerCommandMock.mockReturnValue({
-    exec,
-  } as ReturnType<typeof getPackageManagerCommand>);
-}
 
 function createEnvironment(
   binPath: string,
@@ -126,8 +139,8 @@ function createEnvironment(
   };
 }
 
-function createPackageManagerShim(directory: string, command: string): void {
-  const scriptPath = join(directory, 'fake-package-manager.cjs');
+function createForgeShim(directory: string, source: string): void {
+  const scriptPath = join(directory, 'fake-forge.cjs');
   writeFileSync(
     scriptPath,
     [
@@ -138,6 +151,7 @@ function createPackageManagerShim(directory: string, command: string): void {
       '    args: process.argv.slice(2),',
       '    cwd: process.cwd(),',
       '    environmentValue: process.env.FORGE_TEST_ENV,',
+      `    source: ${JSON.stringify(source)},`,
       '  })',
       ');',
       'process.exitCode = Number(process.env.FORGE_EXIT_CODE ?? 0);',
@@ -146,14 +160,14 @@ function createPackageManagerShim(directory: string, command: string): void {
 
   if (process.platform === 'win32') {
     writeFileSync(
-      join(directory, `${command}.cmd`),
-      `@echo off\r\n"${process.execPath}" "%~dp0\\fake-package-manager.cjs" %*\r\n`
+      join(directory, 'forge.cmd'),
+      `@echo off\r\n"${process.execPath}" "%~dp0\\fake-forge.cjs" %*\r\n`
     );
   } else {
-    const executablePath = join(directory, command);
+    const executablePath = join(directory, 'forge');
     writeFileSync(
       executablePath,
-      `#!/usr/bin/env node\nrequire('./fake-package-manager.cjs');\n`
+      `#!/usr/bin/env node\nrequire('./fake-forge.cjs');\n`
     );
     chmodSync(executablePath, 0o755);
   }

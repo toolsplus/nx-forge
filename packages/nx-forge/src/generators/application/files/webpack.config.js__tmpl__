@@ -1,3 +1,4 @@
+const { DefinePlugin, IgnorePlugin } = require('webpack');
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 
 module.exports = {
@@ -16,13 +17,34 @@ module.exports = {
       outputFileName: 'index.js',
       tsConfig: '<%= webpackPluginOptions.tsConfig %>',
       assets: <%- JSON.stringify(webpackPluginOptions.assets) %>,
+      // Forge ships the bundle as it is, so it must include all dependencies
+      // except Node built-ins.
+      externalDependencies: 'none',
+      sourceMap: true,
       optimization: false,
       outputHashing: 'none',
       // Do not delete all the files in the output path. This is required to maintain the
       // manifest.yml in the output path when running the tunnel executor. By default,
-      // Webpack still cleans the src folder in the output directory (dist/apps/<my-app>/src)
+      // Webpack still cleans the bundle folder in the output directory (dist/apps/<my-app>/bundle)
       // but not the project root (refer to Webpack option `output.clean`).
       deleteOutputPath: false,
-    })
+    }),
+    // The Forge runtime does not set NODE_ENV.
+    new DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
+    // Optional dependencies that these packages load only if they are installed.
+    new IgnorePlugin({
+      resourceRegExp: /^encoding$/,
+      contextRegExp: /node-fetch/,
+    }),
+    new IgnorePlugin({
+      resourceRegExp: /^(bufferutil|utf-8-validate)$/,
+      contextRegExp: /ws[\\/]lib$/,
+    }),
+    new IgnorePlugin({
+      resourceRegExp: /^dtrace-provider$/,
+      contextRegExp: /bunyan$/,
+    }),
   ],
 };

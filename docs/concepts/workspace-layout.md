@@ -16,12 +16,10 @@ my-nx-workspace/
 │   ├── my-forge-app-1
 │   │   |── src
 │   │   |── manifest.yml
-│   │   |── package.json
 │   │   |── project.json
 │   ├── my-forge-app-2
 │   │   |── src
 │   │   |── manifest.yml
-│   │   |── package.json
 │   │   |── project.json
 │   ├── custom-ui-a
 │   ├── ui-kit-ui-b
@@ -38,6 +36,30 @@ my-nx-workspace/
 `/libs/` contains library projects. This is where all shared code goes. There could be many kinds of libraries, for example, model libraries, data access, or UI libraries. Each library defines its external API so that boundaries between libraries remain clear.
 
 `/dist/` contains the build output. Look here if you would like to inspect the compiled code and what's being deployed.
+
+## Build output
+
+Each Forge app gets its own folder in `dist`, at the same path as the project. This folder is the app's _artifact directory_. For `apps/my-forge-app-1`, it is `dist/apps/my-forge-app-1`. After the `build` and `package` targets have run, it looks like this:
+
+```
+dist/apps/my-forge-app-1/
+├── bundle
+│   ├── index.js
+│   ├── index.js.map
+│   └── assets
+├── resources
+│   ├── custom-ui-a
+│   └── ui-kit-ui-b
+└── manifest.yml
+```
+
+`bundle/` is written by the app's `build` target. `index.js` holds all function code, including the workspace libraries and npm dependencies it uses, and exports the handlers the manifest refers to. Next to it are its source map and the app's assets.
+
+`resources/` holds a copy of the build output of each Custom UI and UI Kit project the manifest refers to. The `package` target copies it there.
+
+`manifest.yml` is a copy of the project's manifest, also written by `package`. In this copy, each resource `path` points to its folder in `resources/` instead of to a project name.
+
+This folder is everything Forge needs. The Forge CLI runs in it when you deploy or tunnel, and uploads `bundle/` as it is. There is no `package.json` and no `node_modules`, because the bundle already contains every dependency. [Plugin concepts](plugin-concepts.md) explains why.
 
 ## Benefits
 

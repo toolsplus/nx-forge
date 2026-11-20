@@ -119,139 +119,147 @@ describe('Forge lifecycle', () => {
     }
   });
 
-  it('should generate, build, package, register, deploy, install and invoke a Forge app', async () => {
-    const appName = await generateForgeApp({
-      cwd: workspaceDirectory,
-      directory: 'apps',
-    });
-    addWebTrigger(join(workspaceDirectory, 'apps', appName));
+  it.each(['webpack', 'esbuild'])(
+    'should generate, build, package, register, deploy, install and invoke a Forge app built with %s',
+    async (bundler) => {
+      const appName = await generateForgeApp({
+        cwd: workspaceDirectory,
+        directory: 'apps',
+        options: `--bundler=${bundler}`,
+      });
+      addWebTrigger(join(workspaceDirectory, 'apps', appName));
 
-    // Build
+      // Build
 
-    const buildCommand = `run ${appName}:build`;
-    const nxBuildResult = await runNxCommandAsync(buildCommand, {
-      cwd: workspaceDirectory,
-      silenceError: true,
-    });
-    expectCliCommand({
-      command: `nx ${buildCommand}`,
-      result: nxBuildResult,
-      stdout: 'Successfully ran target build for project',
-    });
-
-    // Package
-
-    const packageCommand = `run ${appName}:package`;
-    const nxPackageResult = await runNxCommandAsync(packageCommand, {
-      cwd: workspaceDirectory,
-      silenceError: true,
-    });
-    expectCliCommand({
-      command: `nx ${packageCommand}`,
-      result: nxPackageResult,
-      stdout: 'Successfully ran target package for project',
-    });
-
-    // Register
-
-    const unregisteredOutputManifestContent = readFileSync(
-      join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
-      'utf8'
-    );
-    expect(unregisteredOutputManifestContent).toContain(
-      'ari:cloud:ecosystem::app/to-be-generated'
-    );
-
-    const registerCommand = `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`;
-    const nxRegisterResult = await runNxCommandAsync(registerCommand, {
-      cwd: workspaceDirectory,
-      silenceError: true,
-    });
-    expectCliCommand({
-      command: `nx ${registerCommand}`,
-      result: nxRegisterResult,
-      stdout: 'Forge app registered',
-    });
-
-    // ari:cloud:ecosystem::app/<uuid>
-    const registeredAppIdRegex =
-      /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
-
-    const registeredOutputManifestContent = readFileSync(
-      join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
-      'utf8'
-    );
-    const [registeredAppId] =
-      registeredOutputManifestContent.match(registeredAppIdRegex) ?? [];
-    expect(registeredAppId).not.toBeNull();
-    expect(registeredAppId).toBeDefined();
-    expect(registeredAppId).not.toEqual('');
-
-    const projectManifestContent = readFileSync(
-      join(workspaceDirectory, 'apps', appName, 'manifest.yml'),
-      'utf8'
-    );
-    expect(projectManifestContent).toContain(registeredAppId);
-
-    try {
-      // Deploy
-
-      // Run with `--no-verify` because the generated blank app template causes linting errors.
-      const deployCommand = `run ${appName}:deploy --no-verify --no-interactive`;
-      const nxDeployResult = await runNxCommandAsync(deployCommand, {
+      const buildCommand = `run ${appName}:build`;
+      const nxBuildResult = await runNxCommandAsync(buildCommand, {
         cwd: workspaceDirectory,
         silenceError: true,
       });
       expectCliCommand({
-        command: `nx ${deployCommand}`,
-        result: nxDeployResult,
-        stdout: 'Forge app deployed',
+        command: `nx ${buildCommand}`,
+        result: nxBuildResult,
+        stdout: 'Successfully ran target build for project',
       });
 
-      // Install using Forge CLI
+      // Package
 
-      const installCommand = `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`;
-      const installResult = await runForgeCommandAsync(installCommand, {
-        cwd: join(workspaceDirectory, 'dist', 'apps', appName),
+      const packageCommand = `run ${appName}:package`;
+      const nxPackageResult = await runNxCommandAsync(packageCommand, {
+        cwd: workspaceDirectory,
         silenceError: true,
       });
       expectCliCommand({
-        command: `forge ${installCommand}`,
-        result: installResult,
-        stdout: /Install.*complete/,
+        command: `nx ${packageCommand}`,
+        result: nxPackageResult,
+        stdout: 'Successfully ran target package for project',
       });
 
-      // Invoke a function through a web trigger
+      // Register
 
-      const webTriggerCommand = `webtrigger create --functionKey ${WEB_TRIGGER_KEY} --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment}`;
-      const webTriggerResult = await runForgeCommandAsync(webTriggerCommand, {
-        cwd: join(workspaceDirectory, 'dist', 'apps', appName),
-        silenceError: true,
-      });
-      expectCliCommand({
-        command: `forge ${webTriggerCommand}`,
-        result: webTriggerResult,
-        allowStderr: true,
-      });
-      const webTriggerUrl = parseWebTriggerUrl(
-        stripAnsi(webTriggerResult.stdout)
+      const unregisteredOutputManifestContent = readFileSync(
+        join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
+        'utf8'
       );
-      expect(webTriggerUrl).toBeDefined();
+      expect(unregisteredOutputManifestContent).toContain(
+        'ari:cloud:ecosystem::app/to-be-generated'
+      );
 
-      const webTriggerResponse = await invokeWebTrigger(webTriggerUrl ?? '');
-      expect(webTriggerResponse).toEqual({
-        status: 200,
-        body: WEB_TRIGGER_RESPONSE_BODY,
+      const registerCommand = `run ${appName}:register --accept-terms --developer-space-id ${developerSpaceId}`;
+      const nxRegisterResult = await runNxCommandAsync(registerCommand, {
+        cwd: workspaceDirectory,
+        silenceError: true,
       });
-    } finally {
-      if (registeredAppId) {
-        await cleanupRegisteredForgeApp({
-          appDirectory: join(workspaceDirectory, 'dist', 'apps', appName),
-          appId: registeredAppId,
-          apiClient,
-          installationContext,
+      expectCliCommand({
+        command: `nx ${registerCommand}`,
+        result: nxRegisterResult,
+        stdout: 'Forge app registered',
+      });
+
+      // ari:cloud:ecosystem::app/<uuid>
+      const registeredAppIdRegex =
+        /ari:cloud:ecosystem::app\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+
+      const registeredOutputManifestContent = readFileSync(
+        join(workspaceDirectory, 'dist', 'apps', appName, 'manifest.yml'),
+        'utf8'
+      );
+      const [registeredAppId] =
+        registeredOutputManifestContent.match(registeredAppIdRegex) ?? [];
+      expect(registeredAppId).not.toBeNull();
+      expect(registeredAppId).toBeDefined();
+      expect(registeredAppId).not.toEqual('');
+
+      const projectManifestContent = readFileSync(
+        join(workspaceDirectory, 'apps', appName, 'manifest.yml'),
+        'utf8'
+      );
+      expect(projectManifestContent).toContain(registeredAppId);
+
+      try {
+        // Deploy
+
+        // Run with `--no-verify` because the generated blank app template causes linting errors.
+        const deployCommand = `run ${appName}:deploy --no-verify --no-interactive`;
+        const nxDeployResult = await runNxCommandAsync(deployCommand, {
+          cwd: workspaceDirectory,
+          silenceError: true,
         });
+        expectCliCommand({
+          command: `nx ${deployCommand}`,
+          result: nxDeployResult,
+          stdout: 'Forge app deployed',
+        });
+
+        // Install using Forge CLI
+
+        const installCommand = `install --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment} --non-interactive`;
+        const installResult = await runForgeCommandAsync(installCommand, {
+          cwd: join(workspaceDirectory, 'dist', 'apps', appName),
+          silenceError: true,
+        });
+        expectCliCommand({
+          command: `forge ${installCommand}`,
+          result: installResult,
+          stdout: /Install.*complete/,
+          // Forge CLI warns on stderr when it installs a development app on a
+          // production site, which the e2e site is.
+          allowStderr: true,
+        });
+
+        // Invoke a function through a web trigger
+
+        const webTriggerCommand = `webtrigger create --functionKey ${WEB_TRIGGER_KEY} --product=${installationContext.product} --site=${installationContext.siteUrl} --environment ${installationContext.environment}`;
+        const webTriggerResult = await runForgeCommandAsync(webTriggerCommand, {
+          cwd: join(workspaceDirectory, 'dist', 'apps', appName),
+          silenceError: true,
+        });
+        expectCliCommand({
+          command: `forge ${webTriggerCommand}`,
+          result: webTriggerResult,
+          allowStderr: true,
+        });
+        const webTriggerUrl = parseWebTriggerUrl(
+          stripAnsi(webTriggerResult.stdout)
+        );
+        expect(webTriggerUrl).toBeDefined();
+
+        const webTriggerResponse = await invokeWebTrigger(webTriggerUrl ?? '');
+        expect(webTriggerResponse).toEqual({
+          status: 200,
+          body: WEB_TRIGGER_RESPONSE_BODY,
+        });
+      } finally {
+        if (registeredAppId) {
+          await cleanupRegisteredForgeApp({
+            appDirectory: join(workspaceDirectory, 'dist', 'apps', appName),
+            appId: registeredAppId,
+            apiClient,
+            installationContext,
+          });
+        }
       }
-    }
-  }, forgeLifecycleTestTimeoutMs);
+    },
+    forgeLifecycleTestTimeoutMs
+  );
 });

@@ -8,6 +8,7 @@ import {
 import { getRelativePathToRootTsConfig } from '@nx/js';
 import { getTsConfigModuleResolution } from '@nx/js/internal';
 import type { NormalizedOptions } from '../schema';
+import { BUNDLE_DIRECTORY } from '../../../shared/forge-output-path';
 
 export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
   generateFiles(
@@ -27,7 +28,7 @@ export function addAppFiles(tree: Tree, options: NormalizedOptions): void {
         options.appProjectRoot
       ),
       webpackPluginOptions: {
-        outputPath: joinPathFragments(options.outputPath, 'src'),
+        outputPath: joinPathFragments(options.outputPath, BUNDLE_DIRECTORY),
         main: './src/index' + (options.js ? '.js' : '.ts'),
         tsConfig: './tsconfig.app.json',
         assets: ['./src/assets'],

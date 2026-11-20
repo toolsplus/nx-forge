@@ -12,4 +12,4 @@ For each Forge application project, Nx Forge inspects the `resources` declared i
 
 The result is that Nx now knows which other projects in a workspace a Forge application depends on. Nx can then run dependent tasks (such as build) on dependent projects before running them on a particular Forge application.
 
-Additionally, because the Nx Forge plugin knows its resource dependencies, it automatically copies the dependent resource project artifacts into the Forge app output directory at build time. It also patches the Nx project reference in the manifest file with the actual path pointing to the copied resource artifacts, producing a deployable Forge application.
+Additionally, because the Nx Forge plugin knows its resource dependencies, its `package` target copies the build output of each resource project into the Forge app's artifact directory. It also patches the Nx project reference in the manifest file with the actual path pointing to the copied resource artifacts, producing a deployable Forge application.

@@ -2,7 +2,7 @@ export interface PackageExecutorSchema {
   outputPath: string;
   resourcePath?: string;
   resourceOutputPathMap?: Record<string, string>;
-  tsConfig: string;
+  allowMissingModules?: string[];
   uiKit2Packaging: boolean;
 }
 
@@ -12,6 +12,6 @@ export interface NormalizedOptions extends PackageExecutorSchema {
   projectRoot: string;
   resourcePath: string;
   outputPath: string;
-  tsConfig: string;
   resourceOutputPathMap: Record<string, string>;
+  allowMissingModules: string[];
 }

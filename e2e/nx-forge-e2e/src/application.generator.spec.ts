@@ -46,7 +46,7 @@ const expectWebpackBuildOutput = async (
     cwd: workspaceDirectory,
   });
   const outputDir = join(workspaceDirectory, 'dist', 'apps', appName);
-  const indexJsPath = join(outputDir, 'src', 'index.js');
+  const indexJsPath = join(outputDir, 'bundle', 'index.js');
 
   if (!existsSync(indexJsPath)) {
     throw new Error(
@@ -58,13 +58,14 @@ const expectWebpackBuildOutput = async (
     );
   }
 
-  expect(existsSync(join(outputDir, 'src', 'main.js'))).toBe(false);
+  expect(existsSync(join(outputDir, 'bundle', 'main.js'))).toBe(false);
+  expect(existsSync(join(outputDir, 'bundle', 'index.js.map'))).toBe(true);
 
   const packageCommand = `run ${appName}:package`;
   const packageResult = await runNxCommandAsync(packageCommand, {
     cwd: workspaceDirectory,
   });
-  const missingPackageFiles = ['manifest.yml', 'package.json'].filter(
+  const missingPackageFiles = ['manifest.yml'].filter(
     (file) => !existsSync(join(outputDir, file))
   );
 
@@ -79,6 +80,7 @@ const expectWebpackBuildOutput = async (
       ].join('\n\n')
     );
   }
+  expect(existsSync(join(outputDir, 'package.json'))).toBe(false);
 };
 
 describe('Forge application generator', () => {
@@ -178,6 +180,43 @@ describe('Forge application generator', () => {
     await expectWebpackBuildOutput(workspaceDirectory, appName);
     await runNxCommandAsync(`run ${appName}:lint`, { cwd: workspaceDirectory });
     await runNxCommandAsync(`run ${appName}:test`, { cwd: workspaceDirectory });
+  });
+
+  it('should fail to package an app whose build leaves an npm dependency external', async () => {
+    const appName = await generateForgeApp({
+      cwd: workspaceDirectory,
+      directory: 'apps',
+      options: '--bundler=webpack',
+    });
+    const webpackConfigPath = join(
+      workspaceDirectory,
+      'apps',
+      appName,
+      'webpack.config.js'
+    );
+    writeFileSync(
+      webpackConfigPath,
+      readFileSync(webpackConfigPath, 'utf8').replace(
+        `externalDependencies: 'none'`,
+        `externalDependencies: 'all'`
+      )
+    );
+
+    await runNxCommandAsync(`run ${appName}:build`, {
+      cwd: workspaceDirectory,
+    });
+    const packageResult = await runNxCommandAsync(
+      `run ${appName}:package --output-style=static`,
+      {
+        cwd: workspaceDirectory,
+        silenceError: true,
+      }
+    );
+
+    expect(packageResult.exitCode).not.toBe(0);
+    expect(`${packageResult.stdout}\n${packageResult.stderr}`).toContain(
+      '@forge/resolver (index.js)'
+    );
   });
 
   it('should set up vitest with --unitTestRunner=vitest', async () => {

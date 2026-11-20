@@ -10,10 +10,29 @@ const nxVersion = 24
 
 ## Prerequisites
 
-The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx) and have an existing Nx workspace. If you do not, make sure to create one using
+The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx).
+
+### Forge CLI
+
+Nx Forge calls the [Forge CLI](https://developer.atlassian.com/platform/forge/getting-started/) to register, deploy and tunnel apps. It needs Forge CLI 15.1.0 or later. Install or update it, then check the version:
+
+```shell
+npm install -g @forge/cli@latest
+forge --version
+```
+
+Nx Forge runs the Forge CLI installed in your workspace, and the global one only if the workspace has none. If your workspace has `@forge/cli` as a dependency, update it there as well and check the version with `npx forge --version` (or your package manager's equivalent).
+
+If you have not used the Forge CLI on this machine before, log in with `forge login`.
+
+### Nx workspace
+
+Nx Forge needs an Nx {{nxVersion}} workspace. For now, it supports only classic workspaces, where projects are linked through TypeScript path aliases. It does not yet support workspaces that link projects through package manager workspaces (TypeScript project references).
+
+If you do not have a workspace yet, create a classic one. The `--no-workspaces` flag selects the classic layout:
 
 ```shell-vue
-npx create-nx-workspace@{{nxVersion}} <workspace-name> --preset=apps
+npx create-nx-workspace@{{nxVersion}} <workspace-name> --preset=apps --no-workspaces
 ```
 
 You will be asked if you would like to use Nx Cloud and/or remote caching. Either option is fine. Once the workspace has been created, run `cd <workspace-name>`.
@@ -152,7 +171,7 @@ export default defineConfig({
 
 ### Wiring the Custom UI project with the Forge app project
 
-Back in the Forge app project, open the generated `manifest.yml` file, add a Custom UI module, the corresponding resource entry, and the `permissions` declaration:
+Back in the Forge app project, open the generated `manifest.yml` file, add a Custom UI module, the corresponding resource entry, and the `permissions` declaration. Keep the generated `app` section as it is:
 
 ::: code-group
 ```yaml{2-8,12-20}[manifest.yml]:line-numbers
@@ -178,6 +197,11 @@ permissions:
       - 'unsafe-inline'
 app:
   id: ari:cloud:ecosystem::app/to-be-generated
+  runtime:
+    name: nodejs24.x
+  package:
+    bundler: manual@2026
+    path: bundle
 ```
 :::
 
