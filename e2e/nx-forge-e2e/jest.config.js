@@ -16,4 +16,5 @@ module.exports = {
   globalSetup: '../../tools/scripts/start-local-registry.ts',
   globalTeardown: '../../tools/scripts/stop-local-registry.ts',
   testTimeout: 240000, // set the default test timeout to 4min for all e2e tests
+  verbose: true, // print each test with its duration, also when several files run
 };

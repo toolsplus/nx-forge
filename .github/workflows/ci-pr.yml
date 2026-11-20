@@ -55,6 +55,12 @@ jobs:
   e2e:
     name: E2E
     needs: [quality, build-and-test]
+    # One E2E run per pull request at a time. A newer push replaces a waiting
+    # run but never cancels a running one, which would leave its registered
+    # Forge apps installed on the test site.
+    concurrency:
+      group: e2e-${{ github.ref }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -78,6 +84,6 @@ jobs:
           echo ATLASSIAN_SITE_URL=${{ vars.ATLASSIAN_SITE_URL }} >> e2e/nx-forge-e2e/.env
           echo DEVELOPER_SPACE_ID=${{ secrets.DEVELOPER_SPACE_ID }} >> e2e/nx-forge-e2e/.env
       - run: pnpm install --frozen-lockfile
-      - run: pnpm nx affected --target=e2e --parallel=2 --no-silent
+      - run: pnpm nx affected --target=e2e --parallel=2 --no-silent --outputStyle=stream
         env:
           NODE_OPTIONS: '--no-deprecation'
