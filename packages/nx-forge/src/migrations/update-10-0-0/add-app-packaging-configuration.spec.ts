@@ -1,9 +1,9 @@
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { addProjectConfiguration, Tree } from '@nx/devkit';
 
-import update from './add-manifest-packaging-keys';
+import update from './add-app-packaging-configuration';
 
-describe('10.0.0 migration (add manifest packaging keys)', () => {
+describe('10.0.0 migration (add app packaging configuration)', () => {
   let tree: Tree;
 
   const addForgeApp = (manifest: string, root = 'apps/my-app') => {
@@ -18,7 +18,7 @@ describe('10.0.0 migration (add manifest packaging keys)', () => {
     tree = createTreeWithEmptyWorkspace();
   });
 
-  it('should add the packaging keys to the app section and keep comments and formatting', async () => {
+  it('should add the app packaging configuration to the app section and keep comments and formatting', async () => {
     addForgeApp(`# My Forge app
 modules:
   function:
@@ -45,7 +45,7 @@ modules:
 app:
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions
   id: ari:cloud:ecosystem::app/abc   # registered
   runtime:
     name: nodejs24.x
@@ -69,18 +69,18 @@ permissions:
     expect(readManifest()).toEqual(`app:
     package:
         bundler: manual@2026
-        path: bundle
+        path: functions
     id: ari:cloud:ecosystem::app/abc
     runtime:
         name: nodejs24.x`);
   });
 
-  it('should not change a manifest that sets the packaging keys', async () => {
+  it('should not change a manifest that has the app packaging configuration', async () => {
     const manifest = `app:
   id: ari:cloud:ecosystem::app/abc
   runtime: { name: nodejs24.x }
   package:
-    path: bundle
+    path: functions
     bundler: manual@2026
 `;
     addForgeApp(manifest);

@@ -10,32 +10,17 @@ const nxVersion = 24
 
 ## Prerequisites
 
-The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx).
-
-### Forge CLI
-
-Nx Forge calls the [Forge CLI](https://developer.atlassian.com/platform/forge/getting-started/) to register, deploy and tunnel apps. It needs Forge CLI 15.1.0 or later. Install or update it, then check the version:
-
-```shell
-npm install -g @forge/cli@latest
-forge --version
-```
-
-Nx Forge runs the Forge CLI installed in your workspace, and the global one only if the workspace has none. If your workspace has `@forge/cli` as a dependency, update it there as well and check the version with `npx forge --version` (or your package manager's equivalent).
-
-If you have not used the Forge CLI on this machine before, log in with `forge login`.
-
-### Nx workspace
-
-Nx Forge needs an Nx {{nxVersion}} workspace. For now, it supports only classic workspaces, where projects are linked through TypeScript path aliases. It does not yet support workspaces that link projects through package manager workspaces (TypeScript project references).
-
-If you do not have a workspace yet, create a classic one. The `--no-workspaces` flag selects the classic layout:
+The following setup procedure assumes you are somewhat [familiar with Nx](https://nx.dev/getting-started/why-nx) and have an existing Nx {{nxVersion}} workspace. If you do not, make sure to create one using
 
 ```shell-vue
 npx create-nx-workspace@{{nxVersion}} <workspace-name> --preset=apps --no-workspaces
 ```
 
+`--no-workspaces` creates a classic workspace, where projects are linked through TypeScript path aliases. Nx Forge does not support package manager workspaces yet.
+
 You will be asked if you would like to use Nx Cloud and/or remote caching. Either option is fine. Once the workspace has been created, run `cd <workspace-name>`.
+
+Nx Forge also needs [Forge CLI](https://developer.atlassian.com/platform/forge/getting-started/) 15.1.0 or later. It runs the Forge CLI installed in your workspace, or the global one if the workspace has none. Check the version with `forge --version`.
 
 ## Setting up
 
@@ -61,7 +46,7 @@ nx add @toolsplus/nx-forge
 
 :::tip NOTE
 
-The plugin is compatible with Nx version {{nxVersion}}. If you use an older Nx version, we recommend upgrading to avoid compatibility issues. 
+The plugin is compatible with Nx version {{nxVersion}}. If you use an older Nx version, we recommend upgrading to avoid compatibility issues.
 
 :::
 
@@ -87,8 +72,7 @@ This plugin allows us to generate a React application for our Custom UI. Replace
 nx g @nx/react:app apps/<custom-ui-app-name>
 ```
 
-
-To get the React app working as a Forge Custom UI, ensure that the configured bundler loads assets from relative paths. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets). The configuration varies based on the configured bundler, but there are typically one or two places to adjust: 
+To get the React app working as a Forge Custom UI, ensure that the configured bundler loads assets from relative paths. Refer to [the Forge documentation for additional details](https://developer.atlassian.com/platform/forge/custom-ui/#accessing-static-assets). The configuration varies based on the configured bundler, but there are typically one or two places to adjust:
 
 1. base path in the bundler's configuration file
 1. base tag in the `index.html`
@@ -96,6 +80,7 @@ To get the React app working as a Forge Custom UI, ensure that the configured bu
 Make sure both of these are relative. For Webpack, it should be enough to set `baseHref` to `.` in `webpack.config.js`. For Vite, apart from setting `base` to `./` in `vite.config.js`, you may also need to update the base tag in `index.html` from `<base href="/" />` to `<base href="./" />`.
 
 ::: code-group
+
 ```json[webpack.config.js]:line-numbers{23}
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
@@ -133,6 +118,7 @@ module.exports = {
   ],
 };
 ```
+
 ```json[vite.config.js]:line-numbers{9}
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
@@ -167,6 +153,7 @@ export default defineConfig({
   },
 });
 ```
+
 :::
 
 ### Wiring the Custom UI project with the Forge app project
@@ -174,6 +161,7 @@ export default defineConfig({
 Back in the Forge app project, open the generated `manifest.yml` file, add a Custom UI module, the corresponding resource entry, and the `permissions` declaration. Keep the generated `app` section as it is:
 
 ::: code-group
+
 ```yaml{2-8,12-20}[manifest.yml]:line-numbers
 modules:
   jira:projectPage:
@@ -182,7 +170,7 @@ modules:
       layout: basic
       resource: project-page
       resolver:
-        function: resolver  
+        function: resolver
   function:
     - key: resolver
       handler: index.handler
@@ -201,8 +189,9 @@ app:
     name: nodejs24.x
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions
 ```
+
 :::
 
 The most significant bit to note here is that the `path` property of the `project-page` resource must reference the Custom UI project name from the previous step. This declaration tells the Nx Forge plugin which Nx app project corresponds to the `project-page` resource. If you are unsure about the project name, you can always look it up via the `name` property in the `project.json` file. The plugin will replace the project name path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.
@@ -212,6 +201,7 @@ The most significant bit to note here is that the `path` property of the `projec
 Technically, we have everything in place to build, package, and deploy our Forge app. However, to make our lives even easier, it is helpful to configure a few target defaults. Open the `nx.json` file in your workspace root and update or add the `targetDefaults` as follows:
 
 ::: code-group
+
 ```json{4-8}[nx.json]:line-numbers
 {
   ...
@@ -227,6 +217,7 @@ Technically, we have everything in place to build, package, and deploy our Forge
   ...
 }
 ```
+
 :::
 
 These settings tell Nx that when we call the `deploy` target on a project, it should first run the `package` target. Additionally, we make the `package` target dependent on the `build` target. With these ([target dependencies](https://nx.dev/reference/project-configuration#dependson)) in place, we can call `nx run <nx-forge-app-name>:deploy`, and Nx will ensure that the app is first built, then packaged and finally deployed.

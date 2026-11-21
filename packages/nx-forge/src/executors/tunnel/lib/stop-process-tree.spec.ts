@@ -10,7 +10,7 @@ describe('stopProcessTree', () => {
     jest.clearAllMocks();
   });
 
-  it('should send SIGTERM so that Forge can deregister the tunnel', () => {
+  it('should send SIGTERM so that the Forge CLI can deregister the tunnel', () => {
     const child = { pid: 42, kill: jest.fn().mockReturnValue(true) };
 
     stopProcessTree(child, 'linux');

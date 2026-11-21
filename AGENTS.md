@@ -8,6 +8,8 @@
 
 Use [Conventional Commits](https://www.conventionalcommits.org). Treat `.commitlintrc` as the source of truth for commit-message rules.
 
+Commit a clean tree: `pnpm nx format:check --all` passes and lint reports no warnings. Fix every finding, including ones your change did not cause.
+
 ## Code style
 
 Follow `CODING_STANDARDS.md`.

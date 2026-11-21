@@ -38,12 +38,13 @@ nx g @nx/react:app <ui-kit-app-name> --directory=apps/<ui-kit-app-name> --style=
 
 To get the React application working as a UI Kit user interface, update the `apps/<ui-kit-app-name>/webpack.config.js` file by making the following edits:
 
-* Add the `commonChunk: false` and `runtimeChunk: false` options to Nx Webpack plugin configuration. We do not want Webpack to generate extra chunks.
-* Update the `outputHashing` option to `none`. Output filenames containing hashes are currently not supported by the packaging process.
-* Remove the `index` option and the `index.html` file indicated by the option value.
-* Remove assets from the `assets` option if they are unused.
+- Add the `commonChunk: false` and `runtimeChunk: false` options to Nx Webpack plugin configuration. We do not want Webpack to generate extra chunks.
+- Update the `outputHashing` option to `none`. Output filenames containing hashes are currently not supported by the packaging process.
+- Remove the `index` option and the `index.html` file indicated by the option value.
+- Remove assets from the `assets` option if they are unused.
 
 :::code-group
+
 ```js{17,21-23}[webpack.config.js]:line-numbers
 const { NxWebpackPlugin } = require('@nx/webpack');
 const { NxReactWebpackPlugin } = require('@nx/react');
@@ -78,11 +79,13 @@ module.exports = {
   ],
 };
 ```
+
 :::
 
 The generated React application is not compatible with UI Kit. Replace the `app.tsx` and `main.tsx` files with the following example content:
 
 :::code-group
+
 ```tsx[app.tsx]
 import {Text} from '@forge/react';
 
@@ -102,8 +105,8 @@ ForgeReconciler.render(
   </React.StrictMode>
 );
 ```
-:::
 
+:::
 
 ## Wiring the UI Kit project
 
@@ -112,6 +115,7 @@ The final step is to connect the UI Kit project to the Forge application. This s
 In the Forge app project, open the generated `manifest.yml` file and add a UI Kit module and the corresponding resource entry. Keep the generated `app` section as it is. The example below adds the `jira:globalPage` module and the `global-page` resource declaration.
 
 :::code-group
+
 ```yaml{2-8,12-16}[manifest.yml]:line-numbers
 modules:
   jira:globalPage:
@@ -135,8 +139,9 @@ app:
     name: nodejs24.x
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions
 ```
+
 :::
 
 The wiring of the UI Kit app to the Forge application happens in the `path` property of the `global-page` resource. The `path` property must reference the UI Kit project name from the previous step. The plugin will replace this path with the path to the actual UI Kit build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.

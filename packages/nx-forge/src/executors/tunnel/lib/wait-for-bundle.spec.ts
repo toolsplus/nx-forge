@@ -17,8 +17,8 @@ describe('waitForBundle', () => {
   });
 
   const writeBundle = () => {
-    mkdirSync(join(outputPath, 'bundle'), { recursive: true });
-    writeFileSync(join(outputPath, 'bundle', 'index.js'), '');
+    mkdirSync(join(outputPath, 'functions'), { recursive: true });
+    writeFileSync(join(outputPath, 'functions', 'index.js'), '');
   };
 
   it('should see a bundle that is written late in the timeout window', async () => {

@@ -46,7 +46,7 @@ const expectWebpackBuildOutput = async (
     cwd: workspaceDirectory,
   });
   const outputDir = join(workspaceDirectory, 'dist', 'apps', appName);
-  const indexJsPath = join(outputDir, 'bundle', 'index.js');
+  const indexJsPath = join(outputDir, 'functions', 'index.js');
 
   if (!existsSync(indexJsPath)) {
     throw new Error(
@@ -58,8 +58,8 @@ const expectWebpackBuildOutput = async (
     );
   }
 
-  expect(existsSync(join(outputDir, 'bundle', 'main.js'))).toBe(false);
-  expect(existsSync(join(outputDir, 'bundle', 'index.js.map'))).toBe(true);
+  expect(existsSync(join(outputDir, 'functions', 'main.js'))).toBe(false);
+  expect(existsSync(join(outputDir, 'functions', 'index.js.map'))).toBe(true);
 
   const packageCommand = `run ${appName}:package`;
   const packageResult = await runNxCommandAsync(packageCommand, {

@@ -27,6 +27,10 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      # PR CI skips pull requests that change only docs.
+      - name: Check formatting
+        working-directory: .
+        run: pnpm nx format:check --all
       - name: Build with VitePress
         run: |
           pnpm docs:build

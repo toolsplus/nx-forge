@@ -40,7 +40,7 @@ const migratedPluginOptions = `      // Forge ships the bundle as it is, so it m
       externalDependencies: 'none',
       target: 'node',
       compiler: 'tsc',
-      outputPath: '../../dist/apps/my-app/bundle',
+      outputPath: '../../dist/apps/my-app/functions',
       main: './src/index.ts',
       outputFileName: 'index.js',
       tsConfig: './tsconfig.app.json',
@@ -100,7 +100,7 @@ describe('10.0.0 migration (bundle dependencies)', () => {
 
     it('should keep externalDependencies none and a bundle output path', async () => {
       const config = webpackConfig(
-        `      outputPath: "../../dist/apps/my-app/bundle",\n      externalDependencies: 'none',\n`
+        `      outputPath: "../../dist/apps/my-app/functions",\n      externalDependencies: 'none',\n`
       );
       addForgeApp();
       tree.write('apps/my-app/webpack.config.js', config);
@@ -186,10 +186,10 @@ describe('10.0.0 migration (bundle dependencies)', () => {
 
       expect(readProjectConfiguration(tree, 'my-app').targets?.build).toEqual(
         esbuildTarget(
-          { outputPath: 'dist/apps/my-app/bundle', thirdParty: true },
+          { outputPath: 'dist/apps/my-app/functions', thirdParty: true },
           {
             development: {},
-            production: { outputPath: 'dist/apps/my-app/bundle' },
+            production: { outputPath: 'dist/apps/my-app/functions' },
           }
         )
       );
@@ -304,7 +304,7 @@ describe('10.0.0 migration (bundle dependencies)', () => {
       expect(
         readProjectConfiguration(tree, 'my-app').targets?.build?.options
           .outputPath
-      ).toEqual('dist/bundle');
+      ).toEqual('dist/functions');
     });
   });
 
@@ -316,7 +316,7 @@ describe('10.0.0 migration (bundle dependencies)', () => {
     expect(result?.nextSteps).toEqual(
       expect.arrayContaining([
         expect.stringMatching(
-          /dist\/apps\/my-app\/src.*dist\/apps\/my-app\/bundle/s
+          /dist\/apps\/my-app\/src.*dist\/apps\/my-app\/functions/s
         ),
         expect.stringContaining('Forge CLI 15.1.0'),
       ])

@@ -11,7 +11,7 @@ my-forge-app/
 ├── resources
 │   ├── custom-ui-1
 │   ├── ui-kit-ui-1
-│   │     
+│   │
 ├── src
 ├── manifest.yml
 └── package.json
@@ -23,17 +23,17 @@ The main challenge with the code organization requirement illustrated above is t
 
 ### Code sharing
 
-Imagine your Forge app contains a Custom UI that communicates with a resolver on your Forge app backend. Ideally, you want to share code between the Custom UI frontend and the Forge app backend to ensure they have a shared communication protocol. 
+Imagine your Forge app contains a Custom UI that communicates with a resolver on your Forge app backend. Ideally, you want to share code between the Custom UI frontend and the Forge app backend to ensure they have a shared communication protocol.
 
-Where would you place that shared code, and how would you configure the frontend and back end to have access to it? 
+Where would you place that shared code, and how would you configure the frontend and back end to have access to it?
 
 ### Compiled artifacts
 
-Let's say you want to write your Forge app entirely in Typescript, or you want pre-compile your Javascript code with Babel. This will introduce a compile step for the Forge app and each Custom UI and UI Kit resource<sup>*</sup>. Remember that the compiled output has to conform to the application layout shown on top to deploy it to the Forge platform.
+Let's say you want to write your Forge app entirely in Typescript, or you want pre-compile your Javascript code with Babel. This will introduce a compile step for the Forge app and each Custom UI and UI Kit resource<sup>\*</sup>. Remember that the compiled output has to conform to the application layout shown on top to deploy it to the Forge platform.
 
 How would you structure your Forge app to achieve this?
 
-<sup>*</sup><small>The Forge CLI has some support to compile Typescript, but there is little to no documentation. We believe it is better to manage the compilation yourself and simply pass compiled Javascript to Forge.</small>
+<sup>\*</sup><small>The Forge CLI has some support to compile Typescript, but there is little to no documentation. We believe it is better to manage the compilation yourself and simply pass compiled Javascript to Forge.</small>
 
 ### Scaling
 
@@ -47,7 +47,7 @@ Forge itself does not have, and probably should not have, an opinion on how you 
 
 :::tip IDEA
 
-Nx Forge provides a solution to build Forge apps in a consistent, scalable way, and, most importantly, it removes the mental overhead of how to set up a Forge application project. 
+Nx Forge provides a solution to build Forge apps in a consistent, scalable way, and, most importantly, it removes the mental overhead of how to set up a Forge application project.
 
 :::
 

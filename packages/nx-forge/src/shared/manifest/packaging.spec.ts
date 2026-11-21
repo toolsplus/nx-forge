@@ -1,5 +1,5 @@
 import { ManifestSchema } from '@forge/manifest';
-import { verifyPackagingKeys } from './packaging';
+import { verifyAppPackagingConfiguration } from './packaging';
 
 const manifest = (app: Partial<ManifestSchema['app']>): ManifestSchema =>
   ({
@@ -11,23 +11,23 @@ const manifest = (app: Partial<ManifestSchema['app']>): ManifestSchema =>
     },
   } as ManifestSchema);
 
-describe('verifyPackagingKeys', () => {
-  it('should accept a manifest with the manual packaging keys', () => {
+describe('verifyAppPackagingConfiguration', () => {
+  it('should accept a manifest with the app packaging configuration', () => {
     expect(() =>
-      verifyPackagingKeys(
-        manifest({ package: { bundler: 'manual@2026', path: 'bundle' } }),
+      verifyAppPackagingConfiguration(
+        manifest({ package: { bundler: 'manual@2026', path: 'functions' } }),
         'apps/my-app/manifest.yml'
       )
     ).not.toThrow();
   });
 
-  it('should accept other package keys next to the manual packaging keys', () => {
+  it('should accept other `app.package` settings next to the app packaging configuration', () => {
     expect(() =>
-      verifyPackagingKeys(
+      verifyAppPackagingConfiguration(
         manifest({
           package: {
             bundler: 'manual@2026',
-            path: 'bundle',
+            path: 'functions',
             extraFiles: ['README.md'],
           },
         }),
@@ -38,38 +38,38 @@ describe('verifyPackagingKeys', () => {
 
   it('should fail with the lines to add for a value that the manifest schema rejects', () => {
     expect(() =>
-      verifyPackagingKeys(
+      verifyAppPackagingConfiguration(
         { app: { package: { bundler: 'manual@2025' } } },
         'apps/my-app/manifest.yml'
       )
-    ).toThrow('    bundler: manual@2026\n    path: bundle');
+    ).toThrow('    bundler: manual@2026\n    path: functions');
   });
 
   it('should fail with the lines to add when the keys are missing', () => {
     expect(() =>
-      verifyPackagingKeys(manifest({}), 'apps/my-app/manifest.yml')
+      verifyAppPackagingConfiguration(manifest({}), 'apps/my-app/manifest.yml')
     ).toThrow(
       [
-        'apps/my-app/manifest.yml must set the manual packaging keys. Add these lines:',
+        'apps/my-app/manifest.yml must configure manual Forge packaging. Add these lines:',
         '',
         'app:',
         '  package:',
         '    bundler: manual@2026',
-        '    path: bundle',
+        '    path: functions',
       ].join('\n')
     );
   });
 
   it.each([
-    [{ bundler: 'webpack', path: 'bundle' }, 'app.package.bundler'],
+    [{ bundler: 'webpack', path: 'functions' }, 'app.package.bundler'],
     [{ bundler: 'manual@2026', path: 'src' }, 'app.package.path'],
     [{ bundler: 'manual@2026' }, 'app.package.path'],
   ] as const)(
-    'should name the key that has a different value (%j)',
-    (packageKeys, key) => {
+    'should name the setting that has a different value (%j)',
+    (appPackage, key) => {
       expect(() =>
-        verifyPackagingKeys(
-          manifest({ package: packageKeys }),
+        verifyAppPackagingConfiguration(
+          manifest({ package: appPackage }),
           'apps/my-app/manifest.yml'
         )
       ).toThrow(key);

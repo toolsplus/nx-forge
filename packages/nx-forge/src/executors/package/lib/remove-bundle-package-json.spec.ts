@@ -15,7 +15,7 @@ describe('removeBundlePackageJson', () => {
   beforeEach(() => {
     bundlePath = join(
       mkdtempSync(join(tmpdir(), 'nx-forge-bundle-')),
-      'bundle'
+      'functions'
     );
     mkdirSync(bundlePath);
     writeFileSync(join(bundlePath, 'index.js'), '');

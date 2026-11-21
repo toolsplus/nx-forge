@@ -8,9 +8,9 @@ export interface StoppableProcess {
 /**
  * Stops the `forge tunnel` process and the processes it started.
  *
- * On POSIX systems, SIGTERM lets Forge deregister the tunnel. Windows has no
+ * On POSIX systems, SIGTERM lets the Forge CLI deregister the tunnel. Windows has no
  * signals: the process is a `cmd.exe` running the `forge.cmd` shim, and
- * terminating it would leave Forge running, so terminate the whole tree.
+ * terminating it would leave the Forge CLI running, so terminate the whole tree.
  *
  * @param child The `forge tunnel` process
  * @param platform Platform to stop the process on
