@@ -32,14 +32,14 @@ To execute the end-to-end tests affected by a change
 
 ## Creating a beta release
 
-If you are working on a plugin version that contains breaking changes, it should be first merged into the beta branch. The beta branch will publish beta release beta versions of the plugin, e.g. @toolsplus/nx-forge@3.0.0-beta.1. This is great for acceptance testing before the changes are merged into the main branch.  
+If you are working on a plugin version that contains breaking changes, it should be first merged into the beta branch. The beta branch will publish beta release beta versions of the plugin, e.g. @toolsplus/nx-forge@3.0.0-beta.1. This is great for acceptance testing before the changes are merged into the main branch.
 
 ## Pre-releasing a branch
 
 If you create a new feature or fix that needs to be tested outside the project before the pull request is being merged you can create a new branch called `test-*` (replace `*` with the short name of your branch, e.g. `test-feat-add-prerelease-config`, or `test-fix-serious-bug`). After that, merge the branch into the `test-*` branch and push it to origin. Semantic release will pick it up and publish a pre-release version.
 Once your pull request has been merged you can safely delete the `test-*` branch from origin.
 
-This practice is inspired by this post: https://www.benmvp.com/blog/create-one-off-releases-semantic-release/#supporting-one-off-releases 
+This practice is inspired by this post: https://www.benmvp.com/blog/create-one-off-releases-semantic-release/#supporting-one-off-releases
 
 ## Publishing to a local registry
 
@@ -59,12 +59,12 @@ Note that as soon as you terminate the process with the local Verdaccio registry
 
 Refer to https://nx.dev/using-nx/updating-nx for details on updating Nx. The following outlines the major steps to migrate to a newer Nx version.
 
-From the project root run 
+From the project root run
 
     nx migrate latest
 
 This will update Nx project dependencies in package.json and create a migrations.json file.
-Make sure package.json changes make sense and then run 
+Make sure package.json changes make sense and then run
 
     pnpm install
 
@@ -76,7 +76,7 @@ Once that's complete, delete the migrations.json file.
 
 If this is a Nx major version upgrade, check that the Nx versions listed under `dependencies` and `peerDependencies` in `packages/nx-forge/package.json` are matching the required Nx version.
 
-Finally, proceed with committing and submitting the changes to the repo.  
+Finally, proceed with committing and submitting the changes to the repo.
 
 ## Update plugin dependencies
 

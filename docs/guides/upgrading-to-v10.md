@@ -6,29 +6,48 @@ This guide shows you how to upgrade a workspace from Nx Forge 9 to Nx Forge 10.
 
 In version 9, a Forge app was bundled twice. The Nx `build` target bundled the app code but left npm dependencies as `require()` calls in `<artifact>/src`. Then `forge deploy` bundled it again with Forge's Webpack, resolving the dependencies from the artifact directory in `dist`. This broke with pnpm and other layouts where dependencies are not all hoisted to one `node_modules`, and it needed a generated `package.json`.
 
-In version 10, the Nx `build` target is the only bundler. It inlines everything, including npm dependencies, into `<artifact>/bundle/index.js`. The Forge CLI then ships that bundle as it is, through Forge's [manual packaging](https://developer.atlassian.com/platform/forge/manifest-reference/packaging/).
+In version 10, the Nx `build` target is the only bundler. It inlines everything, including npm dependencies, into `<artifact>/functions/index.js`. The Forge CLI then ships that bundle as it is, through Forge's [manual packaging](https://developer.atlassian.com/platform/forge/manifest-reference/packaging/).
 
 ```mermaid
+---
+config:
+  flowchart:
+    rankSpacing: 28
+    nodeSpacing: 70
+    padding: 18
+---
 flowchart TB
-  subgraph v9["Version 9"]
+  subgraph v10["Version 10: bundled once"]
     direction TB
-    A1["nx build<br/>leaves npm dependencies as require calls"] --> A2["dist/.../src, package.json"]
-    A2 --> A3["forge deploy<br/>bundles again with Forge's Webpack"]
+    b1("`**nx build**
+    inlines npm packages`") --> b2("`**nx package**
+    checks manifest and bundle`") --> b3["`**Artifact**
+    functions/index.js`"] --> b4("`**forge deploy**
+    ships it unchanged`")
   end
-  subgraph v10["Version 10"]
+  subgraph v9["Version 9: bundled twice"]
     direction TB
-    B1["nx build<br/>inlines everything"] --> B2["dist/.../bundle"]
-    B2 --> B3["forge deploy<br/>ships bundle/ as it is"]
+    a1("`**nx build**
+    leaves npm packages out`") --> a2("`**nx package**
+    adds package.json`") --> a3["`**Artifact**
+    src/ + package.json`"] --> a4("`**forge deploy**
+    bundles again`")
   end
+  a3@{ shape: doc }
+  b3@{ shape: doc }
+  class a1,a2,b1,b2 nx
+  class a4 warn
+  class b4 forge
+  class a3,b3 file
 ```
 
 For the reasoning behind this design, see [Plugin concepts](../concepts/plugin-concepts.md).
 
 In practice, this means:
 
-- The build writes to `<artifact>/bundle` instead of `<artifact>/src`, and must inline npm dependencies.
-- `manifest.yml` needs the `app.package` keys for manual packaging.
-- The `package` executor no longer generates a `package.json`. Its `tsConfig` option is removed. It checks the packaging keys and that the bundle is complete.
+- The build writes to `<artifact>/functions` instead of `<artifact>/src`, and must inline npm dependencies.
+- `manifest.yml` needs [manual Forge packaging](https://developer.atlassian.com/platform/forge/manifest-reference/packaging/) configured.
+- The `package` executor no longer generates a `package.json`. Its `tsConfig` option is removed. It checks that manual Forge packaging is configured and that the bundle is complete.
 - You need Forge CLI 15.1.0 or later.
 
 ## Before you start
@@ -41,16 +60,13 @@ Commit or stash your changes, so you can review what the migration changes.
 
 ## 1. Update the Forge CLI
 
-Install Forge CLI 15.1.0 or later and check the version:
+Older versions of the Forge CLI do not support manual packaging. Install version 15.1.0 or later, and check the version with `forge --version`:
 
 ```shell
 npm install -g @forge/cli@latest
-forge --version
 ```
 
-Nx Forge runs the Forge CLI installed in your workspace, and the global one only if the workspace has none. If your workspace has `@forge/cli` as a dependency, update it there as well and check the version with `npx forge --version` (or your package manager's equivalent).
-
-Older versions do not support manual packaging.
+If your workspace has `@forge/cli` as a dependency, update it there as well: Nx Forge runs the workspace's Forge CLI before the global one.
 
 ## 2. Run the migration
 
@@ -61,13 +77,13 @@ nx migrate @toolsplus/nx-forge@latest
 nx migrate --run-migrations
 ```
 
-For each Forge app project, the migration:
+The migration makes these changes to each Forge app project:
 
-- if the build configuration has the shape of a generated app, changes the build output path from `.../src` to `.../bundle` and makes the build inline npm dependencies:
-  - Webpack: in the `NxAppWebpackPlugin` options in `webpack.config.js`, it changes `outputPath` and adds `externalDependencies: 'none'`,
-  - esbuild: in the `@nx/esbuild:esbuild` build target in `project.json`, it changes `outputPath` and sets `thirdParty: true`,
-- adds the `app.package` keys to `manifest.yml` if it has no `package` section yet, keeping your comments and formatting,
-- removes the `tsConfig` option from `package` targets.
+- If the build configuration has the shape of a generated app, it changes the build output path from `.../src` to `.../functions` and makes the build inline npm dependencies:
+  - Webpack: in the `NxAppWebpackPlugin` options in `webpack.config.js`, it changes `outputPath` and adds `externalDependencies: 'none'`.
+  - esbuild: in the `@nx/esbuild:esbuild` build target in `project.json`, it changes `outputPath` and sets `thirdParty: true`.
+- If `manifest.yml` has no `package` section yet, it configures manual Forge packaging there and keeps your comments and formatting.
+- It removes the `tsConfig` option from `package` targets.
 
 When it finishes, the migration prints next steps for everything it could not change. Keep that output for the next steps. If you work with an AI agent, run `nx migrate --run-migrations --agentic` instead: Nx gives the agent instructions for the changes that the migration could not make.
 
@@ -80,7 +96,6 @@ Compare each app's build configuration with what a new app gets. Make the change
 A new app's `webpack.config.js` looks like this:
 
 ```js
-const { DefinePlugin, IgnorePlugin } = require('webpack');
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 
 module.exports = {
@@ -90,11 +105,12 @@ module.exports = {
     library: { type: 'commonjs2' },
     filename: 'index.js',
   },
+  optimization: { nodeEnv: process.env.NODE_ENV },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',
       compiler: 'tsc',
-      outputPath: '../../dist/apps/my-app/bundle',
+      outputPath: '../../dist/apps/my-app/functions',
       main: './src/index.ts',
       outputFileName: 'index.js',
       tsConfig: './tsconfig.app.json',
@@ -105,19 +121,14 @@ module.exports = {
       outputHashing: 'none',
       deleteOutputPath: false,
     }),
-    new DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }),
-    new IgnorePlugin({ resourceRegExp: /^encoding$/, contextRegExp: /node-fetch/ }),
-    new IgnorePlugin({ resourceRegExp: /^(bufferutil|utf-8-validate)$/, contextRegExp: /ws\/lib$/ }),
-    new IgnorePlugin({ resourceRegExp: /^dtrace-provider$/, contextRegExp: /bunyan$/ }),
   ],
 };
 ```
 
 The migration does not add these parts. Add them by hand:
 
-- **`DefinePlugin` for `NODE_ENV`.** The Forge runtime does not set `NODE_ENV`, and Forge's bundler used to inline `production`. Without it, libraries that check `NODE_ENV` run their development code.
+- **`optimization.nodeEnv`.** The Forge runtime does not set `NODE_ENV`, and the Forge CLI's bundler used to set it to `production`. Without it, libraries that check `NODE_ENV` run their development code. Nx sets `NODE_ENV` for the build to match the build configuration: `production` by default, `development` with `--configuration=development`. `mode: 'production'` does not set it, because Nx sets the Webpack mode to `none` for Node apps.
 - **`sourceMap: true`.** It writes `index.js.map` next to the bundle.
-- **The three `IgnorePlugin` rules.** They skip optional dependencies of `node-fetch`, `ws` and `bunyan`, as Forge's bundler did.
 
 Check that `output.library` is set to `{ type: 'commonjs2' }`. Without it, the bundle does not export the handlers.
 
@@ -130,7 +141,7 @@ A new app's `build` target includes these options:
   "executor": "@nx/esbuild:esbuild",
   "options": {
     "platform": "node",
-    "outputPath": "dist/apps/my-app/bundle",
+    "outputPath": "dist/apps/my-app/functions",
     "format": ["cjs"],
     "bundle": true,
     "thirdParty": true,
@@ -149,28 +160,28 @@ A new app's `build` target includes these options:
 
 The migration does not change `esbuildOptions`. Add `define` and `sourcemap: true` by hand. If a configuration sets its own `esbuildOptions`, it replaces the ones in `options`. Apps generated with version 9 have such a `production` configuration, which also turns source maps off. Remove its `esbuildOptions`, or add `define` and `sourcemap: true` to it.
 
-### Workarounds for Forge's bundler
+### Workarounds for the Forge CLI's bundler
 
-If you added settings so that Forge's bundler could find your dependencies, remove them. The build must now inline every npm dependency, so remove any `externals` or `externalDependencies` lists that leave packages out of the bundle.
+If you added settings so that the Forge CLI's bundler could find your dependencies, remove them. The build must now inline every npm dependency, so remove any `externals` or `externalDependencies` lists that leave packages out of the bundle.
 
 If the migration reported that it could not update a build configuration, make the changes above by hand.
 
-## 4. Check the manifest keys
+## 4. Check the packaging configuration
 
-Open each app's `manifest.yml` and check that it contains:
+Open each app's `manifest.yml` and check that it configures manual Forge packaging:
 
 ```yaml
 app:
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions
 ```
 
-`path` is relative to the artifact directory, not to the project. If the keys are missing or different, `package` fails and prints the lines to add.
+`path` is relative to the artifact directory, not to the project. If the configuration is missing or different, `package` fails and prints the lines to add.
 
 ## 5. Update custom paths
 
-The bundle now lives in `<artifact>/bundle` instead of `<artifact>/src`. Search your workspace for the old path, for example `dist/apps/my-app/src`, and update anything you wrote by hand, such as:
+The bundle now lives in `<artifact>/functions` instead of `<artifact>/src`. Search your workspace for the old path, for example `dist/apps/my-app/src`, and update anything you wrote by hand, such as:
 
 - source map upload globs for error monitoring tools,
 - scripts and CI steps that read or copy the build output,
@@ -190,13 +201,6 @@ nx run my-app:deploy
 
 Check the result:
 
-- `dist/apps/my-app` contains `bundle/` and `manifest.yml`, and no `package.json`. If the app has Custom UI or UI Kit resources, it also contains their build output in `resources/`, or in the folder that the `package` target's `resourcePath` option names.
+- `dist/apps/my-app` contains `functions/` and `manifest.yml`, and no `package.json`. If the app has Custom UI or UI Kit resources, it also contains their build output in `resources/`, or in the folder that the `package` target's `resourcePath` option names.
 - `package` passes. If it reports modules missing from the bundle, see [Bundle completeness](../reference/executors.md#bundle-completeness).
 - After the deploy, call a function of the app, for example by opening a module that uses a resolver. The upload contains exactly the bundle you built, so this is the real test.
-
-## What to know afterwards
-
-- **Forge lint.** `forge deploy` still runs Forge lint unless you pass `--no-verify`. Forge lint parses only JavaScript under `./src`, so it no longer inspects your function code. It still checks the manifest and that the handler files exist. Rely on your workspace's own lint and type checks for the code.
-- **Tunnel.** The `tunnel` executor waits for `bundle/index.js`, packages the app once and starts `forge tunnel`. `forge tunnel` picks up rebuilds without a restart. Inside the workspace, it can load a module that is missing from the bundle from `node_modules`, so a function can work in the tunnel and fail after deployment. `package` catches this before you deploy, for modules that the bundle loads by a literal name.
-- **No `package.json`.** The artifact directory has no `package.json`. The bundle contains every dependency, and the Forge CLI does not need one.
-- **Optional modules.** If `package` reports a missing module that a package loads only when it is present, and your code works without it, add it to the `allowMissingModules` option of the [`package` executor](../reference/executors.md#package).

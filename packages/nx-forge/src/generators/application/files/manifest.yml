@@ -8,4 +8,4 @@ app:
     name: nodejs24.x
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions

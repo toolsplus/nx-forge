@@ -12,7 +12,7 @@ import { BUNDLE_DIRECTORY } from '../../../shared/forge-output-path';
  * Waits until the build has written the bundle to the output path.
  *
  * Checks repeatedly with exponential backoff, and once more at the deadline,
- * until either the function times out, or `<outputPath>/bundle/index.js`
+ * until either the function times out, or `<outputPath>/functions/index.js`
  * exists.
  *
  * @param outputPath App output path

@@ -18,7 +18,7 @@ describe('bundle completeness', () => {
   beforeEach(() => {
     bundlePath = join(
       mkdtempSync(join(tmpdir(), 'nx-forge-bundle-')),
-      'bundle'
+      'functions'
     );
     mkdirSync(bundlePath);
   });
@@ -47,7 +47,7 @@ exports.handler = () => fs.existsSync(path.join('a', 'b'));`
       );
       writeBundleFile(
         'chunk.js',
-        `module.exports = require('../bundle/other.cjs');`
+        `module.exports = require('../functions/other.cjs');`
       );
       writeBundleFile('other.cjs', `module.exports = {};`);
       writeBundleFile('lib/data.json', `{}`);

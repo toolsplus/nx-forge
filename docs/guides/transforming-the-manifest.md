@@ -16,8 +16,8 @@ If you are [injecting environment variables in your expression](#using-environme
         'CONNECT_APP_KEY': 'io.toolsplus.hello',
         'CONNECT_REMOTE_BASE_URL': 'https://connect-base-url.com'
     }, ?);
-    
-    $ ~> |app.connect|{'key': $env('CONNECT_APP_KEY')}| 
+
+    $ ~> |app.connect|{'key': $env('CONNECT_APP_KEY')}|
       ~> |remotes[key='connect']|{'baseUrl': $env('CONNECT_REMOTE_BASE_URL')}|
 )
 ```
@@ -37,6 +37,7 @@ $ ~> |app|{'id': 'ari:cloud:ecosystem::app/407bc6a8-...'}|
 ### Deleting a property
 
 Deleting the `app.licensing` property:
+
 ```jsonata
 $ ~> |app|{}, ['licensing']|
 ```
@@ -44,19 +45,19 @@ $ ~> |app|{}, ['licensing']|
 ### Chaining multiple transforms
 
 ```jsonata
-$ 
+$
 ~> |app|{'id': 'ari:cloud:ecosystem::app/407bc6a8-...'}|
 ~> |app|{'licensing': {'enabled': true}}|
-~> |app.connect|{'key': 'my-connect-key'}| 
+~> |app.connect|{'key': 'my-connect-key'}|
 ~> |remotes|{'baseUrl': 'https://my-connect-base-url.com'}|
 ```
 
 ## Using environment variables in transforms
 
-Nx Forge provides two functions `$env(string): string` and `$envOrNull(string): string|null` to allow `manifestTransform` expressions to read environment variables at runtime. Prefer the `$env()` function to inject environment variables, as this will throw and abort the deployment process if the variable is undefined. 
+Nx Forge provides two functions `$env(string): string` and `$envOrNull(string): string|null` to allow `manifestTransform` expressions to read environment variables at runtime. Prefer the `$env()` function to inject environment variables, as this will throw and abort the deployment process if the variable is undefined.
 
 ```jsonata
-$ 
+$
 ~> |app|{'id': $env('APP_ID')}|
 ~> |app|{'licensing': {'enabled': $env('APP_LICENSING_ENABLED') = 'true' ? true : false}}|
 ```
@@ -66,6 +67,7 @@ $
 Nx executors accept a [`configurations` property](https://nx.dev/concepts/executors-and-configurations#use-task-configurations) to configure presets to be merged into the executor options when activated. This Nx-built-in feature allows configuring different manifest transforms based on the Forge environment the executor is deploying to. Below is an example of different manifest transform configurations.
 
 :::code-group
+
 ```json[project.json]
 {
     "deploy": {
@@ -90,6 +92,7 @@ Nx executors accept a [`configurations` property](https://nx.dev/concepts/execut
     }
   }
 ```
+
 :::
 
 You can name your configurations whatever you like and activate them using the `-c=<configuration-name>` or `--configuration=<configuration-name>` argument on the `deploy` executor.
@@ -107,4 +110,5 @@ is the same as
 ```shell
 nx deploy <my-forge-app> --configuration=staging
 ```
+
 :::

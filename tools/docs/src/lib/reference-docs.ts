@@ -221,8 +221,13 @@ function loadRegistryItems(
       return [];
     }
 
-    const absoluteSchemaPath = resolve(dirname(absoluteRegistryPath), entry.schema);
-    const schema = JSON.parse(readFileSync(absoluteSchemaPath, 'utf8')) as JsonSchema;
+    const absoluteSchemaPath = resolve(
+      dirname(absoluteRegistryPath),
+      entry.schema
+    );
+    const schema = JSON.parse(
+      readFileSync(absoluteSchemaPath, 'utf8')
+    ) as JsonSchema;
 
     return [
       {
@@ -274,7 +279,9 @@ function normalizeOptions(schema: JsonSchema): ReferenceOption[] {
   });
 }
 
-function createReferenceItemsMap(items: ReferenceItem[]): Map<string, ReferenceItem> {
+function createReferenceItemsMap(
+  items: ReferenceItem[]
+): Map<string, ReferenceItem> {
   return new Map(items.map((item) => [getItemKey(item.kind, item.name), item]));
 }
 
@@ -405,7 +412,9 @@ function escapeTableCell(value: string): string {
 }
 
 function dedupe(values: Array<string | undefined>): string[] {
-  return [...new Set(values.filter((value): value is string => Boolean(value)))];
+  return [
+    ...new Set(values.filter((value): value is string => Boolean(value))),
+  ];
 }
 
 function trimDashes(value: string): string {

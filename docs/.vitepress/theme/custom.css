@@ -1,20 +1,123 @@
 /* Using Atlassian colors: https://atlassian.design/foundations/color-new/color-palette-new/ */
 :root {
   /*Blue700*/
-  --vp-c-brand-1: #0C66E4;
+  --vp-c-brand-1: #0c66e4;
   /*Blue800*/
-  --vp-c-brand-2: #0055CC;
+  --vp-c-brand-2: #0055cc;
   /*Blue700*/
-  --vp-c-brand-3: #0C66E4;
+  --vp-c-brand-3: #0c66e4;
 }
 
 .dark {
   /*Blue400*/
-  --vp-c-brand-1: #579DFF;
+  --vp-c-brand-1: #579dff;
   /*Blue300*/
-  --vp-c-brand-2: #85B8FF;
+  --vp-c-brand-2: #85b8ff;
   /*Blue400*/
-  --vp-c-brand-3: #579DFF;
+  --vp-c-brand-3: #579dff;
   /*DarkNeutral-100*/
   --vp-button-brand-text: #101214;
+}
+
+/*
+ * Mermaid diagrams. Nodes take a color from their class in the diagram source
+ * (`class build nx`). The rules need !important because Mermaid writes its own
+ * theme colors with more specific selectors.
+ */
+:root {
+  --dg-text: #172b4d;
+  --dg-muted: #626f86;
+  --dg-line: #8590a2;
+  --dg-group-bg: #f7f8f9;
+  --dg-group-border: #dcdfe4;
+  --dg-nx-bg: #e9f2ff;
+  --dg-nx-border: #0c66e4;
+  --dg-forge-bg: #f3f0ff;
+  --dg-forge-border: #6e5dc6;
+  --dg-file-bg: #ffffff;
+  --dg-file-border: #b3b9c4;
+  --dg-warn-bg: #ffeceb;
+  --dg-warn-border: #c9372c;
+}
+
+.dark {
+  --dg-text: #dee4ea;
+  --dg-muted: #9fadbc;
+  --dg-line: #738496;
+  --dg-group-bg: #161a1d;
+  --dg-group-border: #2c333a;
+  --dg-nx-bg: #092957;
+  --dg-nx-border: #579dff;
+  --dg-forge-bg: #2b273f;
+  --dg-forge-border: #9f8fef;
+  --dg-file-bg: #22272b;
+  --dg-file-border: #454f59;
+  --dg-warn-bg: #42221f;
+  --dg-warn-border: #f87168;
+}
+
+/* Every diagram fills the content column, also when it is narrower. */
+.mermaid svg {
+  max-width: 100% !important;
+}
+
+.mermaid text,
+.mermaid tspan {
+  fill: var(--dg-text) !important;
+}
+
+.mermaid .flowchart-link {
+  stroke: var(--dg-line) !important;
+  stroke-width: 1.5px !important;
+}
+
+.mermaid marker path {
+  fill: var(--dg-line) !important;
+  stroke: var(--dg-line) !important;
+}
+
+.mermaid .cluster rect {
+  fill: var(--dg-group-bg) !important;
+  stroke: var(--dg-group-border) !important;
+  stroke-width: 1px !important;
+  rx: 12px;
+  ry: 12px;
+}
+
+.mermaid .cluster-label text,
+.mermaid .cluster-label tspan {
+  fill: var(--dg-muted) !important;
+}
+
+.mermaid .node rect,
+.mermaid .node path {
+  stroke-width: 1.5px !important;
+}
+
+.mermaid .node.nx rect,
+.mermaid .node.forge rect,
+.mermaid .node.warn rect {
+  rx: 10px;
+  ry: 10px;
+}
+
+.mermaid .node.nx :is(rect, path) {
+  fill: var(--dg-nx-bg) !important;
+  stroke: var(--dg-nx-border) !important;
+}
+
+.mermaid .node.forge :is(rect, path) {
+  fill: var(--dg-forge-bg) !important;
+  stroke: var(--dg-forge-border) !important;
+}
+
+.mermaid .node.file :is(rect, path) {
+  fill: var(--dg-file-bg) !important;
+  stroke: var(--dg-file-border) !important;
+}
+
+.mermaid .node.warn :is(rect, path) {
+  fill: var(--dg-warn-bg) !important;
+  stroke: var(--dg-warn-border) !important;
+  stroke-dasharray: 5 4;
 }

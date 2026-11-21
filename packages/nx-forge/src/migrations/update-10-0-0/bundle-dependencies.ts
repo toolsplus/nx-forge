@@ -22,7 +22,7 @@ const WEBPACK_CONFIG_FILES = [
 const ESBUILD_EXECUTOR = '@nx/esbuild:esbuild';
 const BUILD_TARGET = 'build';
 const OLD_FOLDER = 'src';
-const NEW_FOLDER = 'bundle';
+const NEW_FOLDER = 'functions';
 
 const EXTERNAL_DEPENDENCIES_LINES = [
   '// Forge ships the bundle as it is, so it must include all dependencies',
@@ -272,26 +272,26 @@ const nextSteps = (results: BuildMigration[]): string[] => {
     'Use Forge CLI 15.1.0 or later. Earlier versions do not support manual packaging.',
     ...(manual.length > 0
       ? [
-          `Update these Forge app build configurations by hand, so that the build writes a CommonJS bundle that inlines all dependencies except Node built-ins to the 'bundle' folder of the artifact directory: ${manual.join(
+          `Update these Forge app build configurations by hand, so that the build writes a CommonJS bundle that inlines all dependencies except Node built-ins to the 'functions' folder of the artifact directory: ${manual.join(
             ', '
           )}`,
         ]
       : []),
     ...(outputPaths.length > 0
       ? [
-          `The build now writes to the 'bundle' folder. Update hand-written references to the old folder, such as source-map upload globs or scripts: ${outputPaths
+          `The build now writes to the 'functions' folder. Update hand-written references to the old folder, such as source-map upload globs or scripts: ${outputPaths
             .map(([from, to]) => `${from} -> ${to}`)
             .join(', ')}`,
         ]
       : []),
-    "Forge no longer bundles the app, so it no longer sets process.env.NODE_ENV to 'production' and no longer ignores optional dependencies. New apps define NODE_ENV in their build configuration; Webpack configs also ignore the optional dependencies 'encoding', 'bufferutil', 'utf-8-validate' and 'dtrace-provider'. Add the same to existing apps if their code or dependencies need it. New esbuild targets also emit source maps in every configuration. In esbuild targets, a configuration's esbuildOptions replace the base esbuildOptions, so remove or update configurations that set them, such as the production configuration that earlier versions generated with source maps turned off.",
+    "Forge no longer bundles the app, so it no longer sets process.env.NODE_ENV to 'production'. New apps set it in their build configuration: Webpack configs set optimization.nodeEnv to the NODE_ENV that Nx sets for the build, and esbuild targets set it in esbuildOptions.define. Add the same to existing apps if their code or dependencies need it. New esbuild targets also emit source maps in every configuration. In esbuild targets, a configuration's esbuildOptions replace the base esbuildOptions, so remove or update configurations that set them, such as the production configuration that earlier versions generated with source maps turned off.",
   ];
 };
 
 /**
  * The Nx build is now the only bundler and Forge ships its output unchanged.
  * Make the build of each Forge app inline all dependencies and write to the
- * `bundle` folder of the artifact directory instead of `src`.
+ * `functions` folder of the artifact directory instead of `src`.
  *
  * @see https://github.com/toolsplus/nx-forge/issues/222
  */

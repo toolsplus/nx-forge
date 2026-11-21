@@ -36,6 +36,9 @@
         "filter": {
           "plugin": "@nx/eslint/plugin"
         },
+        "options": {
+          "max-warnings": 0
+        },
         "inputs": [
           "default",
           "^default",

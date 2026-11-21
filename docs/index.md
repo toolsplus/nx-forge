@@ -3,8 +3,8 @@
 layout: home
 
 hero:
-  name: "Nx Forge"
-  text: "Nx plugin for Atlassian Forge"
+  name: 'Nx Forge'
+  text: 'Nx plugin for Atlassian Forge'
   tagline: Efficient, scalable Forge app development without the mental overhead of how to set up a Forge app project.
   actions:
     - theme: brand
@@ -25,4 +25,3 @@ features:
     details: Take advantage of code scaffolding, or automated plugin updates via CLI or if you prefer a graphical interface via Nx Console
     icon: 🛠️
 ---
-

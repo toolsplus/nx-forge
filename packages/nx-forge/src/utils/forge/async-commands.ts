@@ -2,7 +2,7 @@ import { delimiter, join } from 'path';
 import { workspaceRoot } from '@nx/devkit';
 
 // Node cannot directly launch `.cmd` shims on Windows. cross-spawn resolves
-// those shims while preserving each Forge argument.
+// those shims while preserving each Forge CLI argument.
 import spawn from 'cross-spawn';
 
 /**
@@ -26,7 +26,7 @@ const withWorkspaceBin = (env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
  * It does not go through the package manager: Yarn Classic would run the
  * command in the workspace root instead of `cwd`, because the artifact
  * directory has no `package.json`. Without a wrapper, signals also reach
- * Forge directly.
+ * the Forge CLI directly.
  *
  * @param args List of string arguments passed to the forge command
  * @param opts Execution options
