@@ -29,13 +29,12 @@ jobs:
       - run: pnpm nx format:check --all
       - run: pnpm nx affected --target=lint --parallel=2
 
+  # Separate jobs instead of an OS matrix, so that E2E waits for the Ubuntu
+  # build only. The Windows build takes about twice as long and runs alongside.
   build-and-test:
-    name: Build and test (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
+    name: Build and test (ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps: &build-and-test-steps
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -52,6 +51,11 @@ jobs:
       - run: pnpm nx affected --target=test --parallel=2
         env:
           NODE_OPTIONS: '--throw-deprecation'
+
+  build-and-test-windows:
+    name: Build and test (windows-latest)
+    runs-on: windows-latest
+    steps: *build-and-test-steps
 
   e2e:
     name: E2E
