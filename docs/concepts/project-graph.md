@@ -8,7 +8,7 @@ Nx Forge inspects all project in an Nx workspace and infers any project with a `
 
 ## Resource dependencies
 
-For each Forge application project, Nx Forge inspects the `resources` declared in the manifest.yml and expects [the `path` parameter of the resource declaration](https://developer.atlassian.com/platform/forge/manifest-reference/resources/) to point to a project name in the Nx workspace. It then registers those project dependencies with the Nx project graph. 
+For each Forge application project, Nx Forge inspects the `resources` declared in the manifest.yml and expects [the `path` parameter of the resource declaration](https://developer.atlassian.com/platform/forge/manifest-reference/resources/) to point to a project name in the Nx workspace. It then registers those project dependencies with the Nx project graph.
 
 The result is that Nx now knows which other projects in a workspace a Forge application depends on. Nx can then run dependent tasks (such as build) on dependent projects before running them on a particular Forge application.
 

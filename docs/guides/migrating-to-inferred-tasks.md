@@ -1,0 +1,17 @@
+# Migrating to inferred tasks
+
+Since Nx version 18, Nx plugins can automatically infer tasks for your projects based on the configuration of different tools. Refer to the [Nx docs on inferred tasks (Project Crystal)](https://nx.dev/concepts/inferred-tasks) for more details.
+
+::: tip Nx Console
+
+If you are not using Nx Console yet, we [highly recommend installing it](./getting-started.md#installing-nx-console) when moving to inferred tasks as it helps you discover tasks and run them from your IDE's user interface.
+
+:::
+
+Starting with Nx Forge plugin version 4.0.0, the plugin could infer targets for Forge app projects and since plugin version 5.1.0, the plugin generates Forge apps with inferred targets. This means, if you generate a new Forge app, you will not see any target definitions in the app's `project.json` file if they can be inferred.
+
+As of plugin version 5.1.0, all [targets provided by the plugin](../reference/executors.md) can be inferred. This means, to migrate to inferred tasks, you can simply remove those from your app's `project.json` files.
+
+Nx 24 removed the `@nx/webpack:webpack`, `@nx/jest:jest` and `@nx/eslint:lint` executors. Since plugin version 9.0.0, which requires Nx 24, the app generator always relies on the `@nx/webpack/plugin`, `@nx/jest/plugin` and `@nx/eslint/plugin` inference plugins for the `build`, `test` and `lint` targets. When you update to Nx 24, `nx migrate` converts existing targets that use the removed executors where it can and reports the targets that need manual changes. The application generator option `setParserOptionsProject` was renamed to `enableTypedLinting`; the plugin migration updates generator defaults in `nx.json`, `project.json` and `package.json` files, but scripts that pass `--setParserOptionsProject` need to be updated.
+
+From our experience, transitioning the configuration to inferred tasks can be tricky. If you run into issues, it often helps to [generate a clean Nx test workspace](./getting-started.md#prerequisites), run the app generators you are interested in and compare the generated configuration in `project.json` files and the `nx.json` with your existing workspace.

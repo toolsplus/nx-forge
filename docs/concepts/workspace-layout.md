@@ -39,11 +39,11 @@ my-nx-workspace/
 
 ## Build output
 
-Each Forge app gets its own folder in `dist`, at the same path as the project. This folder is the app's _artifact directory_. For `apps/my-forge-app-1`, it is `dist/apps/my-forge-app-1`. After the `build` and `package` targets have run, it looks like this:
+Each Forge app gets its own folder in `dist`, its _artifact directory_. After the `build` and `package` targets have run, it contains everything the Forge CLI deploys:
 
 ```
 dist/apps/my-forge-app-1/
-├── bundle
+├── functions
 │   ├── index.js
 │   ├── index.js.map
 │   └── assets
@@ -53,14 +53,6 @@ dist/apps/my-forge-app-1/
 └── manifest.yml
 ```
 
-`bundle/` is written by the app's `build` target. `index.js` holds all function code, including the workspace libraries and npm dependencies it uses, and exports the handlers the manifest refers to. Next to it are its source map and the app's assets.
-
-`resources/` holds a copy of the build output of each Custom UI and UI Kit project the manifest refers to. The `package` target copies it there.
-
-`manifest.yml` is a copy of the project's manifest, also written by `package`. In this copy, each resource `path` points to its folder in `resources/` instead of to a project name.
-
-This folder is everything Forge needs. The Forge CLI runs in it when you deploy or tunnel, and uploads `bundle/` as it is. There is no `package.json` and no `node_modules`, because the bundle already contains every dependency. [Plugin concepts](plugin-concepts.md) explains why.
-
 ## Benefits
 
 ### Maintain one or more Forge apps in the same workspace
@@ -69,7 +61,7 @@ The workspace layout allows maintaining one or more Forge applications within th
 
 ### Build and test individual components independently
 
-The fact that Forge application projects, Custom UI projects, and shared library projects can be laid out and managed as individual pieces allows building and testing each part completely independent of each other. 
+The fact that Forge application projects, Custom UI projects, and shared library projects can be laid out and managed as individual pieces allows building and testing each part completely independent of each other.
 
 ### Typescript by default
 

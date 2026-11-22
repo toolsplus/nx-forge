@@ -6,8 +6,8 @@ import {
 } from '@nx/devkit';
 import { load } from 'js-yaml';
 import {
-  PACKAGING_KEYS,
-  PACKAGING_KEYS_YAML,
+  APP_PACKAGING_CONFIGURATION,
+  APP_PACKAGING_CONFIGURATION_YAML,
 } from '../../shared/manifest/packaging';
 
 /** A top-level `app:` line that opens a block map. */
@@ -30,18 +30,20 @@ const parse = (contents: string): Manifest | undefined => {
   }
 };
 
-const hasPackagingKeys = (manifest: Manifest | undefined): boolean =>
-  Object.entries(PACKAGING_KEYS).every(
+const hasAppPackagingConfiguration = (
+  manifest: Manifest | undefined
+): boolean =>
+  Object.entries(APP_PACKAGING_CONFIGURATION).every(
     ([key, value]) => manifest?.app?.package?.[key] === value
   );
 
 /**
- * Adds the packaging keys as the first entries of the app section, so that
- * the rest of the manifest keeps its comments and formatting. Returns
+ * Adds the app packaging configuration at the start of the app section, so
+ * that the rest of the manifest keeps its comments and formatting. Returns
  * `undefined` unless the app section is a block map without a package
  * section.
  */
-const withPackagingKeys = (
+const withAppPackagingConfiguration = (
   contents: string,
   manifest: Manifest | undefined
 ): string | undefined => {
@@ -62,7 +64,7 @@ const withPackagingKeys = (
   const lineBreak = appLine[2];
   const lines = [
     `${indent}package:`,
-    ...Object.entries(PACKAGING_KEYS).map(
+    ...Object.entries(APP_PACKAGING_CONFIGURATION).map(
       ([key, value]) => `${indent}${indent}${key}: ${value}`
     ),
   ];
@@ -70,21 +72,22 @@ const withPackagingKeys = (
     contents.slice(0, insertAt) +
     lines.map((line) => `${line}${lineBreak}`).join('') +
     contents.slice(insertAt);
-  // Keep the edit only if the manifest still parses with the keys in place.
-  return hasPackagingKeys(parse(result)) ? result : undefined;
+  // Keep the edit only if the manifest still parses with the configuration
+  // in place.
+  return hasAppPackagingConfiguration(parse(result)) ? result : undefined;
 };
 
 /**
- * Adds the packaging keys to the manifest and returns the path if it has to be
- * updated by hand.
+ * Adds the app packaging configuration to the manifest and returns the path
+ * if it has to be updated by hand.
  */
 const migrateManifest = (tree: Tree, path: string): string[] => {
   const contents = tree.read(path, 'utf-8') ?? '';
   const manifest = parse(contents);
-  if (hasPackagingKeys(manifest)) {
+  if (hasAppPackagingConfiguration(manifest)) {
     return [];
   }
-  const result = withPackagingKeys(contents, manifest);
+  const result = withAppPackagingConfiguration(contents, manifest);
   if (result === undefined) {
     return [path];
   }
@@ -94,7 +97,8 @@ const migrateManifest = (tree: Tree, path: string): string[] => {
 
 /**
  * Forge ships the bundle unchanged only if the manifest selects manual
- * packaging. Add the `app.package` keys to the manifest of each Forge app.
+ * packaging. Add the app packaging configuration to the manifest of each
+ * Forge app.
  *
  * @see https://github.com/toolsplus/nx-forge/issues/222
  */
@@ -110,7 +114,7 @@ export default async function update(
         nextSteps: [
           `Add these lines to the app section of these Forge manifests: ${manualPaths.join(
             ', '
-          )}\n\n${PACKAGING_KEYS_YAML}`,
+          )}\n\n${APP_PACKAGING_CONFIGURATION_YAML}`,
         ],
       }
     : undefined;

@@ -26,6 +26,7 @@ To get the React app working as a Forge Custom UI, ensure that the configured bu
 Make sure both of these are relative. For Webpack, it should be enough to update `baseHref` to `.` in `webpack.config.js`. For Vite, apart from setting `base` in `vite.config.js`, you may also need to update the base tag in `index.html` from `<base href="/" />` to `<base href="./" />`.
 
 ::: code-group
+
 ```json[webpack.config.js]:line-numbers{23}
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
@@ -63,6 +64,7 @@ module.exports = {
   ],
 };
 ```
+
 ```json[vite.config.js]:line-numbers{9}
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
@@ -97,6 +99,7 @@ export default defineConfig({
   },
 });
 ```
+
 :::
 
 ## Wiring the Custom UI project
@@ -106,6 +109,7 @@ The final step is to connect the Custom UI project to our Forge application. Thi
 In the Forge app project, open the generated `manifest.yml` file and add a Custom UI module, the corresponding resource entry, and the `permissions` declaration. Keep the generated `app` section as it is. The example below adds the `jira:projectPage` module and the `project-page` resource declaration.
 
 :::code-group
+
 ```yaml{2-8,12-20}[manifest.yml]:line-numbers
 modules:
   jira:projectPage:
@@ -114,7 +118,7 @@ modules:
       layout: basic
       resource: project-page
       resolver:
-        function: resolver  
+        function: resolver
   function:
     - key: resolver
       handler: index.handler
@@ -133,8 +137,9 @@ app:
     name: nodejs24.x
   package:
     bundler: manual@2026
-    path: bundle
+    path: functions
 ```
+
 :::
 
 The wiring of the Custom UI to the Forge application happens in the `path` property of the `project-page` resource. The `path` property must reference the Custom UI project name from the previous step. If you are unsure about the project name, you can always look it up via the `name` property in the `project.json` file. The plugin will replace the project name path with the path to the actual Custom UI build artifact during the Forge app build. Refer to [the project graph concept documentation](../concepts/project-graph) for further details.

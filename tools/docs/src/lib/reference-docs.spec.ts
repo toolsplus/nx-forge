@@ -15,6 +15,20 @@ import {
   validateReferenceDocs,
 } from './reference-docs';
 
+type ReferenceItem = ReturnType<typeof loadReferenceItems>[number];
+
+const findItem = (
+  items: ReferenceItem[],
+  kind: ReferenceItem['kind'],
+  name: string
+): ReferenceItem => {
+  const item = items.find((item) => item.kind === kind && item.name === name);
+  if (!item) {
+    throw new Error(`The ${kind} reference item '${name}' was not loaded.`);
+  }
+  return item;
+};
+
 describe('reference docs utilities', () => {
   const workspaceRoot = resolve(__dirname, '../../../../');
 
@@ -54,13 +68,13 @@ describe('reference docs utilities', () => {
   });
 
   it('renders generator options from schema metadata', () => {
-    const applicationItem = loadReferenceItems(workspaceRoot).find(
-      (item) => item.kind === 'generator' && item.name === 'application'
+    const applicationItem = findItem(
+      loadReferenceItems(workspaceRoot),
+      'generator',
+      'application'
     );
 
-    expect(applicationItem).toBeDefined();
-
-    const markdown = renderOptionsMarkdown(applicationItem!);
+    const markdown = renderOptionsMarkdown(applicationItem);
 
     expect(markdown).toContain('| Option | Type | Description | Default |');
     expect(markdown).toContain('`--directory`');
@@ -77,32 +91,18 @@ describe('reference docs utilities', () => {
 
   it('renders executor options and excludes hidden options', () => {
     const items = loadReferenceItems(workspaceRoot);
-    const packageItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'package'
+    const packageMarkdown = renderOptionsMarkdown(
+      findItem(items, 'executor', 'package')
     );
-    const registerItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'register'
+    const registerMarkdown = renderOptionsMarkdown(
+      findItem(items, 'executor', 'register')
     );
-    const tunnelItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'tunnel'
+    const tunnelMarkdown = renderOptionsMarkdown(
+      findItem(items, 'executor', 'tunnel')
     );
-    const deployItem = items.find(
-      (item) => item.kind === 'executor' && item.name === 'deploy'
+    const deployMarkdown = renderOptionsMarkdown(
+      findItem(items, 'executor', 'deploy')
     );
-
-    expect(packageItem).toBeDefined();
-    expect(registerItem).toBeDefined();
-    expect(tunnelItem).toBeDefined();
-    expect(deployItem).toBeDefined();
-
-    if (!deployItem) {
-      throw new Error('Deploy executor reference item was not loaded.');
-    }
-
-    const packageMarkdown = renderOptionsMarkdown(packageItem!);
-    const registerMarkdown = renderOptionsMarkdown(registerItem!);
-    const tunnelMarkdown = renderOptionsMarkdown(tunnelItem!);
-    const deployMarkdown = renderOptionsMarkdown(deployItem);
 
     expect(packageMarkdown).toContain('| `boolean` |');
     expect(packageMarkdown).toContain(
@@ -135,10 +135,10 @@ describe('reference docs utilities', () => {
 
     expect(injectedGenerators).not.toContain('nx-forge:options');
     expect(injectedExecutors).not.toContain('nx-forge:options');
-    expect(injectedGenerators).toContain('| Option | Type | Description | Default |');
     expect(injectedGenerators).toContain(
-      'Pattern: `^[a-zA-Z][^:]*$`'
+      '| Option | Type | Description | Default |'
     );
+    expect(injectedGenerators).toContain('Pattern: `^[a-zA-Z][^:]*$`');
     expect(injectedExecutors).toContain('`--developerSpaceId`');
     expect(injectedExecutors).toContain(
       'Enables UI Kit compatible packaging (experimental).'
@@ -150,12 +150,17 @@ describe('reference docs utilities', () => {
   });
 
   it('fails validation when a public schema-backed item is missing a marker', () => {
-    const tempWorkspace = mkdtempSync(join(tmpdir(), 'nx-forge-reference-docs-'));
+    const tempWorkspace = mkdtempSync(
+      join(tmpdir(), 'nx-forge-reference-docs-')
+    );
 
     try {
-      mkdirSync(join(tempWorkspace, 'packages/nx-forge/src/generators/example'), {
-        recursive: true,
-      });
+      mkdirSync(
+        join(tempWorkspace, 'packages/nx-forge/src/generators/example'),
+        {
+          recursive: true,
+        }
+      );
       mkdirSync(join(tempWorkspace, 'docs/reference'), {
         recursive: true,
       });
@@ -179,7 +184,10 @@ describe('reference docs utilities', () => {
         JSON.stringify({ executors: {} }, null, 2)
       );
       writeFileSync(
-        join(tempWorkspace, 'packages/nx-forge/src/generators/example/schema.json'),
+        join(
+          tempWorkspace,
+          'packages/nx-forge/src/generators/example/schema.json'
+        ),
         JSON.stringify(
           {
             type: 'object',
@@ -212,12 +220,17 @@ describe('reference docs utilities', () => {
   });
 
   it('renders both short and long aliases when provided', () => {
-    const tempWorkspace = mkdtempSync(join(tmpdir(), 'nx-forge-reference-docs-'));
+    const tempWorkspace = mkdtempSync(
+      join(tmpdir(), 'nx-forge-reference-docs-')
+    );
 
     try {
-      mkdirSync(join(tempWorkspace, 'packages/nx-forge/src/generators/example'), {
-        recursive: true,
-      });
+      mkdirSync(
+        join(tempWorkspace, 'packages/nx-forge/src/generators/example'),
+        {
+          recursive: true,
+        }
+      );
       mkdirSync(join(tempWorkspace, 'docs/reference'), {
         recursive: true,
       });
@@ -241,7 +254,10 @@ describe('reference docs utilities', () => {
         JSON.stringify({ executors: {} }, null, 2)
       );
       writeFileSync(
-        join(tempWorkspace, 'packages/nx-forge/src/generators/example/schema.json'),
+        join(
+          tempWorkspace,
+          'packages/nx-forge/src/generators/example/schema.json'
+        ),
         JSON.stringify(
           {
             type: 'object',
@@ -267,12 +283,13 @@ describe('reference docs utilities', () => {
         '# Executors\n'
       );
 
-      const exampleItem = loadReferenceItems(tempWorkspace).find(
-        (item) => item.kind === 'generator' && item.name === 'example'
+      const exampleItem = findItem(
+        loadReferenceItems(tempWorkspace),
+        'generator',
+        'example'
       );
 
-      expect(exampleItem).toBeDefined();
-      expect(renderOptionsMarkdown(exampleItem!)).toContain(
+      expect(renderOptionsMarkdown(exampleItem)).toContain(
         '`-t`, `--target-name`'
       );
     } finally {

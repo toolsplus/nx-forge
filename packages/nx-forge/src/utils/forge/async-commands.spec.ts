@@ -56,7 +56,7 @@ describe('runForgeCommandAsync', () => {
     rmSync(workspaceRoot, { recursive: true, force: true });
   });
 
-  it('preserves Forge arguments without shell interpretation', async () => {
+  it('preserves Forge CLI arguments without shell interpretation', async () => {
     const injectedCommand =
       process.platform === 'win32'
         ? "approval value&node -e \"require('fs').writeFileSync(process.env.FORGE_SIDE_EFFECT,'created')\""
@@ -111,7 +111,7 @@ describe('runForgeCommandAsync', () => {
     );
   });
 
-  it('rejects when Forge exits with a non-zero code', async () => {
+  it('rejects when the Forge CLI exits with a non-zero code', async () => {
     await expect(
       runForgeCommandAsync(['lint'], {
         cwd: testRoot,

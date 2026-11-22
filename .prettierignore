@@ -6,3 +6,16 @@
 /.nx/cache
 /.nx/workspace-data
 .nx/self-healing
+
+# Local E2E and registry output
+/tmp
+
+# Temporary working material
+/.scratch
+
+# VitePress build output
+/docs/.vitepress/cache
+/docs/.vitepress/dist
+
+# pnpm writes the lockfile in its own format
+pnpm-lock.yaml

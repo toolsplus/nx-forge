@@ -6,7 +6,7 @@ To fix this, you can instruct your package manager to override the dependency ve
 
 ::: code-group
 
-```json [npm: package.json] 
+```json [npm: package.json]
 {
   "overrides": {
     "@forge/manifest": "13.3.1"
@@ -16,11 +16,12 @@ To fix this, you can instruct your package manager to override the dependency ve
 
 ```yaml [pnpm: pnpm-workspace.yaml]
 overrides:
-  "@forge/manifest": "13.3.1"
+  '@forge/manifest': '13.3.1'
 ```
 
 :::
 
 ## References
+
 - [npm package.json overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides)
 - [pnpm overrides](https://pnpm.io/settings#overrides)

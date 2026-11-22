@@ -8,7 +8,7 @@ import { patchManifestYml } from './lib/patch-manifest-yml';
 import { copyForgeAppAssets } from './lib/copy-forge-app-assets';
 import { verifyBundleCompleteness } from './lib/verify-bundle-completeness';
 import { removeBundlePackageJson } from './lib/remove-bundle-package-json';
-import { verifyPackagingKeys } from '../../shared/manifest/packaging';
+import { verifyAppPackagingConfiguration } from '../../shared/manifest/packaging';
 import { BUNDLE_DIRECTORY } from '../../shared/forge-output-path';
 
 export function normalizeOptions(
@@ -50,7 +50,7 @@ export default async function runExecutor(
   const options = normalizeOptions(rawOptions, context.root, sourceRoot, root);
 
   const manifestPath = joinPathFragments(root, 'manifest.yml');
-  verifyPackagingKeys(
+  verifyAppPackagingConfiguration(
     load(readFileSync(join(context.root, manifestPath), 'utf8')),
     manifestPath
   );

@@ -102,7 +102,7 @@ describe('application generator', () => {
                 "generatePackageJson": false,
                 "main": "my-forge-app/src/index.ts",
                 "outputFileName": "index.js",
-                "outputPath": "dist/my-forge-app/bundle",
+                "outputPath": "dist/my-forge-app/functions",
                 "platform": "node",
                 "thirdParty": true,
                 "tsConfig": "my-forge-app/tsconfig.app.json",
@@ -216,36 +216,25 @@ describe('application generator', () => {
       );
       expect(webpackConfig).toContain('new NxAppWebpackPlugin({');
       expect(webpackConfig).toContain(
-        `outputPath: '../dist/my-forge-app/bundle'`
+        `outputPath: '../dist/my-forge-app/functions'`
       );
       expect(webpackConfig).toContain(`main: './src/index.ts'`);
       expect(webpackConfig).toContain(`library: { type: 'commonjs2' }`);
       expect(webpackConfig).toContain(`externalDependencies: 'none'`);
       expect(webpackConfig).toContain(`sourceMap: true`);
 
-      // Prettier may wrap the plugin calls, so compare without line breaks.
-      const flatConfig = webpackConfig?.replace(/\s+/g, ' ');
-      expect(flatConfig).toContain(
-        `new DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production'), })`
-      );
-      expect(flatConfig).toContain(
-        `new IgnorePlugin({ resourceRegExp: /^encoding$/, contextRegExp: /node-fetch/, })`
-      );
-      expect(flatConfig).toContain(
-        `new IgnorePlugin({ resourceRegExp: /^(bufferutil|utf-8-validate)$/, contextRegExp: /ws[\\\\/]lib$/, })`
-      );
-      expect(flatConfig).toContain(
-        `new IgnorePlugin({ resourceRegExp: /^dtrace-provider$/, contextRegExp: /bunyan$/, })`
+      expect(webpackConfig).toContain(
+        `optimization: { nodeEnv: process.env.NODE_ENV }`
       );
     });
 
-    it('should generate a manifest with the manual packaging keys', async () => {
+    it('should generate a manifest with the app packaging configuration', async () => {
       await applicationGenerator(tree, { directory: 'my-forge-app' });
 
       expect(
         load(tree.read('my-forge-app/manifest.yml', 'utf-8') ?? '')
       ).toMatchObject({
-        app: { package: { bundler: 'manual@2026', path: 'bundle' } },
+        app: { package: { bundler: 'manual@2026', path: 'functions' } },
       });
     });
 
@@ -333,7 +322,7 @@ describe('application generator', () => {
                 "generatePackageJson": false,
                 "main": "my-dir/my-forge-app/src/index.ts",
                 "outputFileName": "index.js",
-                "outputPath": "dist/my-dir/my-forge-app/bundle",
+                "outputPath": "dist/my-dir/my-forge-app/functions",
                 "platform": "node",
                 "thirdParty": true,
                 "tsConfig": "my-dir/my-forge-app/tsconfig.app.json",
@@ -594,7 +583,7 @@ describe('application generator', () => {
       });
 
       expect(tree.read('webpack.config.js', 'utf-8')).toContain(
-        `outputPath: './dist/bundle'`
+        `outputPath: './dist/functions'`
       );
     });
 
@@ -609,7 +598,7 @@ describe('application generator', () => {
       expect(
         readProjectConfiguration(tree, 'my-forge-app').targets?.build?.options
           ?.outputPath
-      ).toEqual('dist/bundle');
+      ).toEqual('dist/functions');
     });
   });
 

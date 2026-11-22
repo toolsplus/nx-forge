@@ -49,6 +49,25 @@ export default withMermaid(
       ],
     ],
     cleanUrls: true,
+    // VitePress styles paragraphs with a larger line height than the one
+    // Mermaid measures HTML labels with, which cuts off their last line. SVG
+    // text labels do not depend on the page styles.
+    mermaid: {
+      htmlLabels: false,
+      flowchart: {
+        htmlLabels: false,
+        curve: 'basis',
+        padding: 14,
+        nodeSpacing: 36,
+        rankSpacing: 44,
+      },
+      // Mermaid sizes labels with this font, so it must match the page font.
+      // Colors come from the diagram classes in theme/custom.css.
+      themeVariables: {
+        fontFamily: 'var(--vp-font-family-base)',
+        fontSize: '14px',
+      },
+    },
     markdown: {
       languages: [
         {
@@ -171,6 +190,10 @@ export default withMermaid(
                 {
                   text: 'Overriding plugin dependencies',
                   link: 'overriding-plugin-dependencies',
+                },
+                {
+                  text: 'Migrating to inferred tasks',
+                  link: 'migrating-to-inferred-tasks',
                 },
               ],
             },
