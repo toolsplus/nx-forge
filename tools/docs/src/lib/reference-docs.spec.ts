@@ -104,10 +104,8 @@ describe('reference docs utilities', () => {
       findItem(items, 'executor', 'deploy')
     );
 
-    expect(packageMarkdown).toContain('| `boolean` |');
-    expect(packageMarkdown).toContain(
-      'Enables UI Kit compatible packaging (experimental).'
-    );
+    expect(packageMarkdown).toContain('`--allowMissingModules`');
+    expect(packageMarkdown).toContain('Modules that the bundle may load');
     expect(registerMarkdown).toContain('`--developerSpaceId`');
     expect(registerMarkdown).toContain('`-s`');
     expect(registerMarkdown).not.toContain('outputPath');
@@ -116,6 +114,7 @@ describe('reference docs utilities', () => {
     expect(deployMarkdown).toContain('`array`');
     expect(deployMarkdown).toContain('`--majorVersion`');
     expect(deployMarkdown).toContain('`number`');
+    expect(deployMarkdown).toContain('| `boolean` |');
   });
 
   it('injects generated options into the reference pages', () => {
@@ -140,9 +139,7 @@ describe('reference docs utilities', () => {
     );
     expect(injectedGenerators).toContain('Pattern: `^[a-zA-Z][^:]*$`');
     expect(injectedExecutors).toContain('`--developerSpaceId`');
-    expect(injectedExecutors).toContain(
-      'Enables UI Kit compatible packaging (experimental).'
-    );
+    expect(injectedExecutors).toContain('Modules that the bundle may load');
   });
 
   it('validates the current workspace reference docs', () => {

@@ -47,7 +47,7 @@ In practice, this means:
 
 - The build writes to `<artifact>/functions` instead of `<artifact>/src`, and must inline npm dependencies.
 - `manifest.yml` needs [manual Forge packaging](https://developer.atlassian.com/platform/forge/manifest-reference/packaging/) configured.
-- The `package` executor no longer generates a `package.json`. Its `tsConfig` option is removed. It checks that manual Forge packaging is configured and that the bundle is complete.
+- The `package` executor no longer generates a `package.json`. Its `tsConfig` option is removed, and so is `uiKit2Packaging`: it always packages UI Kit resources so that Forge can load them. It checks that manual Forge packaging is configured and that the bundle is complete.
 - You need Forge CLI 15.1.0 or later.
 
 ## Before you start
@@ -83,7 +83,7 @@ The migration makes these changes to each Forge app project:
   - Webpack: in the `NxAppWebpackPlugin` options in `webpack.config.js`, it changes `outputPath` and adds `externalDependencies: 'none'`.
   - esbuild: in the `@nx/esbuild:esbuild` build target in `project.json`, it changes `outputPath` and sets `thirdParty: true`.
 - If `manifest.yml` has no `package` section yet, it configures manual Forge packaging there and keeps your comments and formatting.
-- It removes the `tsConfig` option from `package` targets.
+- It removes the `tsConfig` and `uiKit2Packaging` options from `package` targets and their target defaults.
 
 When it finishes, the migration prints next steps for everything it could not change. Keep that output for the next steps. If you work with an AI agent, run `nx migrate --run-migrations --agentic` instead: Nx gives the agent instructions for the changes that the migration could not make.
 

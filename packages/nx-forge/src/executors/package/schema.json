@@ -25,11 +25,6 @@
       },
       "description": "Modules that the bundle may load although they are not in it, for optional requires that the code handles itself. A module name also covers its subpaths. The package target fails if the bundle loads any other module that is neither a Node built-in nor a file in the bundle folder.",
       "default": []
-    },
-    "uiKit2Packaging": {
-      "type": "boolean",
-      "description": "Enables UI Kit compatible packaging (experimental).",
-      "default": false
     }
   },
   "required": ["outputPath"]
