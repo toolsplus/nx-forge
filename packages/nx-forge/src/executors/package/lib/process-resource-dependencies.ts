@@ -1,9 +1,9 @@
 import { existsSync, readdirSync, rmSync } from 'fs';
+import { join } from 'path';
 import { copySync } from 'fs-extra';
 import {
   ExecutorContext,
   getOutputsForTargetAndConfiguration,
-  joinPathFragments,
   logger,
   ProjectGraphProjectNode,
 } from '@nx/devkit';
@@ -32,7 +32,7 @@ export async function processResourceDependencies(
       `Failed to process resource dependencies: No project name found in executor context.`
     );
   }
-  const manifestPath = joinPathFragments(
+  const manifestPath = join(
     context.root,
     context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'
@@ -138,7 +138,7 @@ const verifyAndCopyResourceDependency = (
     resourceProjectGraphNode,
     context.configurationName
   );
-  const absoluteResourceBuildTargetOutputPath = joinPathFragments(
+  const absoluteResourceBuildTargetOutputPath = join(
     context.root,
     resourceBuildTargetOutputPath
   );
@@ -157,7 +157,7 @@ const verifyAndCopyResourceDependency = (
     `Copying ${resource.key} (${resourceProjectName}) resource build artifacts...`
   );
 
-  const absoluteResourceOutputPath = joinPathFragments(
+  const absoluteResourceOutputPath = join(
     options.root,
     options.outputPath,
     options.resourcePath,

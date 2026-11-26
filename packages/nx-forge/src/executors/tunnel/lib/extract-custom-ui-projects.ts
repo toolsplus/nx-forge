@@ -1,4 +1,5 @@
-import { ExecutorContext, joinPathFragments } from '@nx/devkit';
+import { join } from 'node:path';
+import { ExecutorContext } from '@nx/devkit';
 import { Resources } from '@forge/manifest';
 import { readManifestYml } from '../../../utils/forge/manifest-yml';
 import {
@@ -43,7 +44,7 @@ async function extractVerifiedCustomUIProjects(
     throw new Error('No project name provided in executor context.');
   }
 
-  const manifestPath = joinPathFragments(
+  const manifestPath = join(
     context.root,
     context.projectsConfigurations.projects[context.projectName].root,
     'manifest.yml'

@@ -1,4 +1,5 @@
-import { ExecutorContext, runExecutor } from '@nx/devkit';
+import { ExecutorContext } from '@nx/devkit';
+import { runTarget } from './run-target';
 
 export async function startCustomUIs(
   customUIProjectConfigs: { projectName: string; port: number }[],
@@ -8,7 +9,7 @@ export async function startCustomUIs(
 
   for (const config of customUIProjectConfigs) {
     customUIIters.push(
-      await runExecutor(
+      await runTarget(
         { project: config.projectName, target: 'serve' },
         { port: config.port },
         context
