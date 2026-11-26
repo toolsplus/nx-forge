@@ -83,6 +83,7 @@ The migration makes these changes to each Forge app project:
   - Webpack: in the `NxAppWebpackPlugin` options in `webpack.config.js`, it changes `outputPath` and adds `externalDependencies: 'none'`.
   - esbuild: in the `@nx/esbuild:esbuild` build target in `project.json`, it changes `outputPath` and sets `thirdParty: true`.
 - If `manifest.yml` has no `package` section yet, it configures manual Forge packaging there and keeps your comments and formatting.
+- It moves the `path` of manifest resources in the old `src` folder, such as `src/assets`, to the `functions` folder.
 - It removes the `tsConfig` and `uiKit2Packaging` options from `package` targets and their target defaults.
 
 When it finishes, the migration prints next steps for everything it could not change. Keep that output for the next steps. If you work with an AI agent, run `nx migrate --run-migrations --agentic` instead: Nx gives the agent instructions for the changes that the migration could not make.
@@ -187,7 +188,7 @@ The bundle now lives in `<artifact>/functions` instead of `<artifact>/src`. Sear
 - scripts and CI steps that read or copy the build output,
 - options passed on the command line, such as `--tsConfig` for `package`, which no longer exists.
 
-Also check the resources in each app's `manifest.yml`. A resource whose `path` points into the build output, such as `path: src/assets` for files that a Rovo agent prompt reads, must now point into `functions`, for example `path: functions/assets`. Paths in `manifest.yml` are relative to the artifact directory, so searching for `dist/apps/my-app/src` does not find them. Resources whose `path` names a Custom UI or UI Kit project need no change.
+Paths in `manifest.yml` are relative to the artifact directory, so searching for `dist/apps/my-app/src` does not find resources such as `path: src/assets` for files that a Rovo agent prompt reads. The migration moves these to `functions`, for example `path: functions/assets`. If it reported a manifest that it could not change, change these paths by hand. Resources whose `path` names a Custom UI or UI Kit project need no change.
 
 ## 6. Verify
 
