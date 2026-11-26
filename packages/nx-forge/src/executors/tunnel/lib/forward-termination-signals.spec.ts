@@ -1,15 +1,5 @@
 import { EventEmitter } from 'node:events';
 import { forwardTerminationSignals } from './forward-termination-signals';
-import { stopProcessTree } from './stop-process-tree';
-
-jest.mock('./stop-process-tree', () => ({ stopProcessTree: jest.fn() }));
-
-const stopProcessTreeMock = jest.mocked(stopProcessTree);
-
-const createChildProcess = () =>
-  Object.assign(new EventEmitter(), {
-    kill: jest.fn().mockReturnValue(true),
-  });
 
 describe('forwardTerminationSignals', () => {
   const signals = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
@@ -19,22 +9,22 @@ describe('forwardTerminationSignals', () => {
   it.each(signals)(
     'should stop the child when the process receives %s',
     (signal) => {
-      stopProcessTreeMock.mockClear();
-      const child = createChildProcess();
-      forwardTerminationSignals(child);
+      const child = new EventEmitter();
+      const stop = jest.fn();
+      forwardTerminationSignals(child, stop);
 
       process.emit(signal, signal);
 
-      expect(stopProcessTreeMock).toHaveBeenCalledWith(child);
+      expect(stop).toHaveBeenCalled();
       child.emit('exit', 0, null);
     }
   );
 
   it('should remove its signal listeners when the child exits', () => {
     const before = listenerCounts();
-    const child = createChildProcess();
+    const child = new EventEmitter();
 
-    forwardTerminationSignals(child);
+    forwardTerminationSignals(child, jest.fn());
     expect(listenerCounts()).toEqual(before.map((count) => count + 1));
 
     child.emit('exit', 0, null);
@@ -43,9 +33,9 @@ describe('forwardTerminationSignals', () => {
 
   it('should remove its signal listeners when the child fails to start', () => {
     const before = listenerCounts();
-    const child = createChildProcess();
+    const child = new EventEmitter();
 
-    forwardTerminationSignals(child);
+    forwardTerminationSignals(child, jest.fn());
     child.emit('error', new Error('spawn forge ENOENT'));
 
     expect(listenerCounts()).toEqual(before);

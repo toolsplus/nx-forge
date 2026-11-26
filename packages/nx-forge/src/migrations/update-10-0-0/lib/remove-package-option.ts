@@ -29,21 +29,32 @@ const withoutOption = <T extends Options | undefined>(
   ) as T;
 };
 
+/**
+ * Removes the option from the target options and configurations. Removes the
+ * options too, if they only had this option. Keeps empty configurations,
+ * because tasks may still run them by name.
+ */
 const removeOption = (
   target: TargetConfiguration,
   option: string
-): TargetConfiguration => ({
-  ...target,
-  ...(target.options && { options: withoutOption(target.options, option) }),
-  ...(target.configurations && {
-    configurations: Object.fromEntries(
-      Object.entries(target.configurations).map(([name, options]) => [
-        name,
-        withoutOption(options, option),
-      ])
-    ),
-  }),
-});
+): TargetConfiguration => {
+  const options = withoutOption(target.options, option);
+  const migrated = {
+    ...target,
+    ...(options && { options }),
+    ...(target.configurations && {
+      configurations: Object.fromEntries(
+        Object.entries(target.configurations).map(([name, options]) => [
+          name,
+          withoutOption(options, option),
+        ])
+      ),
+    }),
+  };
+  return options !== target.options && Object.keys(options ?? {}).length === 0
+    ? withoutOption(migrated, 'options')
+    : migrated;
+};
 
 const usesOption = (target: TargetConfiguration, option: string): boolean =>
   [target.options, ...Object.values(target.configurations ?? {})].some(

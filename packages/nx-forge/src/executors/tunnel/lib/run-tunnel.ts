@@ -106,13 +106,23 @@ export default async function runTunnel(
       // https://stackoverflow.com/questions/69566849/installing-forge-cli-is-bringing-spawn-ts-node-enoent-error
       NODE_ENV: undefined,
     },
+    // Under Nx, the Forge CLI does not get Ctrl+C as a key press, because its
+    // output is not a terminal. In the terminal's process group, it would get
+    // the SIGINT instead and exit without deregistering the tunnel. On
+    // Windows, a detached process would open a new console window.
+    detached: process.platform !== 'win32',
   });
-  forwardTerminationSignals(tunnelProcess);
-  options.signal?.addEventListener(
-    'abort',
-    () => stopProcessTree(tunnelProcess),
-    { once: true }
-  );
+  // The Forge CLI deregisters the tunnel on the first SIGTERM. Another signal
+  // while it does so makes it exit before the tunnel is deregistered.
+  let stopped = false;
+  const stopTunnel = () => {
+    if (!stopped) {
+      stopped = true;
+      stopProcessTree(tunnelProcess);
+    }
+  };
+  forwardTerminationSignals(tunnelProcess, stopTunnel);
+  options.signal?.addEventListener('abort', stopTunnel, { once: true });
 
   return new Promise<{ id: 'tunnel'; success: boolean }>((resolve, reject) => {
     tunnelProcess.once('exit', (code: number | null) => {
