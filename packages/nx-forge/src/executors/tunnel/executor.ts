@@ -1,6 +1,6 @@
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { ExecutorContext, logger, runExecutor } from '@nx/devkit';
+import { ExecutorContext, logger } from '@nx/devkit';
 import { combineAsyncIterables } from '@nx/devkit/internal';
 import { BUNDLE_DIRECTORY } from '../../shared/forge-output-path';
 import { TunnelExecutorOptions } from './schema';
@@ -8,6 +8,7 @@ import runTunnel, { waitForBundle } from './lib/run-tunnel';
 import { getCustomUiProjects } from './lib/extract-custom-ui-projects';
 import { startCustomUIs } from './lib/start-custom-uis';
 import { startIterating } from './lib/start-iterating';
+import { runTarget } from './lib/run-target';
 
 /**
  * Forge tunnel executor that serves dependent Custom UI projects on the tunnel
@@ -41,7 +42,7 @@ export default async function runTunnelExecutor(
   });
 
   const forgeAppBuildIter = startIterating(
-    await runExecutor(
+    await runTarget(
       { project: context.projectName, target: 'build' },
       { watch: true },
       context
@@ -52,7 +53,7 @@ export default async function runTunnelExecutor(
     const preTunnelTimeout = options.preTunnelTimeout ?? 5000;
     await waitForBundle(options.outputPath, preTunnelTimeout);
 
-    for await (const output of await runExecutor(
+    for await (const output of await runTarget(
       { project: context.projectName, target: 'package' },
       {},
       context

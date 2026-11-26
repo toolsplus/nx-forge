@@ -5,7 +5,8 @@ import {
   validateManifestContent,
   writeManifestYml,
 } from '../../../utils/forge/manifest-yml';
-import { ExecutorContext, joinPathFragments } from '@nx/devkit';
+import { join } from 'node:path';
+import { ExecutorContext } from '@nx/devkit';
 
 type Options = Pick<DeployExecutorOptions, 'outputPath' | 'verify'> & {
   manifestTransform: string;
@@ -26,11 +27,7 @@ export const transformManifestYml = async (
     );
   }
 
-  const manifestPath = joinPathFragments(
-    context.root,
-    options.outputPath,
-    'manifest.yml'
-  );
+  const manifestPath = join(context.root, options.outputPath, 'manifest.yml');
 
   const manifest = await readManifestYml(manifestPath, { interpolate: false });
 

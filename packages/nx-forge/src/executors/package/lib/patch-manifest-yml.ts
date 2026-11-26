@@ -55,20 +55,6 @@ function patchManifestInternal(
     isResourceType(manifestSchema, ['static'])
   );
 
-  const resourceKeySet = new Set(resources.map((r) => r.key));
-  const uiResourcesKeySet = new Set(uiResources.map((r) => r.key));
-  const staticResourcesKeySet = new Set(staticResources.map((r) => r.key));
-  const missingResourceKeys = [...resourceKeySet].filter(
-    (k) => !uiResourcesKeySet.has(k) && !staticResourcesKeySet.has(k)
-  );
-  if (missingResourceKeys.length > 0) {
-    logger.warn(
-      `Failed to determine resource type for resource definitions with keys ${missingResourceKeys}.
-
-      This is most likely a plugin error and should be fixed. Please include the manifest.yml in the issue report.`
-    );
-  }
-
   const resourceTypeIndex: ResourceTypeIndex =
     getResourceTypeIndex(manifestSchema);
   return {
@@ -139,16 +125,9 @@ function patchResource(
   resourcePath: string,
   resource: HostedResourcesSchema,
   absoluteOutputPath: string,
-  resourceType?: ResourceType
+  resourceType: ResourceType
 ): HostedResourcesSchema {
   logger.info(`Patching resource with key '${resource.key}'...`);
-
-  if (!resourceType) {
-    logger.warn(
-      `Resource with key '${resource.key}' appears not to be used by any module. Skip patching.`
-    );
-    return resource;
-  }
 
   const verifiedResourcePath = getVerifiedResourcePath(
     resourcePath,
