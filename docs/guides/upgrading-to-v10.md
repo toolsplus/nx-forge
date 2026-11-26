@@ -187,6 +187,8 @@ The bundle now lives in `<artifact>/functions` instead of `<artifact>/src`. Sear
 - scripts and CI steps that read or copy the build output,
 - options passed on the command line, such as `--tsConfig` for `package`, which no longer exists.
 
+Also check the resources in each app's `manifest.yml`. A resource whose `path` points into the build output, such as `path: src/assets` for files that a Rovo agent prompt reads, must now point into `functions`, for example `path: functions/assets`. Paths in `manifest.yml` are relative to the artifact directory, so searching for `dist/apps/my-app/src` does not find them. Resources whose `path` names a Custom UI or UI Kit project need no change.
+
 ## 6. Verify
 
 Delete each app's artifact directory first, for example `dist/apps/my-app`. The build and `package` do not remove the old `src/` folder and `package.json`.
