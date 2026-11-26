@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { joinPathFragments, logger } from '@nx/devkit';
+import { logger } from '@nx/devkit';
 import { ManifestSchema, Resources } from '@forge/manifest';
 import { NormalizedOptions } from '../schema';
 import {
@@ -21,7 +21,9 @@ type Options = Pick<NormalizedOptions, 'root' | 'outputPath'> & {
 
 export async function patchManifestYml(options: Options) {
   const absoluteOutputPath = resolve(options.root, options.outputPath);
-  const manifestPath = joinPathFragments(absoluteOutputPath, 'manifest.yml');
+  // A file path, not a config value: joinPathFragments would drop the Windows
+  // drive letter.
+  const manifestPath = join(absoluteOutputPath, 'manifest.yml');
 
   logger.info(`Patching ${manifestPath}...`);
 
