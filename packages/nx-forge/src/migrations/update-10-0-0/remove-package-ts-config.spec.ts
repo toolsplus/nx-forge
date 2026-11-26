@@ -99,7 +99,7 @@ describe('10.0.0 migration (remove package tsConfig option)', () => {
     await update(tree);
 
     expect(readNxJson(tree)?.targetDefaults).toEqual({
-      '@toolsplus/nx-forge:package': { options: {} },
+      '@toolsplus/nx-forge:package': {},
       package: {
         executor: '@toolsplus/nx-forge:package',
         options: { resourcePath: 'ui' },
@@ -108,11 +108,9 @@ describe('10.0.0 migration (remove package tsConfig option)', () => {
         {
           filter: { executor: '@toolsplus/nx-forge:package' },
           executor: '@toolsplus/nx-forge:package',
-          options: {},
         },
         {
           filter: { executor: '@toolsplus/nx-forge:package' },
-          options: {},
         },
         {
           filter: { executor: '@nx/js:tsc' },

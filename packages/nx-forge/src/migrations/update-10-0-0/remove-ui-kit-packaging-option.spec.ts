@@ -36,6 +36,45 @@ describe('10.0.0 migration (remove package uiKit2Packaging option)', () => {
     });
   });
 
+  it('should remove the options of package targets that only set uiKit2Packaging', async () => {
+    addProjectConfiguration(tree, 'my-app', {
+      root: 'apps/my-app',
+      targets: {
+        package: {
+          options: { uiKit2Packaging: true },
+          configurations: { production: { uiKit2Packaging: true } },
+        },
+      },
+    });
+    tree.write('apps/my-app/manifest.yml', 'modules: {}\n');
+
+    await update(tree);
+
+    expect(readProjectConfiguration(tree, 'my-app').targets?.package).toEqual({
+      configurations: { production: {} },
+    });
+  });
+
+  it('should keep empty options that the migration did not change', async () => {
+    addProjectConfiguration(tree, 'my-app', {
+      root: 'apps/my-app',
+      targets: {
+        package: {
+          options: {},
+          configurations: { production: { uiKit2Packaging: true } },
+        },
+      },
+    });
+    tree.write('apps/my-app/manifest.yml', 'modules: {}\n');
+
+    await update(tree);
+
+    expect(readProjectConfiguration(tree, 'my-app').targets?.package).toEqual({
+      options: {},
+      configurations: { production: {} },
+    });
+  });
+
   it('should remove uiKit2Packaging from target defaults, also when they do not name the package executor', async () => {
     updateNxJson(tree, {
       ...readNxJson(tree),
@@ -49,8 +88,8 @@ describe('10.0.0 migration (remove package uiKit2Packaging option)', () => {
     await update(tree);
 
     expect(readNxJson(tree)?.targetDefaults).toEqual({
-      '@toolsplus/nx-forge:package': { options: {} },
-      package: { dependsOn: ['build'], options: {} },
+      '@toolsplus/nx-forge:package': {},
+      package: { dependsOn: ['build'] },
       build: { cache: true },
     });
   });

@@ -33,12 +33,13 @@ const withWorkspaceBin = (env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => {
  */
 export const spawnForgeCommand = (
   args: string[],
-  opts: { env?: NodeJS.ProcessEnv; cwd?: string } = {}
+  opts: { env?: NodeJS.ProcessEnv; cwd?: string; detached?: boolean } = {}
 ) =>
   spawn('forge', args, {
     cwd: opts.cwd,
     env: withWorkspaceBin({ ...process.env, ...opts.env }),
     stdio: [process.stdin, process.stdout, process.stderr],
+    detached: opts.detached,
   });
 
 /**
