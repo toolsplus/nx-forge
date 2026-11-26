@@ -30,10 +30,17 @@ import stripAnsi = require('strip-ansi');
 
 const forgeLifecycleTestTimeoutMs = 8 * 60 * 1000;
 
+/**
+ * The notice that the Forge CLI prints on stderr when a newer version is out.
+ * It cannot be turned off, and it says nothing about the command.
+ */
+const FORGE_CLI_UPDATE_NOTICE =
+  /^Warning: Your version of Forge CLI is out of date\..*\r?\n(?:Run npm install -g @forge\/cli@latest to update from version \S+ to \S+\.(?:\r?\n|$))?/gm;
+
 const normalizeCommandResult = (result: CommandResult): CommandResult => ({
   ...result,
   stdout: stripAnsi(result.stdout),
-  stderr: stripAnsi(result.stderr),
+  stderr: stripAnsi(result.stderr).replace(FORGE_CLI_UPDATE_NOTICE, ''),
 });
 
 const expectCliCommand = ({
@@ -56,7 +63,7 @@ const expectCliCommand = ({
     );
   }
 
-  if (!allowStderr && normalizedResult.stderr !== '') {
+  if (!allowStderr && normalizedResult.stderr.trim() !== '') {
     failures.push('Expected stderr to be empty.');
   }
 

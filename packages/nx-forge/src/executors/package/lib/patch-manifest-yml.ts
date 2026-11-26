@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { joinPathFragments, logger } from '@nx/devkit';
+import { logger } from '@nx/devkit';
 import { ManifestSchema, Resources } from '@forge/manifest';
 import { NormalizedOptions } from '../schema';
 import {
@@ -15,16 +15,15 @@ import {
   ResourceTypeIndex,
 } from '../../../shared/manifest/util-manifest';
 
-type Options = Pick<
-  NormalizedOptions,
-  'root' | 'outputPath' | 'uiKit2Packaging'
-> & {
+type Options = Pick<NormalizedOptions, 'root' | 'outputPath'> & {
   resourcePath: string;
 };
 
 export async function patchManifestYml(options: Options) {
   const absoluteOutputPath = resolve(options.root, options.outputPath);
-  const manifestPath = joinPathFragments(absoluteOutputPath, 'manifest.yml');
+  // A file path, not a config value: joinPathFragments would drop the Windows
+  // drive letter.
+  const manifestPath = join(absoluteOutputPath, 'manifest.yml');
 
   logger.info(`Patching ${manifestPath}...`);
 
@@ -70,19 +69,6 @@ function patchManifestInternal(
     );
   }
 
-  if (!options.uiKit2Packaging) {
-    return {
-      ...manifestSchema,
-      resources: [
-        ...uiResources.map((resource) => ({
-          ...resource,
-          path: `${options.resourcePath}/${resource.path}`,
-        })),
-        ...staticResources,
-      ],
-    };
-  }
-
   const resourceTypeIndex: ResourceTypeIndex =
     getResourceTypeIndex(manifestSchema);
   return {
@@ -108,7 +94,8 @@ function getVerifiedResourcePath(
   absoluteOutputPath: string
 ): string {
   const resourceProjectName = resource.path;
-  const relativeResourcePath = join(resourcePath, resourceProjectName);
+  // Paths in the manifest use forward slashes on every platform.
+  const relativeResourcePath = `${resourcePath}/${resourceProjectName}`;
   const absoluteResourcePath = join(absoluteOutputPath, relativeResourcePath);
 
   if (!existsSync(absoluteResourcePath)) {

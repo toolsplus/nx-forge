@@ -3,7 +3,6 @@ export interface PackageExecutorSchema {
   resourcePath?: string;
   resourceOutputPathMap?: Record<string, string>;
   allowMissingModules?: string[];
-  uiKit2Packaging: boolean;
 }
 
 export interface NormalizedOptions extends PackageExecutorSchema {

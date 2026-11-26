@@ -26,6 +26,17 @@
       "version": "10.0.0-beta.0",
       "description": "Removes the dropped `tsConfig` option from Forge app package targets",
       "implementation": "./src/migrations/update-10-0-0/remove-package-ts-config"
+    },
+    "update-10-0-0-remove-ui-kit-packaging-option": {
+      "version": "10.0.0-beta.2",
+      "description": "Removes the dropped `uiKit2Packaging` option from Forge app package targets, now that UI Kit resources are always packaged so that Forge can load them",
+      "implementation": "./src/migrations/update-10-0-0/remove-ui-kit-packaging-option"
+    },
+    "update-10-0-0-move-resource-paths": {
+      "version": "10.0.0-beta.2",
+      "description": "Moves the paths of Forge manifest resources in the old `src` folder of the artifact directory to the `functions` folder",
+      "implementation": "./src/migrations/update-10-0-0/move-resource-paths",
+      "documentation": "./src/migrations/update-10-0-0/move-resource-paths.md"
     }
   },
   "packageJsonUpdates": {

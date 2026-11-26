@@ -2,14 +2,6 @@
 
 [UI Kit](https://developer.atlassian.com/platform/forge/ui-kit/) is a way of providing a user interface in a Forge application. It allows developers to build natively rendered UIs in React. In this guide, we explain how to add a UI Kit project to an existing Forge app.
 
-::: info
-UI Kit support is experimental. Please try it out and let us know if you face any issues.
-:::
-
-## Enabling UI Kit packaging
-
-Unfortunately, UI Kit and Custom UI packaging do not work the same way. To avoid breaking any existing builds, the default packaging mechanism is currently only compatible with Custom UI. However, you can enable UI Kit-compatible packaging by setting the `uiKit2Packaging` option on the [`package`](../reference/executors.md#package) target.
-
 ## Installing UI Kit dependencies
 
 Install the `@forge/react` UI Kit package that includes required UI Kit dependencies:
