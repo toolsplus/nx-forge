@@ -46,8 +46,8 @@ To get the React application working as a UI Kit user interface, update the `app
 :::code-group
 
 ```js{17,21-23}[webpack.config.js]:line-numbers
-const { NxWebpackPlugin } = require('@nx/webpack');
-const { NxReactWebpackPlugin } = require('@nx/react');
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
+const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
 const { join } = require('path');
 
 module.exports = {
@@ -58,7 +58,7 @@ module.exports = {
     port: 4200,
   },
   plugins: [
-    new NxWebpackPlugin({
+    new NxAppWebpackPlugin({
       tsConfig: './tsconfig.app.json',
       compiler: 'babel',
       main: './src/main.tsx',
